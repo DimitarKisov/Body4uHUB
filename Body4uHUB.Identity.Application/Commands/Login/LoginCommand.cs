@@ -4,6 +4,8 @@ using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared;
 using MediatR;
 
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
+
 namespace Body4uHUB.Identity.Application.Commands.Login
 {
     public class LoginCommand : IRequest<AuthResponseDto>
@@ -35,17 +37,18 @@ namespace Body4uHUB.Identity.Application.Commands.Login
                 var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
                 if (user == null || !_passwordHasherService.VerifyPassword(request.Password, user.PasswordHash))
                 {
-                    throw new InvalidOperationException("Invalid email or password.");
+                    throw new InvalidOperationException(InvalidCredentials);
                 }
 
                 if (!user.IsEmailConfirmed)
                 {
-                    throw new InvalidOperationException("Email is not confirmed.");
+                    throw new InvalidOperationException(EmailNotConfirmed);
                 }
 
                 var accessToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, string.Empty);
 
                 user.UpdateLastLogin();
+
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return new AuthResponseDto

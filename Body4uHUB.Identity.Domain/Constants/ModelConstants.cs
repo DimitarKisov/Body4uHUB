@@ -21,6 +21,10 @@
             public const string PhoneNumberRequired = "Phone number is required";
             public const string PhoneNumberRegex = @"^\+?[0-9]{10,15}$";
             public const string PhoneNumberInvalid = "Invalid phone number format";
+
+            public const string EmailNotConfirmed = "Email is not confirmed.";
+            public const string InvalidCredentials = "Invalid email or password.";
+            public const string UserEmailExists = "User with the given email already exists.";
         }
     }
 }

@@ -5,6 +5,8 @@ using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared;
 using MediatR;
 
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
+
 namespace Body4uHUB.Identity.Application.Commands.Register
 {
     public class RegisterCommand : IRequest<AuthResponseDto>
@@ -39,7 +41,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 var userExists = await _userRepository.ExistsByEmailAsync(request.Email, cancellationToken);
                 if (userExists)
                 {
-                    throw new InvalidOperationException("User with the given email already exists.");
+                    throw new InvalidOperationException(UserEmailExists);
                 }
 
                 var passwordHash = _passwordHasherService.HashPassword(request.Password);
