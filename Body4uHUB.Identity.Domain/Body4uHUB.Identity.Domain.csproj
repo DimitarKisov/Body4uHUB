@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Body4uHUB.Shared\Body4uHUB.Shared.csproj" />
+    <ProjectReference Include="..\Body4uHUB.Shared\Body4uHUB.Shared.Domain.csproj" />
   </ItemGroup>
 
 </Project>
