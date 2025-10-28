@@ -15,6 +15,9 @@
             public const string LastNameRequired = "Last name is required";
             public const string LastNameLength = "Last name must be between 2 and 20 characters long";
             public const string UserIdRequired = "User ID cannot be empty";
+            public const string PasswordRequired = "Password is required";
+            public const string PasswordRegex = @"^(?=.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).*$";
+            public const string PasswordInvalid = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character";
             public const string PhoneNumberRequired = "Phone number is required";
             public const string PhoneNumberRegex = @"^\+?[0-9]{10,15}$";
             public const string PhoneNumberInvalid = "Invalid phone number format";
