@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Body4uHUB.Identity.Infrastr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Body4uHUB.Identity.Application", "Body4uHUB.Identity.Application\Body4uHUB.Identity.Application.csproj", "{7B7AE628-52F4-46A0-95F2-0D8EEB9FBB11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Body4uHUB.Identity.Api", "Body4uHUB.Identity.Api\Body4uHUB.Identity.Api.csproj", "{35F27CCA-F5C5-46F6-A42B-7BC0ADBCDA76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{7B7AE628-52F4-46A0-95F2-0D8EEB9FBB11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B7AE628-52F4-46A0-95F2-0D8EEB9FBB11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B7AE628-52F4-46A0-95F2-0D8EEB9FBB11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35F27CCA-F5C5-46F6-A42B-7BC0ADBCDA76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35F27CCA-F5C5-46F6-A42B-7BC0ADBCDA76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35F27CCA-F5C5-46F6-A42B-7BC0ADBCDA76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35F27CCA-F5C5-46F6-A42B-7BC0ADBCDA76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +55,7 @@ Global
 		{514C465D-E30D-4470-BC30-BD5BDA6637FC} = {9C18B521-2767-4A88-93E1-A71A93D8B42B}
 		{45CB3602-70E6-4FA9-B047-D901F6F1335A} = {9C18B521-2767-4A88-93E1-A71A93D8B42B}
 		{7B7AE628-52F4-46A0-95F2-0D8EEB9FBB11} = {9C18B521-2767-4A88-93E1-A71A93D8B42B}
+		{35F27CCA-F5C5-46F6-A42B-7BC0ADBCDA76} = {9C18B521-2767-4A88-93E1-A71A93D8B42B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {79CB45CA-8A46-4C0E-AEED-1039DF4FDBD0}
