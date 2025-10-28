@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Body4uHUB.Identity.Application.Commands.Register
 {
-    public class RegisterCommand : IRequest<RegisterResponseDto>
+    public class RegisterCommand : IRequest<AuthResponseDto>
     {
         public string Email { get; set; }
         public string Password { get; set; }
@@ -15,7 +15,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
 
-        internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResponseDto>
+        internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponseDto>
         {
             private readonly IUserRepository _userRepository;
             private readonly IPasswordHasherService _passwordHasherService;
@@ -34,7 +34,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<RegisterResponseDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
+            public async Task<AuthResponseDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
             {
                 var userExists = await _userRepository.ExistsByEmailAsync(request.Email, cancellationToken);
                 if (userExists)
@@ -57,7 +57,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
 
                 var token = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, string.Empty);
 
-                return new RegisterResponseDto
+                return new AuthResponseDto
                 {
                     AccessToken = token,
                     User = new UserDto
@@ -66,7 +66,9 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                         Email = user.ContactInfo.Email,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
-                        PhoneNumber = user.ContactInfo.PhoneNumber
+                        PhoneNumber = user.ContactInfo.PhoneNumber,
+                        CreatedAt = user.CreatedAt,
+                        IsEmailConfirmed = user.IsEmailConfirmed
                     }
                 };
             }

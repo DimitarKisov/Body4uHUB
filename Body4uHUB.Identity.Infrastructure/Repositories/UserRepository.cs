@@ -23,5 +23,10 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
         {
             return _dbContext.Users.AnyAsync(x => x.ContactInfo.Email == email, cancellationToken);
         }
+
+        public Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+        {
+            return _dbContext.Users.FirstOrDefaultAsync(x => x.ContactInfo.Email == email, cancellationToken);
+        }
     }
 }

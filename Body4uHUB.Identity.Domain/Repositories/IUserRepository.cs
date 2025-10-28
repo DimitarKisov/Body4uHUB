@@ -7,5 +7,6 @@ namespace Body4uHUB.Identity.Domain.Repositories
     {
         void Add(User user);
         Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
+        Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
     }
 }
