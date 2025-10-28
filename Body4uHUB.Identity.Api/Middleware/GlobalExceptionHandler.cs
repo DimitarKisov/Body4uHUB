@@ -99,4 +99,3 @@ namespace Body4uHUB.Identity.Api.Middleware
         }
     }
 }
-}
