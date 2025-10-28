@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Body4uHUB.Identity.Infrastructure.Migrations
+namespace Body4uHUB.Identity.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20251028115936_AddedUserTable")]
-    partial class AddedUserTable
+    [Migration("20251028150923_AddedModifiedAt")]
+    partial class AddedModifiedAt
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,6 +49,9 @@ namespace Body4uHUB.Identity.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

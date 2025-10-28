@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Body4uHUB.Identity.Infrastructure.Migrations
+namespace Body4uHUB.Identity.Infrastructure.Persistance.Migrations
 {
     /// <inheritdoc />
     public partial class AddedUserTable : Migration
