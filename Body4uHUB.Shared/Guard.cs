@@ -1,7 +1,7 @@
-﻿namespace Body4uHUB.Shared
-{
-    using Body4uHUB.Shared.Exceptions;
+﻿using Body4uHUB.Shared.Exceptions;
 
+namespace Body4uHUB.Shared
+{
     public static class Guard
     {
         public static void AgainstEmptyString<TException>(string value, string name = "Value")
@@ -13,6 +13,17 @@
             }
 
             ThrowException<TException>($"{name} cannot be null or empty.");
+        }
+
+        public static void AgainstNotContainingSpecialChars<TException>(string value, string message, string specialChars = "!@#$%^&*()")
+            where TException : BaseDomainException, new()
+        {
+            if (value != null && value.Any(specialChars.Contains))
+            {
+                return;
+            }
+
+            ThrowException<TException>(message);
         }
 
         public static void ForStringLength<TException>(string value, int minLength, int maxLength, string name = "Value")

@@ -1,7 +1,7 @@
-﻿namespace Body4uHUB.Shared
-{
-    using System.Reflection;
+﻿using System.Reflection;
 
+namespace Body4uHUB.Shared
+{
     public abstract class Enumeration : IComparable
     {
         public int Id { get; private set; }

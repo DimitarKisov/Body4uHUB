@@ -6,10 +6,12 @@
         private readonly List<IDomainEvent> _domainEvents = new();
 
         public TId Id { get; protected set; }
+        public DateTime CreatedAt { get; protected set; }
 
         protected Entity(TId id)
         {
             Id = id;
+            CreatedAt = DateTime.UtcNow;
         }
 
         // За EF Core

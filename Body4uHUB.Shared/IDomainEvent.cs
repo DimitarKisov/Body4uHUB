@@ -1,7 +1,7 @@
-﻿namespace Body4uHUB.Shared
-{
-    using MediatR;
+﻿using MediatR;
 
+namespace Body4uHUB.Shared
+{
     public interface IDomainEvent : INotification
     {
         Guid Id { get; }
