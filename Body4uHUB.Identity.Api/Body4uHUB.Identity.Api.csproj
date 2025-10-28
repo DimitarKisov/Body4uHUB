@@ -17,10 +17,6 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Body4uHUB.Identity.Application\Body4uHUB.Identity.Application.csproj" />
     <ProjectReference Include="..\Body4uHUB.Identity.Infrastructure\Body4uHUB.Identity.Infrastructure.csproj" />
   </ItemGroup>

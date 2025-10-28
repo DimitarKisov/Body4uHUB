@@ -45,10 +45,10 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 var passwordHash = _passwordHasherService.HashPassword(request.Password);
 
                 var user = User.Create(
-                    request.Email,
                     passwordHash,
                     request.FirstName,
                     request.LastName,
+                    request.Email,
                     request.PhoneNumber);
 
                 _userRepository.Add(user);
