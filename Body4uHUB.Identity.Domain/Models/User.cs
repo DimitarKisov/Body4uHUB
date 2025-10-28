@@ -41,6 +41,29 @@ namespace Body4uHUB.Identity.Domain.Models
             return new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo);
         }
 
+        public void UpdateFirstName(string firstName)
+        {
+            ValidateFirstName(firstName);
+            FirstName = firstName;
+        }
+
+        public void UpdateLastName(string lastName)
+        {
+            ValidateLastName(lastName);
+            LastName = lastName;
+        }
+
+        public void UpdatePasswordHash(string passwordHash)
+        {
+            ValidatePasswordHash(passwordHash);
+            PasswordHash = passwordHash;
+        }
+
+        public void UpdateContactInfo(string email, string phoneNumber)
+        {
+            ContactInfo = ContactInfo.Create(email, phoneNumber);
+        }
+
         public void UpdateLastLogin()
         {
             LastLoginAt = DateTime.UtcNow;

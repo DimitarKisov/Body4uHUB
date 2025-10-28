@@ -30,6 +30,9 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
             builder.Property(x => x.CreatedAt)
                 .IsRequired();
 
+            builder.Property(x => x.ModifiedAt)
+                .IsRequired(false);
+
             builder.Property(x => x.IsEmailConfirmed)
                 .IsRequired();
 

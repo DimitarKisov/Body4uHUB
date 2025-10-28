@@ -7,6 +7,7 @@
 
         public TId Id { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
+        public DateTime? ModifiedAt { get; protected set; }
 
         protected Entity(TId id)
         {
@@ -27,6 +28,11 @@
         public void ClearDomainEvents()
         {
             _domainEvents.Clear();
+        }
+
+        public void SetModifiedAt()
+        {
+            ModifiedAt = DateTime.UtcNow;
         }
 
         public bool Equals(Entity<TId> other)

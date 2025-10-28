@@ -25,6 +25,7 @@
             public const string EmailNotConfirmed = "Email is not confirmed.";
             public const string InvalidCredentials = "Invalid email or password.";
             public const string UserEmailExists = "User with the given email already exists.";
+            public const string UserNotFound = "User not found.";
         }
     }
 }
