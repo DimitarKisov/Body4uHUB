@@ -25,6 +25,14 @@
             public const string CommentAlreadyDeleted = "Comment is already deleted.";
         }
 
+        public class ForumPost
+        {
+            public const int ContentMinLength = 5;
+            public const int ContentMaxLength = 2000;
+
+            public const string PostDeleted = "Cannot update content of a deleted forum post.";
+        }
+
         public class ForumTopic
         {
             public const int TitleMinLength = 5;

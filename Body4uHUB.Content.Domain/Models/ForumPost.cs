@@ -1,12 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Body4uHUB.Content.Domain.Exceptions;
+using Body4uHUB.Shared;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPost;
 
 namespace Body4uHUB.Content.Domain.Models
 {
-    public class ForumPost
+    public class ForumPost : Entity<Guid>
     {
+        public string Content { get; private set; }
+        public Guid AuthorId { get; private set; }
+        public bool IsDeleted { get; private set; }
+
+        private ForumPost()
+            : base(Guid.NewGuid())
+        {
+        }
+
+        private ForumPost(string content, Guid authorId)
+            : base(Guid.NewGuid())
+        {
+            Content = content;
+            AuthorId = authorId;
+            IsDeleted = false;
+        }
+
+        public static ForumPost Create(string content, Guid authorId)
+        {
+            Validate(content, authorId);
+            return new ForumPost(content, authorId);
+        }
+
+        public void UpdateContent(string content)
+        {
+            if (IsDeleted)
+            {
+                throw new InvalidForumPostException(PostDeleted);
+            }
+
+            ValidateContent(content);
+            Content = content;
+        }
+
+        public void MarkAsDeleted()
+        {
+            IsDeleted = true;
+        }
+
+        private static void Validate(string content, Guid authorId)
+        {
+            ValidateContent(content);
+            ValidateAuthorId(authorId);
+        }
+
+        private static void ValidateContent(string content)
+        {
+            Guard.AgainstEmptyString<InvalidForumPostException>(content, nameof(content));
+            Guard.ForStringLength<InvalidForumPostException>(content, ContentMinLength, ContentMaxLength, nameof(content));
+        }
+
+        private static void ValidateAuthorId(Guid authorId)
+        {
+            Guard.AgainstEmptyGuid<InvalidForumPostException>(authorId, nameof(authorId));
+        }
     }
 }
