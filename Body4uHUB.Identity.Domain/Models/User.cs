@@ -27,12 +27,7 @@ namespace Body4uHUB.Identity.Domain.Models
             ContactInfo = contactInfo;
         }
 
-        public static User Create(
-            string passwordHash,
-            string firstName,
-            string lastName,
-            string email,
-            string phoneNumber)
+        public static User Create(string passwordHash, string firstName, string lastName, string email, string phoneNumber)
         {
             Validate(passwordHash, firstName, lastName);
 
