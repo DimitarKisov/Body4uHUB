@@ -1,0 +1,13 @@
+﻿using Body4uHUB.Content.Domain.Models;
+using Body4uHUB.Shared;
+
+namespace Body4uHUB.Content.Domain.Repositories
+{
+    public interface IArticleRepository : IRepository<Article>
+    {
+        void Add(Article article);
+        Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<Article> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Article>> GetPublishedArticlesAsync(int skip, int take, CancellationToken cancellationToken = default);
+    }
+}
