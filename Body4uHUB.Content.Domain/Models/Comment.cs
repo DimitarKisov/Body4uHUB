@@ -6,7 +6,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.Comment;
 
 namespace Body4uHUB.Content.Domain.Models
 {
-    public class Comment : Entity<CommentId>, IAggregateRoot
+    public class Comment : Entity<CommentId>
     {
         public string Content { get; private set; }
         public Guid AuthorId { get; private set; }

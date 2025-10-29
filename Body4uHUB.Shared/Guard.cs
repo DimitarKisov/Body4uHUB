@@ -15,6 +15,17 @@ namespace Body4uHUB.Shared
             ThrowException<TException>($"{name} cannot be the default value.");
         }
 
+        public static void AgainstEmptyGuid<TException>(Guid value, string name = "Value")
+            where TException : BaseDomainException, new()
+        {
+            if (value != Guid.Empty)
+            {
+                return;
+            }
+
+            ThrowException<TException>($"{name} cannot be an empty GUID.");
+        }
+
         public static void AgainstEmptyString<TException>(string value, string name = "Value")
             where TException : BaseDomainException, new()
         {
