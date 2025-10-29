@@ -15,6 +15,13 @@
             public const string ArticleNotPublished = "Article is not published.";
         }
 
+        public class Bookmark
+        {
+            public const string BookmarkAlreadyExists = "Bookmark already exists.";
+            public const string BookmarkDoesNotExist = "Bookmark does not exist.";
+            public const string BookmarkIdCannotBeZeroOrNegative = "Bookmark ID must be greater than 0.";
+        }
+
         public class Comment
         {
             public const int ContentMinLength = 2;
