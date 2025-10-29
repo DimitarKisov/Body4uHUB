@@ -1,26 +1,26 @@
 ﻿using Body4uHUB.Shared;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.Article;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.Comment;
 
 namespace Body4uHUB.Content.Domain.ValueObjects
 {
-    public class ArticleId : ValueObject
+    public class CommentId : ValueObject
     {
         public int Value { get; private set; }
 
-        private ArticleId(int value)
+        private CommentId(int value)
         {
             if (value <= 0)
             {
-                throw new ArgumentException(ArticleIdCannotBeZeroOrNegative);
+                throw new ArgumentException(CommentIdCannotBeZeroOrNegative);
             }
 
             Value = value;
         }
 
-        public static ArticleId Create(int value)
+        public static CommentId Create(int value)
         {
-            return new ArticleId(value);
+            return new CommentId(value);
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

@@ -4,6 +4,17 @@ namespace Body4uHUB.Shared
 {
     public static class Guard
     {
+        public static void AgainstDefault<TException, T>(T value, string name = "Value")
+            where TException : BaseDomainException, new()
+        {
+            if (!EqualityComparer<T>.Default.Equals(value, default!))
+            {
+                return;
+            }
+
+            ThrowException<TException>($"{name} cannot be the default value.");
+        }
+
         public static void AgainstEmptyString<TException>(string value, string name = "Value")
             where TException : BaseDomainException, new()
         {
