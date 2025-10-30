@@ -364,3 +364,5 @@ docker-compose.development.yaml
 # Logs
 logs/
 *.log
+
+launch.json
