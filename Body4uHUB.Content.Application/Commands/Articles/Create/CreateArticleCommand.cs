@@ -1,4 +1,4 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Articles
+﻿namespace Body4uHUB.Content.Application.Commands.Articles.Create
 {
     using Body4uHUB.Content.Domain.Models;
     using Body4uHUB.Content.Domain.Repositories;
