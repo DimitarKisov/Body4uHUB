@@ -11,7 +11,7 @@
             public const string EmailInvalid = "Invalid email format";
             public const string EmailLength = "Email cannot exceed 200 characters";
             public const string FirstNameRequired = "First name is required";
-            public const string FirstNameLength = "First name must be between 2 and 20 characters long";
+            public const string FirstNameLength = "First name must be between {0} and {1} characters long";
             public const string LastNameRequired = "Last name is required";
             public const string LastNameLength = "Last name must be between 2 and 20 characters long";
             public const string UserIdRequired = "User ID cannot be empty";
