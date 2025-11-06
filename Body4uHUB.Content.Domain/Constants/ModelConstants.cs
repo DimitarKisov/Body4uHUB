@@ -10,9 +10,7 @@
             public const int TitleMaxLength = 100;
 
             public const string IdCannotBeZeroOrNegative = "Article ID must be greater than 0.";
-            public const string TitleLengthMessage = "Title must be between {0} and {1} characters long.";
-            public const string TitleRequired = "Title is required.";
-
+            
             public const string ArticleAlreadyPublished = "Article is already published.";
             public const string ArticleExists = "Article with title '{0}' already exists";
             public const string ArticleNotFound = "Article not found.";
@@ -44,6 +42,8 @@
             public const string AuthorIdRequired = "AuthorId is required.";
             public const string ContentLengthMessage = "Content must be between {0} and {1} characters long.";
             public const string ContentRequired = "Content is required.";
+            public const string TitleLengthMessage = "Title must be between {0} and {1} characters long.";
+            public const string TitleRequired = "Title is required.";
         }
 
         public class ForumPost
@@ -59,6 +59,7 @@
             public const int TitleMinLength = 5;
             public const int TitleMaxLength = 100;
 
+            public const string ForumTopicExists = "Forum topic with title '{0}' already exists.";
             public const string ForumTopicLocked = "Forum topic is already locked.";
             public const string ForumTopicUnlocked = "Forum topic is already unlocked.";
 
