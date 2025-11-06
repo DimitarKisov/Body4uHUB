@@ -1,6 +1,6 @@
 ﻿using Body4uHUB.Shared;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.Comment;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
 
 namespace Body4uHUB.Content.Domain.ValueObjects
 {

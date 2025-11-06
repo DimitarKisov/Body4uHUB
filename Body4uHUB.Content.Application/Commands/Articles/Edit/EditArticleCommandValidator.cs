@@ -3,6 +3,7 @@
     using FluentValidation;
 
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.Common;
 
     public class EditArticleCommandValidator : AbstractValidator<EditArticleCommand>
     {

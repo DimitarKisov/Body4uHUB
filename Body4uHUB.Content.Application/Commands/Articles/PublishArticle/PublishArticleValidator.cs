@@ -3,7 +3,7 @@
     using Body4uHUB.Content.Application.Commands.Articles.Publish;
     using FluentValidation;
 
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.Common;
 
     public class PublishArticleValidator : AbstractValidator<PublishArticleCommand>
     {
