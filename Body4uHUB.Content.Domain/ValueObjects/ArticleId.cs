@@ -12,7 +12,7 @@ namespace Body4uHUB.Content.Domain.ValueObjects
         {
             if (value <= 0)
             {
-                throw new ArgumentException(ArticleIdCannotBeZeroOrNegative);
+                throw new ArgumentException(IdCannotBeZeroOrNegative);
             }
 
             Value = value;

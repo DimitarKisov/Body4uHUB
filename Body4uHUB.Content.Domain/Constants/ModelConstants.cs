@@ -9,9 +9,17 @@
             public const int TitleMinLength = 10;
             public const int TitleMaxLength = 100;
 
-            public const string ArticleIdCannotBeZeroOrNegative = "Article ID must be greater than 0.";
+            public const string AuthorIdRequired = "AuthorId is required.";
+            public const string ContentRequired = "Content is required.";
+            public const string ContentMaxLengthMessage = "Content maximum length is {0}.";
+            public const string ContentMinLengthMessage = "Content minimum length is {0}.";
+            public const string IdCannotBeZeroOrNegative = "Article ID must be greater than 0.";
+            public const string TitleMaxLengthMessage = "Title maximum length is {0}.";
+            public const string TitleMinLengthMessage = "Title minimal length is {0}.";
+            public const string TitleRequired = "Title is required.";
 
             public const string ArticleAlreadyPublished = "Article is already published.";
+            public const string ArticleExists = "Article with title '{0}' already exists";
             public const string ArticleNotPublished = "Article is not published.";
         }
 

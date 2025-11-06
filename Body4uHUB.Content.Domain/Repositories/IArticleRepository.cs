@@ -6,7 +6,8 @@ namespace Body4uHUB.Content.Domain.Repositories
     public interface IArticleRepository : IRepository<Article>
     {
         void Add(Article article);
-        Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default);
         Task<Article> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<IEnumerable<Article>> GetPublishedArticlesAsync(int skip, int take, CancellationToken cancellationToken = default);
     }
