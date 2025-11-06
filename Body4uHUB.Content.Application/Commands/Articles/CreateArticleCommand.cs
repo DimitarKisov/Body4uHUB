@@ -6,7 +6,7 @@
     using Body4uHUB.Shared;
     using MediatR;
 
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.Article;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
     public class CreateArticleCommand : IRequest<ArticleId>
     {

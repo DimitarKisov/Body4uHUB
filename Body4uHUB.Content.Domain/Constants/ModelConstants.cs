@@ -2,7 +2,7 @@
 {
     public class ModelConstants
     {
-        public class Article
+        public class ArticleConstants
         {
             public const int ContentMinLength = 50;
             public const int ContentMaxLength = 5000;

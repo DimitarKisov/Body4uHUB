@@ -3,7 +3,7 @@ using Body4uHUB.Content.Domain.Exceptions;
 using Body4uHUB.Content.Domain.ValueObjects;
 using Body4uHUB.Shared;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.Article;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {

@@ -2,7 +2,7 @@
 {
     using FluentValidation;
 
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.Article;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
     public class CreateArticleCommandValidator : AbstractValidator<CreateArticleCommand>
     {
