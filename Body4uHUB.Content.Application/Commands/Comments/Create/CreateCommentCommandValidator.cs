@@ -1,4 +1,4 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Comments
+﻿namespace Body4uHUB.Content.Application.Commands.Comments.Create
 {
     using Body4uHUB.Content.Domain.Models;
     using FluentValidation;

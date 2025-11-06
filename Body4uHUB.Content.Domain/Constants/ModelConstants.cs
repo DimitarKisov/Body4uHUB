@@ -31,8 +31,11 @@
             public const int ContentMinLength = 2;
             public const int ContentMaxLength = 1000;
 
+            public const string CommentIdRequired = "CommentId is required.";
             public const string CommentIdCannotBeZeroOrNegative = "Comment ID must be greater than 0.";
             public const string CommentAlreadyDeleted = "Comment is already deleted.";
+
+            public const string CommentNotFound = "Comment not found.";
         }
 
         public class Common
