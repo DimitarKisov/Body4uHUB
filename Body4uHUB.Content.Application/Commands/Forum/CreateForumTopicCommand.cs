@@ -5,7 +5,7 @@
     using Body4uHUB.Shared;
     using MediatR;
 
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopic;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
     public class CreateForumTopicCommand : IRequest<Guid>
     {

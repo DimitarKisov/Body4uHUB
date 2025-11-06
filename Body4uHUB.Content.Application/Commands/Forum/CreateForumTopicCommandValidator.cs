@@ -2,8 +2,8 @@
 {
     using FluentValidation;
 
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.Common;
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopic;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
     public class CreateForumTopicCommandValidator : AbstractValidator<CreateForumTopicCommand>
     {

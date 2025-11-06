@@ -3,7 +3,7 @@
     using FluentValidation;
 
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.Common;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
     public class DeleteCommentValidator : AbstractValidator<DeleteCommentCommand>
     {

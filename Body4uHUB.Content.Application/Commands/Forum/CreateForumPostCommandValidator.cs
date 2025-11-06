@@ -1,14 +1,13 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Comments.Create
+﻿namespace Body4uHUB.Content.Application.Commands.Forum
 {
-    using Body4uHUB.Content.Domain.Models;
     using FluentValidation;
 
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
 
-    public class CreateCommentCommandValidator : AbstractValidator<Comment>
+    public class CreateForumPostCommandValidator : AbstractValidator<CreateForumPostCommand>
     {
-        public CreateCommentCommandValidator()
+        public CreateForumPostCommandValidator()
         {
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage(ContentRequired)
@@ -17,8 +16,8 @@
             RuleFor(x => x.AuthorId)
                 .NotEmpty().WithMessage(AuthorIdRequired);
 
-            RuleFor(x => x.ArticleId)
-                .NotEmpty().WithMessage(ArticleIdRequired);
+            RuleFor(x => x.TopicId)
+                .NotEmpty().WithMessage(ForumTopicIdRequired);
         }
     }
 }

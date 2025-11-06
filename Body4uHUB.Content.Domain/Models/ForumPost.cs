@@ -1,7 +1,7 @@
 ﻿using Body4uHUB.Content.Domain.Exceptions;
 using Body4uHUB.Shared;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPost;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {

@@ -17,7 +17,7 @@
             public const string ArticleNotPublished = "Article is not published.";
         }
 
-        public class Bookmark
+        public class BookmarkConstants
         {
             public const string BookmarkAlreadyExists = "Bookmark already exists.";
             public const string BookmarkDoesNotExist = "Bookmark does not exist.";
@@ -36,17 +36,18 @@
             public const string CommentNotFound = "Comment not found.";
         }
 
-        public class Common
+        public class CommonConstants
         {
             public const string ArticleIdRequired = "ArticleId is required.";
             public const string AuthorIdRequired = "AuthorId is required.";
             public const string ContentLengthMessage = "Content must be between {0} and {1} characters long.";
             public const string ContentRequired = "Content is required.";
+            public const string ForumTopicIdRequired = "ForumTopicId is required.";
             public const string TitleLengthMessage = "Title must be between {0} and {1} characters long.";
             public const string TitleRequired = "Title is required.";
         }
 
-        public class ForumPost
+        public class ForumPostConstants
         {
             public const int ContentMinLength = 5;
             public const int ContentMaxLength = 2000;
@@ -54,11 +55,12 @@
             public const string PostDeleted = "Cannot update content of a deleted forum post.";
         }
 
-        public class ForumTopic
+        public class ForumTopicConstants
         {
             public const int TitleMinLength = 5;
             public const int TitleMaxLength = 100;
 
+            public const string ForumTopicNotFound = "Forum topic not found.";
             public const string ForumTopicExists = "Forum topic with title '{0}' already exists.";
             public const string ForumTopicLocked = "Forum topic is already locked.";
             public const string ForumTopicUnlocked = "Forum topic is already unlocked.";
