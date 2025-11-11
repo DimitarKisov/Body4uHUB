@@ -4,7 +4,7 @@ using Body4uHUB.Shared;
 
 namespace Body4uHUB.Content.Domain.Models
 {
-    public class Bookmark : Entity<Bookmark>, IAggregateRoot
+    public class Bookmark : Entity<Guid>, IAggregateRoot
     {
         public Guid UserId { get; private set; }
         public ArticleId ArticleId { get; private set; }

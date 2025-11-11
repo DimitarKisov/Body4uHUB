@@ -45,6 +45,7 @@
             public const string ForumTopicIdRequired = "ForumTopicId is required.";
             public const string TitleLengthMessage = "Title must be between {0} and {1} characters long.";
             public const string TitleRequired = "Title is required.";
+            public const string UserIdRequired = "UserId is required.";
         }
 
         public class ForumPostConstants
