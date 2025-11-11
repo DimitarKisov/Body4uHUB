@@ -10,7 +10,7 @@
 
     public class EditArticleCommand : IRequest<Unit>
     {
-        public ArticleId Id { get; set; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
 
@@ -29,7 +29,7 @@
 
             public async Task<Unit> Handle(EditArticleCommand request, CancellationToken cancellationToken)
             {
-                var article = await _articleRepository.GetByIdAsync(request.Id, cancellationToken);
+                var article = await _articleRepository.GetByIdAsync(ArticleId.Create(request.Id), cancellationToken);
                 if (article == null)
                 {
                     throw new NotFoundException(ArticleNotFound);

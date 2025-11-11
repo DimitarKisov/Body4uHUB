@@ -10,7 +10,7 @@
 
     public class PublishArticleCommand : IRequest<Unit>
     {
-        public ArticleId Id { get; set; }
+        public int Id { get; set; }
 
         internal class PublishArticleCommandHandler : IRequestHandler<PublishArticleCommand, Unit>
         {
@@ -27,7 +27,7 @@
 
             public async Task<Unit> Handle(PublishArticleCommand request, CancellationToken cancellationToken)
             {
-                var article = await _articleRepository.GetByIdAsync(request.Id, cancellationToken);
+                var article = await _articleRepository.GetByIdAsync(ArticleId.Create(request.Id), cancellationToken);
                 if (article == null)
                 {
                     throw new NotFoundException(ArticleNotFound);

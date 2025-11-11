@@ -11,8 +11,8 @@
 
     public class DeleteCommentCommand : IRequest<Unit>
     {
-        public CommentId Id { get; set; }
-        public ArticleId ArticleId { get; set; }
+        public int Id { get; set; }
+        public int ArticleId { get; set; }
 
         internal class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, Unit>
         {
@@ -29,13 +29,13 @@
 
             public async Task<Unit> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
             {
-                var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
+                var article = await _articleRepository.GetByIdAsync(Domain.ValueObjects.ArticleId.Create(request.ArticleId), cancellationToken);
                 if (article == null)
                 {
                     throw new NotFoundException(ArticleNotFound);
                 }
 
-                var comment = article.Comments.FirstOrDefault(x => x.Id == request.Id);
+                var comment = article.Comments.FirstOrDefault(x => x.Id == CommentId.Create(request.Id));
                 if (comment == null)
                 {
                     throw new NotFoundException(CommentNotFound);
