@@ -14,9 +14,9 @@
   	</PackageReference>
   	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.21" />
   </ItemGroup>
-	
+
   <ItemGroup>
-    <ProjectReference Include="..\Body4uHUB.Content.Domain\Body4uHUB.Content.Domain.csproj" />
+    <ProjectReference Include="..\Body4uHUB.Content.Application\Body4uHUB.Content.Application.csproj" />
   </ItemGroup>
 
 </Project>
