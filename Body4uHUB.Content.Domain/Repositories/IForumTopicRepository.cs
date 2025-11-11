@@ -7,8 +7,6 @@ namespace Body4uHUB.Content.Domain.Repositories
     {
         void Add(ForumTopic forumTopic);
         Task<ForumTopic> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-        Task<IEnumerable<ForumTopic>> GetAllAsync(int skip, int take, CancellationToken cancellationToken = default);
-        Task<IEnumerable<ForumTopic>> GetByAuthorIdAsync(Guid authorId, CancellationToken cancellationToken = default);
         Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default);
         void Remove(ForumTopic forumTopic);
