@@ -358,8 +358,8 @@ MigrationBackup/
 appsettings.Development.json
 
 # Docker files
-*.development.env
-docker-compose.development.yaml
+*.dev.env
+docker-compose.dev.yml
 
 # Logs
 logs/
