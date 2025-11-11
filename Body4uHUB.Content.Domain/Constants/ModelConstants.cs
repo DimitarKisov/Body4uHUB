@@ -22,6 +22,8 @@
             public const string BookmarkAlreadyExists = "Bookmark already exists.";
             public const string BookmarkDoesNotExist = "Bookmark does not exist.";
             public const string BookmarkIdCannotBeZeroOrNegative = "Bookmark ID must be greater than 0.";
+
+            public const string BookmarkNotFound = "Bookmark not found.";
         }
 
         public class CommentConstants
