@@ -1,0 +1,39 @@
+services:
+    data:
+        container_name: sqlserver
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+            - "1433:1433"
+        environment:
+            - ACCEPT_EULA=Y
+            - SA_PASSWORD=myStrongPassword12#$
+        # restart: on-failure
+        volumes:
+            - sqldata:/var/opt/mssql
+        networks:
+            - body4uhub-network
+            
+    identity:
+        container_name: identity
+        image: dkisov/body4u-hub-identity-service
+        build:
+            context: ./
+            dockerfile: ./Body4uHUB.Identity.Api/Dockerfile
+        ports:
+            - "5001:80"
+        env_file: 
+            - ./Body4uHUB.Identity.Api/identity.env
+        # restart: on-failure
+        volumes:
+            - data-protection:/root/.aspnet/DataProtection-Keys
+        networks:
+            - body4uhub-network
+        depends_on:
+            - data
+            
+networks:
+    body4uhub-network:
+    
+volumes:
+    sqldata:
+    data-protection:
