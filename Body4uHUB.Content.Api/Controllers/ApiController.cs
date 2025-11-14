@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Body4uHUB.Content.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
     public abstract class ApiController : ControllerBase
     {
         private ISender _mediator;

@@ -21,6 +21,7 @@
 
             // Domain Repositories (Write)
             services.AddScoped<IArticleRepository, ArticleRepository>();
+            services.AddScoped<IForumTopicRepository, ForumTopicRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

@@ -6,12 +6,13 @@
     using System;
     using System.Threading.Tasks;
 
-    public class ArticlesController : ApiController
+    [Route("api/article")]
+    public class ArticleController : ApiController
     {
         /// <summary>
         /// Create a new article (Trainers and Admins only)
         /// </summary>
-        [HttpPost]
+        [HttpPost("create")]
         //[Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
