@@ -2,6 +2,7 @@ using Body4uHUB.Content.Api.Middleware;
 using Body4uHUB.Content.Application.Extensions;
 using Body4uHUB.Content.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
@@ -29,6 +30,14 @@ services
     .AddControllers();
 
 services.AddEndpointsApiExplorer();
+
+// Add authorization policies
+services.AddAuthorizationBuilder()
+    .AddPolicy("TrainerOrAdmin", policy =>
+        policy.RequireRole("Trainer", "Admin"))
+    .AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin"));
+
 services.AddSwaggerGen(config =>
 {
     config.SwaggerDoc("v1", new OpenApiInfo
