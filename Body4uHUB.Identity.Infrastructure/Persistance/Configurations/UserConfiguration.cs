@@ -55,14 +55,17 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
                     .HasDatabaseName("IX_Members_Email");
             });
 
-            builder
-                .HasMany(x => x.Roles)
+            var rolesNavigation = builder.Metadata.FindNavigation(nameof(User.Roles))!;
+            rolesNavigation.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            // Конфигурация на Many-to-Many релацията
+            builder.HasMany(u => u.Roles)
                 .WithMany()
-                .UsingEntity<Dictionary<string, object>>(
+                .UsingEntity(
                     "UserRoles",
-                    y => y.HasOne<Role>().WithMany().HasForeignKey("RoleId"),
-                    y => y.HasOne<User>().WithMany().HasForeignKey("UserId")
-                );
+                    x => x.HasOne(typeof(Role)).WithMany().HasForeignKey("RoleId"),
+                    y => y.HasOne(typeof(User)).WithMany().HasForeignKey("UserId"),
+                    z => z.HasKey("UserId", "RoleId"));
 
             // Ignore domain events
             builder.Ignore(x => x.DomainEvents);
