@@ -2,6 +2,7 @@ using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Identity.Api.Middleware;
 using Body4uHUB.Identity.Application.Extensions;
 using Body4uHUB.Identity.Infrastructure.Extensions;
+using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +40,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+using var scope = app.Services.CreateScope();
+var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+await dbInitializer.InitializeAsync();
 
 try
 {

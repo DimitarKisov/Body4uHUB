@@ -4,6 +4,7 @@ using Body4uHUB.Identity.Infrastructure.Persistance;
 using Body4uHUB.Identity.Infrastructure.Repositories;
 using Body4uHUB.Identity.Infrastructure.Services;
 using Body4uHUB.Shared;
+using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,8 +25,9 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
             services
                 .AddScoped<IUserRepository, UserRepository>()
                 .AddScoped<IJwtTokenService, JwtTokenService>()
-                .AddScoped<IPasswordHasherService, PasswordHasherService>() 
-                .AddScoped<IUnitOfWork, UnitOfWork>();
+                .AddScoped<IPasswordHasherService, PasswordHasherService>()
+                .AddScoped<IUnitOfWork, UnitOfWork>()
+                .AddScoped<IDbInitializer, DbInitializer>();
 
             return services;
         }

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Body4uHUB.Identity.Application\Body4uHUB.Identity.Application.csproj" />
+    <ProjectReference Include="..\Body4uHUB.Shared.Infrastructure\Body4uHUB.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

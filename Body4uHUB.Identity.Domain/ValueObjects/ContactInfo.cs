@@ -30,7 +30,7 @@
         {
             Guard.AgainstEmptyString<InvalidContactInfoException>(email, nameof(email));
             Guard.AgainstNotContainingSpecialChars<InvalidContactInfoException>(email, "Invalid email format", "@");
-            Guard.AgainstEmptyString<InvalidContactInfoException>(phoneNumber, nameof(phoneNumber));
+            //Guard.AgainstEmptyString<InvalidContactInfoException>(phoneNumber, nameof(phoneNumber));
         }
     }
 }
