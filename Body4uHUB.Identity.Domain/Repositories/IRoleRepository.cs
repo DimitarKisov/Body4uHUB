@@ -1,0 +1,11 @@
+﻿using Body4uHUB.Identity.Domain.Models;
+using Body4uHUB.Shared;
+
+namespace Body4uHUB.Identity.Domain.Repositories
+{
+    public interface IRoleRepository : IRepository<Role>
+    {
+        void Add(Role role);
+        Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
+    }
+}
