@@ -1,10 +1,19 @@
 ﻿using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Reflection;
 
 namespace Body4uHUB.Identity.Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
+        public static IServiceCollection AddApiServices(this IServiceCollection services)
+        {
+            services.AddControllers();
+            services.AddEndpointsApiExplorer();
+
+            return services;
+        }
+
         public static IServiceCollection ConfigureSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(config =>
@@ -47,6 +56,18 @@ namespace Body4uHUB.Identity.Api.Extensions
             });
 
             return services;
+        }
+
+        public static WebApplicationBuilder ConfigureSerilog(this WebApplicationBuilder builder)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
+
+            return builder;
         }
     }
 }

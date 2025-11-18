@@ -1,6 +1,8 @@
 ﻿namespace Body4uHUB.Content.Infrastructure.Persistence
 {
     using Body4uHUB.Content.Domain.Models;
+    using Body4uHUB.Content.Domain.ValueObjects;
+    using Body4uHUB.Content.Infrastructure.Persistence.Converters;
     using Body4uHUB.Shared;
     using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +23,19 @@
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ContentDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder
+                .Properties<ArticleId>()
+                .HaveConversion<ArticleIdConverter>();
+
+            configurationBuilder
+                .Properties<CommentId>()
+                .HaveConversion<CommentIdConverter>();
+
+            base.ConfigureConventions(configurationBuilder);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

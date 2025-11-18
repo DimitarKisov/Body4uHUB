@@ -4,6 +4,7 @@
     using Body4uHUB.Content.Infrastructure.Persistence;
     using Body4uHUB.Content.Infrastructure.Repositories;
     using Body4uHUB.Shared;
+    using Body4uHUB.Shared.Infrastructure.Interfaces;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,8 @@
             // Domain Repositories (Write)
             services.AddScoped<IArticleRepository, ArticleRepository>();
             services.AddScoped<IForumTopicRepository, ForumTopicRepository>();
+            services.AddScoped<IBookmarkRepository, BookmarkRepository>();
+            services.AddScoped<IDbInitializer, DbInitializer>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

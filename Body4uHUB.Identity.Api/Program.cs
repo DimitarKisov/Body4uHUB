@@ -7,24 +7,17 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .WriteTo.File("logs/identity-service-.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
-
-builder.Host.UseSerilog();
+// Configure Serilog
+builder.ConfigureSerilog();
 
 var services = builder.Services;
 var configuration = builder.Configuration;
 
+// Add services
 services
-       .AddApplication(configuration)
-       .AddInfrastructure(configuration)
-       .AddControllers();
-
-services
-    .AddEndpointsApiExplorer()
+    .AddApiServices()
+    .AddApplication(configuration)
+    .AddInfrastructure(configuration)
     .ConfigureSwagger();
 
 var app = builder.Build();

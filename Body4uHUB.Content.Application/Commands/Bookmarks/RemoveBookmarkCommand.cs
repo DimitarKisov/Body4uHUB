@@ -1,16 +1,16 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Bookmarks
+﻿using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Shared;
+using Body4uHUB.Shared.Exceptions;
+using MediatR;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
+
+namespace Body4uHUB.Content.Application.Commands.Bookmarks
 {
-    using Body4uHUB.Content.Domain.Repositories;
-    using Body4uHUB.Shared;
-    using Body4uHUB.Shared.Exceptions;
-    using MediatR;
-
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
-
     public class RemoveBookmarkCommand : IRequest<Unit>
     {
         public Guid UserId { get; set; }
-        public Guid ArticleId { get; set; }
+        public int ArticleId { get; set; }
 
         internal class RemoveBookmarkCommandHandler : IRequestHandler<RemoveBookmarkCommand, Unit>
         {
@@ -27,9 +27,11 @@
 
             public async Task<Unit> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
             {
+                var articleId = Domain.ValueObjects.ArticleId.Create(request.ArticleId);
+
                 var bookmark = await _bookmarkRepository.GetByUserAndArticleAsync(
                     request.UserId,
-                    request.ArticleId,
+                    articleId,
                     cancellationToken);
 
                 if (bookmark == null)

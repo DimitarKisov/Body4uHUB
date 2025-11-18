@@ -81,7 +81,6 @@
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
-                .WriteTo.File("logs/content-service-.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             builder.Host.UseSerilog();

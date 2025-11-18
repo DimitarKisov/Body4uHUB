@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Body4uHUB.Identity.Api.Controllers
 {
+    [Route("api/auth")]
     public class AuthController : ApiController
     {
-        [HttpPost]
-        [Route(nameof(Register))]
+        [HttpPost("register")]
         [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -18,8 +18,7 @@ namespace Body4uHUB.Identity.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
-        [Route(nameof(Login))]
+        [HttpPost("login")]
         [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]

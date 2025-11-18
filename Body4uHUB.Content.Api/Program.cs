@@ -2,7 +2,9 @@ using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Api.Middleware;
 using Body4uHUB.Content.Application.Extensions;
 using Body4uHUB.Content.Infrastructure.Extensions;
+using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
@@ -38,6 +40,10 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+using var scope = app.Services.CreateScope();
+var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+await dbInitializer.InitializeAsync();
 
 try
 {

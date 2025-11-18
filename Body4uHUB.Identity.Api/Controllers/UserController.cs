@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace Body4uHUB.Identity.Api.Controllers
 {
     [Authorize]
+    [Route("api/user")]
     public class UserController : ApiController
     {
-        [HttpPut]
-        [Route(nameof(EditUser))]
+        [HttpPut("edit")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
