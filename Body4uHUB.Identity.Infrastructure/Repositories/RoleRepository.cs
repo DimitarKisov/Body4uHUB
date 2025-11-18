@@ -23,5 +23,10 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
         {
             return _dbContext.Roles.AnyAsync(x => x.Name == name, cancellationToken);
         }
+
+        public async Task<Role> FindByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Roles.FirstOrDefaultAsync(x => x.Name == name, cancellationToken);
+        }
     }
 }

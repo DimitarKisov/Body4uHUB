@@ -14,6 +14,7 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasherService;
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public DbInitializer(
@@ -21,12 +22,14 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
             IConfiguration configuration,
             IPasswordHasherService passwordHasherService,
             IUserRepository userRepository,
+            IRoleRepository roleRepository,
             IUnitOfWork unitOfWork)
         {
             _dbContext = dbContext;
             _configuration = configuration;
             _passwordHasherService = passwordHasherService;
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -40,7 +43,6 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -58,6 +60,7 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
             var password = _configuration["SeedData:AdminUserPassword"] ?? "SomeRandomPassword";
             var adminFirstName = _configuration["SeedData:AdminFirstName"] ?? "SomeRandomFirstName";
             var adminLastName = _configuration["SeedData:AdminLastName"] ?? "SomeRandomLastName";
+            var adminRoleName = _configuration["SeedData:AdminRoleName"] ?? "Administrator";
 
             var hashedPassword = _passwordHasherService.HashPassword(password);
 
@@ -70,18 +73,34 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
 
             adminUser.ConfirmEmail();
 
+            var adminRole = await _roleRepository.FindByNameAsync(adminRoleName);
+            if (adminRole != null)
+            {
+                adminUser.AddRole(adminRole);
+            }
+
             _userRepository.Add(adminUser);
             await _unitOfWork.SaveChangesAsync();
         }
 
         private async Task SeedRolesAsync()
         {
-            var adminRoleName = _configuration["SeedData:AdminRoleName"];
+            var adminRoleName = _configuration["SeedData:AdminRoleName"] ?? "Administrator";
             var userRoles = _configuration.GetSection("SeedData:UserRoles").Get<List<string>>();
+
             foreach (var roleName in userRoles)
             {
-                // TODO
+                var roleExists = await _roleRepository.ExistsByNameAsync(roleName);
+                if (roleExists)
+                {
+                    continue;
+                }
+
+                var role = Role.Create(roleName);
+                _roleRepository.Add(role);
             }
+
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

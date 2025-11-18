@@ -7,5 +7,6 @@ namespace Body4uHUB.Identity.Domain.Repositories
     {
         void Add(Role role);
         Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
+        Task<Role> FindByNameAsync(string name, CancellationToken cancellationToken = default);
     }
 }
