@@ -8,12 +8,15 @@ namespace Body4uHUB.Identity.Domain.Models
 {
     public class User : Entity<Guid>, IAggregateRoot
     {
+        private readonly List<Role> _roles = new();
+
         public string PasswordHash { get; private set; }
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
         public ContactInfo ContactInfo { get; private set; }
         public DateTime? LastLoginAt { get; private set; }
         public bool IsEmailConfirmed { get; private set; }
+        public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
 
         //За EF Core
         private User() : base(Guid.NewGuid()) { }
@@ -34,6 +37,31 @@ namespace Body4uHUB.Identity.Domain.Models
             var contactInfo = ContactInfo.Create(email, phoneNumber);
 
             return new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo);
+        }
+
+        public void AddRole(Role role)
+        {
+            Guard.AgainstDefault<InvalidUserException, Role>(role, nameof(role));
+
+            if (_roles.Any(x => x.Id == role.Id))
+            {
+                return;
+            }
+
+            _roles.Add(role);
+        }
+
+        public void RemoveRole(Role role)
+        {
+            Guard.AgainstDefault<InvalidUserException, Role>(role, nameof(role));
+
+            var existingRole = _roles.FirstOrDefault(x => x.Id == role.Id);
+            if (existingRole == null)
+            {
+                return;
+            }
+
+            _roles.Remove(existingRole);
         }
 
         public void UpdateFirstName(string firstName)

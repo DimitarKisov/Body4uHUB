@@ -55,6 +55,15 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
                     .HasDatabaseName("IX_Members_Email");
             });
 
+            builder
+                .HasMany(x => x.Roles)
+                .WithMany()
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserRoles",
+                    y => y.HasOne<Role>().WithMany().HasForeignKey("RoleId"),
+                    y => y.HasOne<User>().WithMany().HasForeignKey("UserId")
+                );
+
             // Ignore domain events
             builder.Ignore(x => x.DomainEvents);
         }
