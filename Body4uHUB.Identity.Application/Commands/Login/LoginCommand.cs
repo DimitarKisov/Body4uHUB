@@ -2,18 +2,19 @@
 using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared;
+using Body4uHUB.Shared.Application;
 using MediatR;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.Login
 {
-    public class LoginCommand : IRequest<AuthResponseDto>
+    public class LoginCommand : IRequest<Result<AuthResponseDto>>
     {
         public string Email { get; set; }
         public string Password { get; set; }
 
-        internal class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto>
+        internal class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
         {
             private readonly IUserRepository _userRepository;
             private readonly IJwtTokenService _jwtTokenService;
@@ -32,17 +33,17 @@ namespace Body4uHUB.Identity.Application.Commands.Login
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<AuthResponseDto> Handle(LoginCommand request, CancellationToken cancellationToken)
+            public async Task<Result<AuthResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
             {
                 var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
                 if (user == null || !_passwordHasherService.VerifyPassword(request.Password, user.PasswordHash))
                 {
-                    throw new InvalidOperationException(InvalidCredentials);
+                    return Result.Unauthorized<AuthResponseDto>(InvalidCredentials);
                 }
 
                 if (!user.IsEmailConfirmed)
                 {
-                    throw new InvalidOperationException(EmailNotConfirmed);
+                    return Result.Forbidden<AuthResponseDto>(EmailNotConfirmed);
                 }
 
                 var accessToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, string.Empty);
@@ -51,7 +52,7 @@ namespace Body4uHUB.Identity.Application.Commands.Login
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return new AuthResponseDto
+                var response = new AuthResponseDto
                 {
                     AccessToken = accessToken,
                     User = new UserDto
@@ -65,6 +66,8 @@ namespace Body4uHUB.Identity.Application.Commands.Login
                         IsEmailConfirmed = user.IsEmailConfirmed,
                     }
                 };
+
+                return Result.Success(response);
             }
         }
     }

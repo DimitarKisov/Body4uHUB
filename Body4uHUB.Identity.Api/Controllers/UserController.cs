@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Identity.Application.Commands.EditUser;
+using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,16 +10,19 @@ namespace Body4uHUB.Identity.Api.Controllers
     [Route("api/user")]
     public class UserController : ApiController
     {
+        /// <summary>
+        /// Edit current user profile
+        /// </summary>
         [HttpPut("edit")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> EditUser(EditUserCommand command)
         {
             command.Id = User.GetUserId();
-            await Mediator.Send(command);
-            return NoContent();
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
         }
     }
 }

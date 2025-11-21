@@ -22,6 +22,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Body4uHUB.Identity.Application\Body4uHUB.Identity.Application.csproj" />
     <ProjectReference Include="..\Body4uHUB.Identity.Infrastructure\Body4uHUB.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\Body4uHUB.Shared.Api\Body4uHUB.Shared.Api.csproj" />
+    <ProjectReference Include="..\Body4uHUB.Shared.Application\Body4uHUB.Shared.Application.csproj" />
   </ItemGroup>
 
 </Project>

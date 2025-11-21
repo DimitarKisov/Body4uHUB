@@ -13,7 +13,7 @@ namespace Body4uHUB.Identity.Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new ArgumentException("Password cannot be null or empty", nameof(password));
+                return string.Empty;
             }
 
             return BCrypt.Net.BCrypt.HashPassword(password, WorkFactor);

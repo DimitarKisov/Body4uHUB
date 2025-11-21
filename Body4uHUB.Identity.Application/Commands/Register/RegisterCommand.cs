@@ -3,13 +3,14 @@ using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared;
+using Body4uHUB.Shared.Application;
 using MediatR;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.Register
 {
-    public class RegisterCommand : IRequest<AuthResponseDto>
+    public class RegisterCommand : IRequest<Result<AuthResponseDto>>
     {
         public string Email { get; set; }
         public string Password { get; set; }
@@ -17,7 +18,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
 
-        internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponseDto>
+        internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<AuthResponseDto>>
         {
             private readonly IUserRepository _userRepository;
             private readonly IPasswordHasherService _passwordHasherService;
@@ -36,15 +37,19 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<AuthResponseDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
+            public async Task<Result<AuthResponseDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
             {
                 var userExists = await _userRepository.ExistsByEmailAsync(request.Email, cancellationToken);
                 if (userExists)
                 {
-                    throw new InvalidOperationException(UserEmailExists);
+                    return Result.Conflict<AuthResponseDto>(UserEmailExists);
                 }
 
                 var passwordHash = _passwordHasherService.HashPassword(request.Password);
+                if (string.IsNullOrWhiteSpace(passwordHash))
+                {
+                    return Result.UnprocessableEntity<AuthResponseDto>(PasswordInvalid);
+                }
 
                 var user = User.Create(
                     passwordHash,
@@ -59,7 +64,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
 
                 var token = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, string.Empty);
 
-                return new AuthResponseDto
+                var response = new AuthResponseDto
                 {
                     AccessToken = token,
                     User = new UserDto
@@ -73,6 +78,8 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                         IsEmailConfirmed = user.IsEmailConfirmed
                     }
                 };
+
+                return Result.Success(response);
             }
         }
     }
