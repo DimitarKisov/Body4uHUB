@@ -46,7 +46,7 @@ namespace Body4uHUB.Identity.Application.Commands.Login
                     return Result.Forbidden<AuthResponseDto>(EmailNotConfirmed);
                 }
 
-                var accessToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, string.Empty);
+                var accessToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, user.Roles);
 
                 user.UpdateLastLogin();
 

@@ -1,4 +1,6 @@
-﻿namespace Body4uHUB.Identity.Application.Services
+﻿using Body4uHUB.Identity.Domain.Models;
+
+namespace Body4uHUB.Identity.Application.Services
 {
     /// <summary>
     /// Service for generating and validating JWT tokens
@@ -9,7 +11,7 @@
         /// Generates JWT access token for a user
         /// </summary>
         /// <returns>JWT access token</returns>
-        string GenerateAccessToken(Guid userId, string email, string role);
+        string GenerateAccessToken(Guid userId, string email, IReadOnlyCollection<Role> roles);
 
         /// <summary>
         /// Validates JWT token and returns user ID

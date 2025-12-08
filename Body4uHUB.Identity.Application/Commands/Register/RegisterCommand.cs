@@ -62,7 +62,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                var token = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, string.Empty);
+                var token = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, null);
 
                 var response = new AuthResponseDto
                 {
