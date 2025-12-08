@@ -23,9 +23,9 @@
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("TrainerOrAdmin", policy =>
-                    policy.RequireRole("Trainer", "Admin"));
+                    policy.RequireRole("Trainer", "Administrator"));
                 options.AddPolicy("AdminOnly", policy =>
-                    policy.RequireRole("Admin"));
+                    policy.RequireRole("Administrator"));
             });
 
             return services;

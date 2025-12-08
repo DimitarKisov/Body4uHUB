@@ -14,8 +14,8 @@
     using System;
     using System.Threading.Tasks;
 
-    [Route("api/article")]
-    public class ArticleController : ApiController
+    [Route("api/articles")]
+    public class ArticlesController : ApiController
     {
         /// <summary>
         /// Create a new article (Trainers and Admins only)
