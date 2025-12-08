@@ -2,6 +2,7 @@
 using Body4uHUB.Identity.Application.Commands.ChangePassword;
 using Body4uHUB.Identity.Application.Commands.EditUser;
 using Body4uHUB.Identity.Application.DTOs;
+using Body4uHUB.Identity.Application.Queries.GetAllUsers;
 using Body4uHUB.Identity.Application.Queries.GetProfile;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;
@@ -10,9 +11,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace Body4uHUB.Identity.Api.Controllers
 {
     [Authorize]
-    [Route("api/user")]
-    public class UserController : ApiController
+    [Route("api/users")]
+    public class UsersController : ApiController
     {
+        /// <summary>
+        /// Change current user password
+        /// </summary>
+        [HttpPut("changePassword")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
+        {
+            command.UserId = User.GetUserId();
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
+        }
+
         /// <summary>
         /// Edit current user profile
         /// </summary>
@@ -29,6 +44,20 @@ namespace Body4uHUB.Identity.Api.Controllers
         }
 
         /// <summary>
+        /// Get all users in the system (Admin only)
+        /// </summary>
+        [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
+        [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await Mediator.Send(new GetAllUsersQuery());
+            return Ok(users);
+        }
+
+        /// <summary>
         /// Get current authenticated user profile
         /// </summary>
         [HttpGet("profile")]
@@ -42,16 +71,17 @@ namespace Body4uHUB.Identity.Api.Controllers
         }
 
         /// <summary>
-        /// Change current user password
+        /// Get user by ID (Admin only)
         /// </summary>
-        [HttpPut("changePassword")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [HttpGet("{id}")]
+        [Authorize(Policy = "AdminOnly")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
+        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> GetUserById(Guid id)
         {
-            command.UserId = User.GetUserId();
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(new GetUserByIdQuery { Id = id });
             return HandleResult(result);
         }
     }

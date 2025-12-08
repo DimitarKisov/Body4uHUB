@@ -36,7 +36,14 @@ namespace Body4uHUB.Identity.Application.Queries.GetProfile
                     LastName = user.LastName,
                     PhoneNumber = user.ContactInfo.PhoneNumber,
                     CreatedAt = user.CreatedAt,
-                    IsEmailConfirmed = user.IsEmailConfirmed
+                    IsEmailConfirmed = user.IsEmailConfirmed,
+                    Roles = user.Roles
+                    .Select(x => new RoleDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name
+                    })
+                    .ToList()
                 };
 
                 return Result.Success(userDto);

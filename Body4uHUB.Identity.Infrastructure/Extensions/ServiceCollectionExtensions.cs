@@ -25,6 +25,7 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
 
             services
                 .AddScoped<IUserRepository, UserRepository>()
+                .AddScoped<IUserReadRepository, UserReadRepository>()
                 .AddScoped<IRoleRepository, RoleRepository>()
                 .AddScoped<IRoleReadRepository, RoleReadRepository>()
                 .AddScoped<IJwtTokenService, JwtTokenService>()
