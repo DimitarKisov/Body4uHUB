@@ -1,5 +1,8 @@
 ﻿using Body4uHUB.Identity.Api.Extensions;
+using Body4uHUB.Identity.Application.Commands.ChangePassword;
 using Body4uHUB.Identity.Application.Commands.EditUser;
+using Body4uHUB.Identity.Application.DTOs;
+using Body4uHUB.Identity.Application.Queries.GetProfile;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +24,33 @@ namespace Body4uHUB.Identity.Api.Controllers
         public async Task<IActionResult> EditUser(EditUserCommand command)
         {
             command.Id = User.GetUserId();
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Get current authenticated user profile
+        /// </summary>
+        [HttpGet("profile")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.GetUserId();
+            var result = await Mediator.Send(new GetUserByIdQuery { Id = userId });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Change current user password
+        /// </summary>
+        [HttpPut("change-password")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
+        {
+            command.UserId = User.GetUserId();
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }

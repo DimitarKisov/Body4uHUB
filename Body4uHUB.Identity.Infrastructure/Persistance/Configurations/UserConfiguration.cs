@@ -46,8 +46,7 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
 
                 contact.Property(y => y.PhoneNumber)
                     .HasColumnName("PhoneNumber")
-                    .HasMaxLength(20)
-                    .IsRequired();
+                    .HasMaxLength(20);
 
                 // Index
                 contact.HasIndex(x => x.Email)
