@@ -2,6 +2,7 @@
 {
     using Body4uHUB.Content.Domain.Enumerations;
     using Body4uHUB.Content.Domain.Models;
+    using Body4uHUB.Content.Domain.ValueObjects;
     using Body4uHUB.Shared;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -13,6 +14,10 @@
             builder.ToTable("Articles");
 
             builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Id)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn();
 
             builder.Property(x => x.Title)
                 .HasMaxLength(200)

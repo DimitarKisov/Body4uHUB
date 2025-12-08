@@ -12,6 +12,10 @@
 
             builder.HasKey(x => x.Id);
 
+            builder.Property(x => x.Id)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn();
+
             builder.Property(x => x.Content)
                 .HasMaxLength(2000)
                 .IsRequired();
