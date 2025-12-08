@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Identity.Application.Services;
+﻿using Body4uHUB.Identity.Application.Repositories;
+using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Identity.Infrastructure.Persistance;
 using Body4uHUB.Identity.Infrastructure.Repositories;
@@ -25,6 +26,7 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
             services
                 .AddScoped<IUserRepository, UserRepository>()
                 .AddScoped<IRoleRepository, RoleRepository>()
+                .AddScoped<IRoleReadRepository, RoleReadRepository>()
                 .AddScoped<IJwtTokenService, JwtTokenService>()
                 .AddScoped<IPasswordHasherService, PasswordHasherService>()
                 .AddScoped<IUnitOfWork, UnitOfWork>()

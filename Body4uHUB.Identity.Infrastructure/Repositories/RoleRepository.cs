@@ -19,9 +19,19 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
             _dbContext.Roles.Add(role);
         }
 
+        public async Task<bool> ExistByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Roles.AnyAsync(x => x.Id == id, cancellationToken);
+        }
+
         public async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Roles.AnyAsync(x => x.Name == name, cancellationToken);
+        }
+
+        public async Task<Role> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Roles.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
         public async Task<Role> FindByNameAsync(string name, CancellationToken cancellationToken = default)

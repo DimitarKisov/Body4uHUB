@@ -9,5 +9,6 @@
         public string PhoneNumber { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsEmailConfirmed { get; set; }
+        public ICollection<RoleDto> Roles { get; set; }
     }
 }

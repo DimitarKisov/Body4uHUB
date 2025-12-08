@@ -14,6 +14,17 @@ namespace Body4uHUB.Identity.Api.Extensions
             return services;
         }
 
+        public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy =>
+                    policy.RequireRole("Administrator", "Admin"));
+            });
+
+            return services;
+        }
+
         public static IServiceCollection ConfigureSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(config =>

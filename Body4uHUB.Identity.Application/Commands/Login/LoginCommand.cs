@@ -64,6 +64,13 @@ namespace Body4uHUB.Identity.Application.Commands.Login
                         PhoneNumber = user.ContactInfo.PhoneNumber,
                         CreatedAt = user.CreatedAt,
                         IsEmailConfirmed = user.IsEmailConfirmed,
+                        Roles = user.Roles
+                            .Select(r => new RoleDto
+                            {
+                                Id = r.Id,
+                                Name = r.Name
+                            })
+                            .ToList()
                     }
                 };
 
