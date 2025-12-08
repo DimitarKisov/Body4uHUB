@@ -63,8 +63,8 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
             }
 
             var password = _configuration["SeedData:AdminUserPassword"] ?? "SomeRandomPassword";
-            var adminFirstName = _configuration["SeedData:AdminFirstName"] ?? "SomeRandomFirstName";
-            var adminLastName = _configuration["SeedData:AdminLastName"] ?? "SomeRandomLastName";
+            var adminFirstName = _configuration["SeedData:AdminUserFirsName"] ?? "SomeRandomFirstName";
+            var adminLastName = _configuration["SeedData:AdminUserLastName"] ?? "SomeRandomLastName";
             var adminRoleName = _configuration["SeedData:AdminRoleName"] ?? "Administrator";
 
             var hashedPassword = _passwordHasherService.HashPassword(password);

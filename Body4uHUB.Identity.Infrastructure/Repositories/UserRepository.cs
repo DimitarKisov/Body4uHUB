@@ -19,14 +19,14 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
             _dbContext.Users.Add(user);
         }
 
-        public Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
-            return _dbContext.Users.AnyAsync(x => x.ContactInfo.Email == email, cancellationToken);
+            return await _dbContext.Users.AnyAsync(x => x.ContactInfo.Email == email, cancellationToken);
         }
 
-        public Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+        public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
-            return _dbContext.Users.FirstOrDefaultAsync(x => x.ContactInfo.Email == email, cancellationToken);
+            return await _dbContext.Users.FirstOrDefaultAsync(x => x.ContactInfo.Email == email, cancellationToken);
         }
 
         public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
