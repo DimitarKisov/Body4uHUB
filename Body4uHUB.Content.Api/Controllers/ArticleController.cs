@@ -6,10 +6,12 @@ using Body4uHUB.Content.Application.Commands.Comments.Create;
 using Body4uHUB.Content.Application.Commands.Comments.Delete;
 using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles;
+using Body4uHUB.Content.Application.Queries.Articles.GetAll;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Api.Controllers
@@ -32,6 +34,19 @@ namespace Body4uHUB.Content.Api.Controllers
             var result = await Mediator.Send(command);
 
             return HandleResult(result, id => new { articleId = id });
+        }
+
+        /// <summary>
+        /// Get all published articles with pagination
+        /// </summary>
+        [HttpGet]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(IEnumerable<ArticleDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllArticles([FromQuery] int skip = 0, [FromQuery] int take = 10)
+        {
+            var result = await Mediator.Send(new GetAllArticlesQuery { Skip = skip, Take = take });
+
+            return HandleResult(result);
         }
 
         /// <summary>

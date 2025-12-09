@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Content.Domain.Repositories;
+﻿using Body4uHUB.Content.Application.Repositories;
+using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Content.Infrastructure.Persistence;
 using Body4uHUB.Content.Infrastructure.Repositories;
 using Body4uHUB.Shared.Domain;
@@ -22,6 +23,7 @@ namespace Body4uHUB.Content.Infrastructure.Extensions
 
             // Domain Repositories (Write)
             services.AddScoped<IArticleRepository, ArticleRepository>();
+            services.AddScoped<IArticleReadRepository, ArticleReadRepository>();
             services.AddScoped<IForumTopicRepository, ForumTopicRepository>();
             services.AddScoped<IBookmarkRepository, BookmarkRepository>();
             services.AddScoped<IDbInitializer, DbInitializer>();
