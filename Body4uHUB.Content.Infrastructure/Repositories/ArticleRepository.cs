@@ -36,5 +36,10 @@
                 .Include(x => x.Comments)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
+
+        public void Remove(Article article)
+        {
+            _dbContext.Articles.Remove(article);
+        }
     }
 }

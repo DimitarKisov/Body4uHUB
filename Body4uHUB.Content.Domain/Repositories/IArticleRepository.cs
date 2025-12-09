@@ -10,5 +10,6 @@ namespace Body4uHUB.Content.Domain.Repositories
         Task<bool> ExistsByIdAsync(ArticleId id, CancellationToken cancellationToken = default);
         Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default);
         Task<Article> GetByIdAsync(ArticleId id, CancellationToken cancellationToken = default);
+        void Remove(Article article);
     }
 }

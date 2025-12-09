@@ -1,6 +1,7 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Application.Commands.Articles.Archive;
 using Body4uHUB.Content.Application.Commands.Articles.Create;
+using Body4uHUB.Content.Application.Commands.Articles.Delete;
 using Body4uHUB.Content.Application.Commands.Articles.Edit;
 using Body4uHUB.Content.Application.Commands.Articles.Publish;
 using Body4uHUB.Content.Application.Commands.Comments.Create;
@@ -58,6 +59,29 @@ namespace Body4uHUB.Content.Api.Controllers
             var result = await Mediator.Send(command);
 
             return HandleResult(result, id => new { articleId = id });
+        }
+
+        /// <summary>
+        /// Delete article (Author or Admin only)
+        /// </summary>
+        [HttpDelete("{id}")]
+        [Authorize(Policy = "TrainerOrAdmin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> DeleteArticle(int id)
+        {
+            var command = new DeleteArticleCommand
+            {
+                Id = id,
+                CurrentUserId = User.GetUserId(),
+                IsAdmin = User.IsAdmin()
+            };
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
         }
 
         /// <summary>
