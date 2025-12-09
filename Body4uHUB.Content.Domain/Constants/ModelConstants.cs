@@ -47,6 +47,7 @@
             public const string AuthorIdRequired = "AuthorId is required.";
             public const string ContentLengthMessage = "Content must be between {0} and {1} characters long.";
             public const string ContentRequired = "Content is required.";
+            public const string ForumPostIdRequired = "ForumPostId is required.";
             public const string ForumTopicIdRequired = "ForumTopicId is required.";
             public const string TitleLengthMessage = "Title must be between {0} and {1} characters long.";
             public const string TitleRequired = "Title is required.";
@@ -58,7 +59,9 @@
             public const int ContentMinLength = 5;
             public const int ContentMaxLength = 2000;
 
-            public const string PostDeleted = "Cannot update content of a deleted forum post.";
+            public const string ForumPostDeleted = "Cannot update content of a deleted forum post.";
+            public const string ForumPostEditForbidden = "You do not have permission to edit this post.";
+            public const string ForumPostNotFound = "Forum post not found.";
         }
 
         public class ForumTopicConstants

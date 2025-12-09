@@ -2,6 +2,7 @@
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic;
+using Body4uHUB.Content.Application.Commands.Forum.EditForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.LockForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic;
 using Body4uHUB.Content.Application.DTOs;
@@ -126,6 +127,26 @@ namespace Body4uHUB.Content.Api.Controllers
 
             var result = await Mediator.Send(command);
             return HandleResult(result, id => new { postId = id });
+        }
+
+        /// <summary>
+        /// Edit forum post (Author or Admin only)
+        /// </summary>
+        [HttpPut("topics/{topicId}/posts/{postId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> EditForumPost(Guid topicId, Guid postId, [FromBody] EditForumPostCommand command)
+        {
+            command.PostId = postId;
+            command.TopicId = topicId;
+            command.CurrentUserId = User.GetUserId();
+            command.IsAdmin = User.IsAdmin();
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
         }
     }
 }

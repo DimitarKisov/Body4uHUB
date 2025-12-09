@@ -34,7 +34,7 @@ namespace Body4uHUB.Content.Domain.Models
         {
             if (IsDeleted)
             {
-                throw new InvalidForumPostException(PostDeleted);
+                throw new InvalidForumPostException(ForumPostDeleted);
             }
 
             ValidateContent(content);
