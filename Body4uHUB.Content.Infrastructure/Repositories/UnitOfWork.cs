@@ -1,8 +1,8 @@
-﻿namespace Body4uHUB.Content.Infrastructure.Repositories
-{
-    using Body4uHUB.Content.Infrastructure.Persistence;
-    using Body4uHUB.Shared;
+﻿using Body4uHUB.Content.Infrastructure.Persistence;
+using Body4uHUB.Shared.Domain;
 
+namespace Body4uHUB.Content.Infrastructure.Repositories
+{
     internal class UnitOfWork : IUnitOfWork
     {
         private readonly ContentDbContext _dbContext;

@@ -1,7 +1,7 @@
 ﻿using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
-using Body4uHUB.Shared;
+using Body4uHUB.Shared.Domain;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

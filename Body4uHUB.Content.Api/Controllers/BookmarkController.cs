@@ -8,45 +8,49 @@ using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Api.Controllers
 {
-    [Route("api/bookmark")]
+    [Route("api/bookmarks")]
     public class BookmarkController : ApiController
     {
         /// <summary>
         /// Add article to bookmarks
         /// </summary>
-        [HttpPost]
+        [HttpPost("articles/{articleId}")]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddBookmark([FromBody] AddBookmarkCommand command)
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> AddBookmark(int articleId)
         {
-            command.UserId = User.GetUserId();
+            var command = new AddBookmarkCommand
+            {
+                ArticleId = articleId,
+                UserId = User.GetUserId()
+            };
 
-            var bookmarkId = await Mediator.Send(command);
+            var result = await Mediator.Send(command);
 
-            return Ok(new { bookmarkId });
+            return HandleResult(result, id => new { bookmarkId = id });
         }
 
         /// <summary>
         /// Remove article from bookmarks
         /// </summary>
-        [HttpDelete]
+        [HttpDelete("articles/{articleId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> RemoveBookmark([FromQuery] int articleId)
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> RemoveBookmark(int articleId)
         {
             var userId = User.GetUserId();
 
-            await Mediator.Send(new RemoveBookmarkCommand
+            var result = await Mediator.Send(new RemoveBookmarkCommand
             {
                 UserId = userId,
                 ArticleId = articleId
             });
 
-            return NoContent();
+            return HandleResult(result);
         }
     }
 }

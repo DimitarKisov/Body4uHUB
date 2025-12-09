@@ -1,8 +1,8 @@
 ﻿using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Content.Domain.ValueObjects;
-using Body4uHUB.Shared;
 using Body4uHUB.Shared.Application;
+using Body4uHUB.Shared.Domain;
 using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;

@@ -1,18 +1,18 @@
 ﻿using Body4uHUB.Content.Domain.Repositories;
-using Body4uHUB.Shared;
-using Body4uHUB.Shared.Exceptions;
+using Body4uHUB.Shared.Application;
+using Body4uHUB.Shared.Domain;
 using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Bookmarks
 {
-    public class RemoveBookmarkCommand : IRequest<Unit>
+    public class RemoveBookmarkCommand : IRequest<Result>
     {
         public Guid UserId { get; set; }
         public int ArticleId { get; set; }
 
-        internal class RemoveBookmarkCommandHandler : IRequestHandler<RemoveBookmarkCommand, Unit>
+        internal class RemoveBookmarkCommandHandler : IRequestHandler<RemoveBookmarkCommand, Result>
         {
             private readonly IBookmarkRepository _bookmarkRepository;
             private readonly IUnitOfWork _unitOfWork;
@@ -25,7 +25,7 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Unit> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
+            public async Task<Result> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
             {
                 var articleId = Domain.ValueObjects.ArticleId.Create(request.ArticleId);
 
@@ -36,14 +36,14 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks
 
                 if (bookmark == null)
                 {
-                    throw new NotFoundException(BookmarkNotFound);
+                    return Result.UnprocessableEntity(BookmarkNotFound);
                 }
 
                 _bookmarkRepository.Remove(bookmark);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return Unit.Value;
+                return Result.Success();
             }
         }
     }
