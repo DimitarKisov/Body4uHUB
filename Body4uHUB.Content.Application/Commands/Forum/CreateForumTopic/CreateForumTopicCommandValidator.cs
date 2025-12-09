@@ -1,4 +1,4 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Forum
+﻿namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic
 {
     using FluentValidation;
 

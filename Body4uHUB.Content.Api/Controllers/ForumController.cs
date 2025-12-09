@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
-using Body4uHUB.Content.Application.Commands.Forum;
+using Body4uHUB.Content.Application.Commands.Forum.CreateForumPost;
+using Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.LockForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic;
