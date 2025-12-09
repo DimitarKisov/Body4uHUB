@@ -5,18 +5,18 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic
+namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic
 {
-    public class UnlockForumTopicCommand : IRequest<Result>
+    public class DeleteForumTopicCommand : IRequest<Result>
     {
         public Guid TopicId { get; set; }
 
-        internal class UnlockForumTopicCommandHandler : IRequestHandler<UnlockForumTopicCommand, Result>
+        internal class DeleteForumTopicCommandHandler : IRequestHandler<DeleteForumTopicCommand, Result>
         {
             private readonly IForumTopicRepository _forumTopicRepository;
             private readonly IUnitOfWork _unitOfWork;
 
-            public UnlockForumTopicCommandHandler(
+            public DeleteForumTopicCommandHandler(
                 IForumTopicRepository forumTopicRepository,
                 IUnitOfWork unitOfWork)
             {
@@ -24,15 +24,15 @@ namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result> Handle(UnlockForumTopicCommand request, CancellationToken cancellationToken)
+            public async Task<Result> Handle(DeleteForumTopicCommand request, CancellationToken cancellationToken)
             {
-                var topic = await _forumTopicRepository.GetByIdAsync(request.TopicId, cancellationToken);
+                var topic = await _forumTopicRepository.GetByIdAsync(request.TopicId);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity(ForumTopicNotFound);
                 }
 
-                topic.Unlock();
+                topic.MarkAsDeleted();
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

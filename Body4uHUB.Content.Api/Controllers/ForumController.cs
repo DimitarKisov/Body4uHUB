@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Application.Commands.Forum;
+using Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.LockForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic;
 using Body4uHUB.Content.Application.DTOs;
@@ -34,6 +35,22 @@ namespace Body4uHUB.Content.Api.Controllers
             var result = await Mediator.Send(command);
 
             return HandleResult(result, id => new { topicId = id });
+        }
+
+        /// <summary>
+        /// Delete forum topic (Admin only)
+        /// </summary>
+        [HttpDelete("topics/{topicId}")]
+        [Authorize(Policy = "AdminOnly")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> DeleteForumTopic(Guid topicId)
+        {
+            var result = await Mediator.Send(new DeleteForumTopicCommand { TopicId = topicId });
+            return HandleResult(result);
         }
 
         /// <summary>

@@ -13,20 +13,20 @@ namespace Body4uHUB.Content.Application.Commands.Forum.LockForumTopic
 
         internal class LockForumTopicCommandHandler : IRequestHandler<LockForumTopicCommand, Result>
         {
-            private readonly IForumTopicRepository _topicRepository;
+            private readonly IForumTopicRepository _forumTopicRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public LockForumTopicCommandHandler(
-                IForumTopicRepository topicRepository,
+                IForumTopicRepository forumTopicRepository,
                 IUnitOfWork unitOfWork)
             {
-                _topicRepository = topicRepository;
+                _forumTopicRepository = forumTopicRepository;
                 _unitOfWork = unitOfWork;
             }
 
             public async Task<Result> Handle(LockForumTopicCommand request, CancellationToken cancellationToken)
             {
-                var topic = await _topicRepository.GetByIdAsync(request.TopicId, cancellationToken);
+                var topic = await _forumTopicRepository.GetByIdAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity(ForumTopicNotFound);
