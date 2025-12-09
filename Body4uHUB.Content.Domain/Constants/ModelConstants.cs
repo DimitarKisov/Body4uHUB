@@ -47,7 +47,7 @@
             public const string AuthorIdRequired = "AuthorId is required.";
             public const string ContentLengthMessage = "Content must be between {0} and {1} characters long.";
             public const string ContentRequired = "Content is required.";
-            public const string ForumPostIdRequired = "ForumPostId is required.";
+            public const string ForumPostIdRequired = "PostId is required.";
             public const string ForumTopicIdRequired = "ForumTopicId is required.";
             public const string TitleLengthMessage = "Title must be between {0} and {1} characters long.";
             public const string TitleRequired = "Title is required.";
@@ -73,6 +73,9 @@
             public const string ForumTopicExists = "Forum topic with title '{0}' already exists.";
             public const string ForumTopicLocked = "Forum topic is already locked.";
             public const string ForumTopicUnlocked = "Forum topic is already unlocked.";
+
+            public const string ForumPostNotFound = "Forum post not found.";
+            public const string ForumPostDeleteForbidden = "You do not have permission to delete this post.";
 
             public const string ForumTopicIdCannotBeZeroOrNegative = "Forum Topic ID must be greater than 0.";
         }

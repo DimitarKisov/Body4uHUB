@@ -1,6 +1,7 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic;
+using Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.EditForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.LockForumTopic;
@@ -127,6 +128,30 @@ namespace Body4uHUB.Content.Api.Controllers
 
             var result = await Mediator.Send(command);
             return HandleResult(result, id => new { postId = id });
+        }
+
+
+        /// <summary>
+        /// Delete forum post (Author or Admin only)
+        /// </summary>
+        [HttpDelete("topics/{topicId}/posts/{postId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> DeleteForumPost(Guid topicId, Guid postId)
+        {
+            var command = new DeleteForumPostCommand
+            {
+                PostId = postId,
+                TopicId = topicId,
+                CurrentUserId = User.GetUserId(),
+                IsAdmin = User.IsAdmin()
+            };
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
         }
 
         /// <summary>
