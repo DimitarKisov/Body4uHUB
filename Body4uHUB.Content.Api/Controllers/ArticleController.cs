@@ -9,10 +9,12 @@ using Body4uHUB.Content.Application.Commands.Comments.Delete;
 using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles;
 using Body4uHUB.Content.Application.Queries.Articles.GetAll;
+using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -85,6 +87,18 @@ namespace Body4uHUB.Content.Api.Controllers
         }
 
         /// <summary>
+        /// Get all articles by a specific author
+        /// </summary>
+        [HttpGet("author/{authorId}")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(IEnumerable<ArticleDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetArticlesByAuthor(Guid authorId)
+        {
+            var result = await Mediator.Send(new GetArticlesByAuthorQuery { AuthorId = authorId });
+            return HandleResult(result);
+        }
+
+        /// <summary>
         /// Get all published articles with pagination
         /// </summary>
         [HttpGet]
@@ -93,7 +107,6 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> GetAllArticles([FromQuery] int skip = 0, [FromQuery] int take = 10)
         {
             var result = await Mediator.Send(new GetAllArticlesQuery { Skip = skip, Take = take });
-
             return HandleResult(result);
         }
 
@@ -166,7 +179,6 @@ namespace Body4uHUB.Content.Api.Controllers
             command.ArticleId = Domain.ValueObjects.ArticleId.Create(articleId);
 
             var result = await Mediator.Send(command);
-
             return HandleResult(result, id => new { commentId = id });
         }
 
@@ -182,14 +194,15 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteComment(int articleId, int commentId)
         {
-            var result = await Mediator.Send(new DeleteCommentCommand
+            var command = new DeleteCommentCommand
             {
                 Id = commentId,
                 ArticleId = articleId,
                 CurrentUserId = User.GetUserId(),
                 IsAdmin = User.IsAdmin()
-            });
+            };
 
+            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
     }
