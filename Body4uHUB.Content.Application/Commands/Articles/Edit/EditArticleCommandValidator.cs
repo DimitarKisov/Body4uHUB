@@ -1,10 +1,10 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Articles.Edit
+﻿using FluentValidation;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
+
+namespace Body4uHUB.Content.Application.Commands.Articles.Edit
 {
-    using FluentValidation;
-
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
-
     public class EditArticleCommandValidator : AbstractValidator<EditArticleCommand>
     {
         public EditArticleCommandValidator()

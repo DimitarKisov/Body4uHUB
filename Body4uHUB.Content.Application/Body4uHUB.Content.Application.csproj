@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Body4uHUB.Content.Domain\Body4uHUB.Content.Domain.csproj" />
+    <ProjectReference Include="..\Body4uHUB.Shared.Application\Body4uHUB.Shared.Application.csproj" />
   </ItemGroup>
 
 </Project>

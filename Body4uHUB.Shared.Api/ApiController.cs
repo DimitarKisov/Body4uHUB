@@ -41,6 +41,42 @@ namespace Body4uHUB.Shared.Api
         }
 
         /// <summary>
+        /// Handles Result pattern with Value Object (ArticleId, CommentId, etc.) and extracts primitive value
+        /// Usage: HandleResult(result, id => new { articleId = id })
+        /// </summary>
+        /// <typeparam name="T">Value Object type (ArticleId, CommentId, etc.)</typeparam>
+        /// <param name="result">Result object</param>
+        /// <param name="responseFactory">Function to create response object from extracted value</param>
+        /// <returns>IActionResult with appropriate status code</returns>
+        protected IActionResult HandleResult<T>(Result<T> result, System.Func<object, object> responseFactory)
+            where T : class
+        {
+            if (result.IsSuccess)
+            {
+                // Use reflection to get Value property from Value Object
+                var valueProperty = typeof(T).GetProperty("Value");
+                if (valueProperty != null)
+                {
+                    var primitiveValue = valueProperty.GetValue(result.Value);
+                    return Ok(responseFactory(primitiveValue));
+                }
+
+                // Fallback to default handling
+                return Ok(result.Value);
+            }
+
+            return result.ErrorType switch
+            {
+                ErrorType.UnprocessableEntity => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.Conflict => Conflict(new { error = result.Error }),
+                ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
+                ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
+                ErrorType.Validation => BadRequest(new { error = result.Error }),
+                _ => BadRequest(new { error = result.Error })
+            };
+        }
+
+        /// <summary>
         /// Handles Result pattern without return value and returns appropriate HTTP response
         /// </summary>
         /// <param name="result">Result object</param>

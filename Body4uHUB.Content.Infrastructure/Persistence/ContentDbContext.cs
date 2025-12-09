@@ -4,6 +4,7 @@
     using Body4uHUB.Content.Domain.ValueObjects;
     using Body4uHUB.Content.Infrastructure.Persistence.Converters;
     using Body4uHUB.Shared;
+    using Body4uHUB.Shared.Domain;
     using Microsoft.EntityFrameworkCore;
 
     internal class ContentDbContext : DbContext
@@ -42,11 +43,11 @@
         {
             var modifiedEntries = ChangeTracker.Entries()
                 .Where(x => x.State == EntityState.Modified &&
-                            x.Entity is Entity<Guid>);
+                            x.Entity is IModifiableEntity);
 
             foreach (var entry in modifiedEntries)
             {
-                var entity = (Entity<Guid>)entry.Entity;
+                var entity = (IModifiableEntity)entry.Entity;
                 entity.SetModifiedAt();
             }
 

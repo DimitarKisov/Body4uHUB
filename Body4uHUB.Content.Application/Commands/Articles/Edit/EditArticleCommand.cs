@@ -1,20 +1,22 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Articles.Edit
+﻿using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Content.Domain.ValueObjects;
+using Body4uHUB.Shared;
+using Body4uHUB.Shared.Application;
+using MediatR;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+
+namespace Body4uHUB.Content.Application.Commands.Articles.Edit
 {
-    using Body4uHUB.Content.Domain.Repositories;
-    using Body4uHUB.Content.Domain.ValueObjects;
-    using Body4uHUB.Shared;
-    using Body4uHUB.Shared.Exceptions;
-    using MediatR;
-
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
-
-    public class EditArticleCommand : IRequest<Unit>
+    public class EditArticleCommand : IRequest<Result>
     {
         public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
+        public Guid CurrentUserId { get; set; }
+        public bool IsAdmin { get; set; }
 
-        internal class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Unit>
+        internal class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Result>
         {
             private readonly IArticleRepository _articleRepository;
             private readonly IUnitOfWork _unitOfWork;
@@ -27,12 +29,17 @@
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Unit> Handle(EditArticleCommand request, CancellationToken cancellationToken)
+            public async Task<Result> Handle(EditArticleCommand request, CancellationToken cancellationToken)
             {
                 var article = await _articleRepository.GetByIdAsync(ArticleId.Create(request.Id), cancellationToken);
                 if (article == null)
                 {
-                    throw new NotFoundException(ArticleNotFound);
+                    return Result.UnprocessableEntity(ArticleNotFound);
+                }
+
+                if (!request.IsAdmin && article.AuthorId != request.CurrentUserId)
+                {
+                    return Result.Forbidden(ArticleEditForbidden);
                 }
 
                 article.UpdateTitle(request.Title);
@@ -40,7 +47,7 @@
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return Unit.Value;
+                return Result.Success();
             }
         }
     }

@@ -19,6 +19,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Body4uHUB.Content.Application\Body4uHUB.Content.Application.csproj" />
 		<ProjectReference Include="..\Body4uHUB.Content.Infrastructure\Body4uHUB.Content.Infrastructure.csproj" />
+		<ProjectReference Include="..\Body4uHUB.Shared.Api\Body4uHUB.Shared.Api.csproj" />
 	</ItemGroup>
 
 </Project>

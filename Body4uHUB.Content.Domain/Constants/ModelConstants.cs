@@ -15,6 +15,8 @@
             public const string ArticleExists = "Article with title '{0}' already exists";
             public const string ArticleNotFound = "Article not found.";
             public const string ArticleNotPublished = "Article is not published.";
+            public const string ArticlePublishForbidden = "You do not have permission to publish this article.";
+            public const string ArticleEditForbidden = "You do not have permission to edit this article.";
         }
 
         public class BookmarkConstants
@@ -36,6 +38,7 @@
             public const string CommentAlreadyDeleted = "Comment is already deleted.";
 
             public const string CommentNotFound = "Comment not found.";
+            public const string CommentDeleteForbidden = "You do not have permission to delete this comment.";
         }
 
         public class CommonConstants

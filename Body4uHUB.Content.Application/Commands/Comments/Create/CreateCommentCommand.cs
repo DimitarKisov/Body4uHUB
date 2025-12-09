@@ -1,22 +1,22 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Comments.Create
+﻿using Body4uHUB.Content.Domain.Models;
+using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Content.Domain.ValueObjects;
+using Body4uHUB.Shared;
+using Body4uHUB.Shared.Application;
+using MediatR;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+
+namespace Body4uHUB.Content.Application.Commands.Comments.Create
 {
-    using Body4uHUB.Content.Domain.Models;
-    using Body4uHUB.Content.Domain.Repositories;
-    using Body4uHUB.Content.Domain.ValueObjects;
-    using Body4uHUB.Shared;
-    using Body4uHUB.Shared.Exceptions;
-    using MediatR;
-
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
-
-    public class CreateCommentCommand : IRequest<CommentId>
+    public class CreateCommentCommand : IRequest<Result<CommentId>>
     {
         public string Content { get; set; }
         public Guid AuthorId { get; set; }
         public ArticleId ArticleId { get; set; }
-        public CommentId ParentCommentId { get; set; }
+        public int? ParentCommentId { get; set; }
 
-        internal class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, CommentId>
+        internal class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<CommentId>>
         {
             private readonly IArticleRepository _articleRepository;
             private readonly IUnitOfWork _unitOfWork;
@@ -29,25 +29,25 @@
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<CommentId> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+            public async Task<Result<CommentId>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
             {
                 var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
                 if (article == null)
                 {
-                    throw new NotFoundException(ArticleNotFound);
+                    return Result.UnprocessableEntity<CommentId>(ArticleNotFound);
                 }
 
                 var comment = Comment.Create(
                     request.Content,
                     request.AuthorId,
                     request.ArticleId,
-                    request.ParentCommentId);
+                    request.ParentCommentId.HasValue ? CommentId.Create(request.ParentCommentId.Value) : null);
 
                 article.AddComment(comment);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return comment.Id;
+                return Result.Success(comment.Id);
             }
         }
     }

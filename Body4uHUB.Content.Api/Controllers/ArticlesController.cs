@@ -1,19 +1,19 @@
-﻿namespace Body4uHUB.Content.Api.Controllers
-{
-    using Body4uHUB.Content.Api.Extensions;
-    using Body4uHUB.Content.Application.Commands.Articles.Create;
-    using Body4uHUB.Content.Application.Commands.Articles.Edit;
-    using Body4uHUB.Content.Application.Commands.Articles.Publish;
-    using Body4uHUB.Content.Application.Commands.Comments.Create;
-    using Body4uHUB.Content.Application.Commands.Comments.Delete;
-    using Body4uHUB.Content.Application.DTOs;
-    using Body4uHUB.Content.Application.Queries.Articles;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc;
-    using System;
-    using System.Threading.Tasks;
+﻿using Body4uHUB.Content.Api.Extensions;
+using Body4uHUB.Content.Application.Commands.Articles.Create;
+using Body4uHUB.Content.Application.Commands.Articles.Edit;
+using Body4uHUB.Content.Application.Commands.Articles.Publish;
+using Body4uHUB.Content.Application.Commands.Comments.Create;
+using Body4uHUB.Content.Application.Commands.Comments.Delete;
+using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Content.Application.Queries.Articles;
+using Body4uHUB.Shared.Api;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
+namespace Body4uHUB.Content.Api.Controllers
+{
     [Route("api/articles")]
     public class ArticlesController : ApiController
     {
@@ -22,13 +22,16 @@
         /// </summary>
         [HttpPost("create")]
         [Authorize(Policy = "TrainerOrAdmin")]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> CreateArticle(CreateArticleCommand command)
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> CreateArticle([FromBody] CreateArticleCommand command)
         {
-            var articleId = await Mediator.Send(command);
-            return Ok(articleId);
+            command.AuthorId = User.GetUserId();
+            var result = await Mediator.Send(command);
+
+            return HandleResult(result, id => new { articleId = id });
         }
 
         /// <summary>
@@ -37,41 +40,52 @@
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ArticleDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetArticle(int id)
         {
-            var article = await Mediator.Send(new GetArticleByIdQuery { Id = id });
-            return Ok(article);
+            var result = await Mediator.Send(new GetArticleByIdQuery { Id = id });
+            return HandleResult(result);
         }
 
         /// <summary>
-        /// Edit article (Trainers and Admins only)
+        /// Edit article (Author or Admin only)
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> EditArticle(int id, [FromBody] EditArticleCommand command)
         {
             command.Id = id;
-            await Mediator.Send(command);
-            return NoContent();
+            command.CurrentUserId = User.GetUserId();
+            command.IsAdmin = User.IsAdmin();
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
         }
 
         /// <summary>
-        /// Publish article (Trainers and Admins only)
+        /// Publish article (Author or Admin only)
         /// </summary>
         [HttpPost("{id}/publish")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> PublishArticle(int id)
         {
-            await Mediator.Send(new PublishArticleCommand { Id = id });
-            return NoContent();
+            var command = new PublishArticleCommand();
+
+            command.Id = id;
+            command.CurrentUserId = User.GetUserId();
+            command.IsAdmin = User.IsAdmin();
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
         }
 
         /// <summary>
@@ -79,36 +93,41 @@
         /// </summary>
         [HttpPost("{articleId}/comments")]
         [Authorize]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> AddComment(int articleId, [FromBody] CreateCommentCommand command)
         {
             command.AuthorId = User.GetUserId();
             command.ArticleId = Domain.ValueObjects.ArticleId.Create(articleId);
 
-            var commentId = await Mediator.Send(command);
-            return Ok(new { commentId = commentId.Value });
+            var result = await Mediator.Send(command);
+
+            return HandleResult(result, id => new { commentId = id });
         }
 
         /// <summary>
-        /// Delete a comment from an article (soft delete)
+        /// Delete a comment from an article (Author or Admin only)
         /// </summary>
         [HttpDelete("{articleId}/comments/{commentId}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteComment(int articleId, int commentId)
         {
-            await Mediator.Send(new DeleteCommentCommand
+            var result = await Mediator.Send(new DeleteCommentCommand
             {
                 Id = commentId,
-                ArticleId = articleId
+                ArticleId = articleId,
+                CurrentUserId = User.GetUserId(),
+                IsAdmin = User.IsAdmin()
             });
-            return NoContent();
+
+            return HandleResult(result);
         }
     }
 }

@@ -30,5 +30,10 @@
         {
             return principal.FindFirst(ClaimTypes.Role)?.Value;
         }
+
+        public static bool IsAdmin(this ClaimsPrincipal principal)
+        {
+            return principal.IsInRole("Administrator") || principal.IsInRole("Admin");
+        }
     }
 }

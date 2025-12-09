@@ -1,6 +1,8 @@
-﻿namespace Body4uHUB.Shared
+﻿using Body4uHUB.Shared.Domain;
+
+namespace Body4uHUB.Shared
 {
-    public abstract class Entity<TId> : IEquatable<Entity<TId>>
+    public abstract class Entity<TId> : IEquatable<Entity<TId>>, IModifiableEntity
         where TId : notnull
     {
         private readonly List<IDomainEvent> _domainEvents = new();

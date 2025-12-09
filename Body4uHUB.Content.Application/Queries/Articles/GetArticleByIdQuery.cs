@@ -1,19 +1,19 @@
-﻿namespace Body4uHUB.Content.Application.Queries.Articles
+﻿using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Content.Domain.ValueObjects;
+using Body4uHUB.Shared;
+using Body4uHUB.Shared.Application;
+using MediatR;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+
+namespace Body4uHUB.Content.Application.Queries.Articles
 {
-    using Body4uHUB.Content.Application.DTOs;
-    using Body4uHUB.Content.Domain.Repositories;
-    using Body4uHUB.Content.Domain.ValueObjects;
-    using Body4uHUB.Shared;
-    using Body4uHUB.Shared.Exceptions;
-    using MediatR;
-
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
-
-    public class GetArticleByIdQuery : IRequest<ArticleDto>
+    public class GetArticleByIdQuery : IRequest<Result<ArticleDto>>
     {
         public int Id { get; set; }
 
-        internal class GetArticleByIdQueryHandler : IRequestHandler<GetArticleByIdQuery, ArticleDto>
+        internal class GetArticleByIdQueryHandler : IRequestHandler<GetArticleByIdQuery, Result<ArticleDto>>
         {
             private readonly IArticleRepository _articleRepository;
             private readonly IUnitOfWork _unitOfWork;
@@ -26,20 +26,20 @@
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<ArticleDto> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
+            public async Task<Result<ArticleDto>> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
             {
 
                 var article = await _articleRepository.GetByIdAsync(ArticleId.Create(request.Id), cancellationToken);
                 if (article == null)
                 {
-                    throw new NotFoundException(ArticleNotFound);
+                    return Result.UnprocessableEntity<ArticleDto>(ArticleNotFound);
                 }
 
                 article.IncrementViewCount();
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return new ArticleDto
+                var articleDto = new ArticleDto
                 {
                     Id = article.Id.Value,
                     Title = article.Title,
@@ -49,8 +49,20 @@
                     PublishedAt = article.PublishedAt,
                     ViewCount = article.ViewCount,
                     CreatedAt = article.CreatedAt,
-                    ModifiedAt = article.ModifiedAt
+                    ModifiedAt = article.ModifiedAt,
+                    Comments = article.Comments.Select(x => new CommentDto
+                    {
+                        Id = x.Id.Value,
+                        ArticleId = x.ArticleId.Value,
+                        AuthorId = x.AuthorId,
+                        Content = x.Content,
+                        CreatedAt = x.CreatedAt,
+                        ModifiedAt = x.ModifiedAt
+                    })
+                    .ToList()
                 };
+
+                return Result.Success(articleDto);
             }
         }
     }
