@@ -2,11 +2,13 @@
 using Body4uHUB.Content.Application.Commands.Forum;
 using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Forum;
+using Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Api.Controllers
@@ -30,6 +32,18 @@ namespace Body4uHUB.Content.Api.Controllers
             var result = await Mediator.Send(command);
 
             return HandleResult(result, id => new { topicId = id });
+        }
+
+        /// <summary>
+        /// Get all forum topics with pagination
+        /// </summary>
+        [HttpGet("topics")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(IEnumerable<ForumTopicDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllTopics([FromQuery] int skip = 0, [FromQuery] int take = 20)
+        {
+            var result = await Mediator.Send(new GetAllForumTopicsQuery { Skip = skip, Take = take });
+            return HandleResult(result);
         }
 
         /// <summary>
