@@ -18,11 +18,11 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
 
         internal class EditForumPostCommandHandler : IRequestHandler<EditForumPostCommand, Result>
         {
-            private readonly IForumTopicRepository _forumTopicRepository;
+            private readonly IForumRepository _forumTopicRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public EditForumPostCommandHandler(
-                IForumTopicRepository forumTopicRepository,
+                IForumRepository forumTopicRepository,
                 IUnitOfWork unitOfWork)
             {
                 _forumTopicRepository = forumTopicRepository;

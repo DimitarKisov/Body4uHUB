@@ -2,7 +2,7 @@
 
 namespace Body4uHUB.Content.Application.Repositories
 {
-    public interface IForumTopicReadRepository
+    public interface IForumReadRepository
     {
         Task<IEnumerable<ForumTopicDto>> GetAllAsync(int skip, int take, CancellationToken cancellationToken);
     }

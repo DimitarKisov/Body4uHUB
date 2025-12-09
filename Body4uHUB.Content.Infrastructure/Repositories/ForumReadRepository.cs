@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories
 {
-    internal class ForumTopicReadRepository : IForumTopicReadRepository
+    internal class ForumReadRepository : IForumReadRepository
     {
         private readonly ContentDbContext _dbContext;
 
-        public ForumTopicReadRepository(ContentDbContext dbContext)
+        public ForumReadRepository(ContentDbContext dbContext)
         {
             _dbContext = dbContext;
         }

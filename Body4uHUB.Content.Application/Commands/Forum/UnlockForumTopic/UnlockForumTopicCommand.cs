@@ -13,11 +13,11 @@ namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic
 
         internal class UnlockForumTopicCommandHandler : IRequestHandler<UnlockForumTopicCommand, Result>
         {
-            private readonly IForumTopicRepository _forumTopicRepository;
+            private readonly IForumRepository _forumTopicRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public UnlockForumTopicCommandHandler(
-                IForumTopicRepository forumTopicRepository,
+                IForumRepository forumTopicRepository,
                 IUnitOfWork unitOfWork)
             {
                 _forumTopicRepository = forumTopicRepository;

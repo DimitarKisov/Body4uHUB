@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories
 {
-    internal class ForumTopicRepository : IForumTopicRepository
+    internal class ForumRepository : IForumRepository
     {
         private readonly ContentDbContext _dbContext;
 
-        public ForumTopicRepository(ContentDbContext dbContext)
+        public ForumRepository(ContentDbContext dbContext)
         {
             _dbContext = dbContext;
         }

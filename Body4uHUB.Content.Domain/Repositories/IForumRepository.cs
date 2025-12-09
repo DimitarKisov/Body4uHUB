@@ -3,7 +3,7 @@ using Body4uHUB.Shared;
 
 namespace Body4uHUB.Content.Domain.Repositories
 {
-    public interface IForumTopicRepository : IRepository<ForumTopic>
+    public interface IForumRepository : IRepository<ForumTopic>
     {
         void Add(ForumTopic forumTopic);
         Task<ForumTopic> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

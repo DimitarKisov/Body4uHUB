@@ -15,11 +15,11 @@ namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic
 
         internal class CreateForumTopicCommandHandler : IRequestHandler<CreateForumTopicCommand, Result<Guid>>
         {
-            private readonly IForumTopicRepository _topicRepository;
+            private readonly IForumRepository _topicRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public CreateForumTopicCommandHandler(
-                IForumTopicRepository topicRepository,
+                IForumRepository topicRepository,
                 IUnitOfWork unitOfWork)
             {
                 _topicRepository = topicRepository;

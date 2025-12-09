@@ -13,11 +13,11 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic
 
         internal class DeleteForumTopicCommandHandler : IRequestHandler<DeleteForumTopicCommand, Result>
         {
-            private readonly IForumTopicRepository _forumTopicRepository;
+            private readonly IForumRepository _forumTopicRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public DeleteForumTopicCommandHandler(
-                IForumTopicRepository forumTopicRepository,
+                IForumRepository forumTopicRepository,
                 IUnitOfWork unitOfWork)
             {
                 _forumTopicRepository = forumTopicRepository;

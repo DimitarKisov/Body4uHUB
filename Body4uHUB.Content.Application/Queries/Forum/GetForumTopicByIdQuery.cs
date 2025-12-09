@@ -14,11 +14,11 @@ namespace Body4uHUB.Content.Application.Queries.Forum
 
         internal class GetForumTopicByIdQueryHandler : IRequestHandler<GetForumTopicByIdQuery, Result<ForumTopicDto>>
         {
-            private readonly IForumTopicRepository _topicRepository;
+            private readonly IForumRepository _topicRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public GetForumTopicByIdQueryHandler(
-                IForumTopicRepository topicRepository,
+                IForumRepository topicRepository,
                 IUnitOfWork unitOfWork)
             {
                 _topicRepository = topicRepository;

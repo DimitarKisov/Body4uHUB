@@ -13,9 +13,9 @@ namespace Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics
 
         internal class GetAllForumTopicsQueryHandler : IRequestHandler<GetAllForumTopicsQuery, Result<IEnumerable<ForumTopicDto>>>
         {
-            private readonly IForumTopicReadRepository _forumTopicReadRepository;
+            private readonly IForumReadRepository _forumTopicReadRepository;
 
-            public GetAllForumTopicsQueryHandler(IForumTopicReadRepository forumTopicReadRepository)
+            public GetAllForumTopicsQueryHandler(IForumReadRepository forumTopicReadRepository)
             {
                 _forumTopicReadRepository = forumTopicReadRepository;
             }
