@@ -1,6 +1,7 @@
 ﻿namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
 {
     using Body4uHUB.Content.Domain.Models;
+    using Body4uHUB.Content.Domain.ValueObjects;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +12,11 @@
             builder.ToTable("Comments");
 
             builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Id)
+                .ValueGeneratedOnAdd()
+                .UseIdentityColumn()
+                .IsRequired();
 
             builder.Property(x => x.Content)
                 .HasMaxLength(2000)

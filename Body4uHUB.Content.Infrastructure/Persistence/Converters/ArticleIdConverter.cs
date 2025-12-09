@@ -8,7 +8,7 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Converters
         public ArticleIdConverter()
             : base(
                 articleId => articleId.Value,
-                value => ArticleId.Create(value))
+                value => ArticleId.CreateInternal(value))
         {
         }
     }

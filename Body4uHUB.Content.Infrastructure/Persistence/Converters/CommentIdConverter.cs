@@ -8,7 +8,7 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Converters
         public CommentIdConverter()
             : base(
                 commentId => commentId.Value,
-                value => CommentId.Create(value))
+                value => CommentId.CreateInternal(value))
         {
         }
     }

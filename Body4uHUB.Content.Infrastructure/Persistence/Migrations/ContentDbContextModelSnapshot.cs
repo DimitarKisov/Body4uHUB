@@ -25,7 +25,10 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Body4uHUB.Content.Domain.Models.Article", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
@@ -98,7 +101,10 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Body4uHUB.Content.Domain.Models.Comment", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ArticleId")
                         .HasColumnType("int");

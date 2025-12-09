@@ -1,5 +1,6 @@
 ﻿namespace Body4uHUB.Content.Api.Middleware
 {
+    using Body4uHUB.Content.Domain.Exceptions;
     using Body4uHUB.Shared.Exceptions;
     using FluentValidation;
     using Microsoft.AspNetCore.Http;
@@ -71,12 +72,31 @@
                     };
                     break;
 
+                case InvalidValueObjectException valueObjectEx:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    response = new
+                    {
+                        statusCode,
+                        message = valueObjectEx.Error,
+                        errorType = "InvalidValueObject"
+                    };
+                    break;
+
                 case BaseDomainException domainEx:
                     statusCode = (int)HttpStatusCode.BadRequest;
                     response = new
                     {
                         statusCode,
                         message = domainEx.Error
+                    };
+                    break;
+
+                case ArgumentException argumentEx:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    response = new
+                    {
+                        statusCode,
+                        message = argumentEx.Message
                     };
                     break;
 

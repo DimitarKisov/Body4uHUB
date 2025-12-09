@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Shared;
+﻿using Body4uHUB.Content.Domain.Exceptions;
+using Body4uHUB.Shared;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
 
@@ -10,15 +11,22 @@ namespace Body4uHUB.Content.Domain.ValueObjects
 
         private CommentId(int value)
         {
-            if (value <= 0)
-            {
-                throw new ArgumentException(CommentIdCannotBeZeroOrNegative);
-            }
-
             Value = value;
         }
 
+        // Public - за application layer
         public static CommentId Create(int value)
+        {
+            if (value <= 0)
+            {
+                throw new InvalidValueObjectException(CommentIdCannotBeZeroOrNegative);
+            }
+
+            return new CommentId(value);
+        }
+
+        // Internal - САМО за EF Core
+        internal static CommentId CreateInternal(int value)
         {
             return new CommentId(value);
         }

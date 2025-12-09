@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ContentDbContext))]
-    [Migration("20251118133559_Initial")]
+    [Migration("20251209081301_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -28,7 +28,10 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Body4uHUB.Content.Domain.Models.Article", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
@@ -101,7 +104,10 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Body4uHUB.Content.Domain.Models.Comment", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ArticleId")
                         .HasColumnType("int");
