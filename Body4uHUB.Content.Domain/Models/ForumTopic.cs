@@ -17,12 +17,12 @@ namespace Body4uHUB.Content.Domain.Models
         public IReadOnlyCollection<ForumPost> Posts => _posts.AsReadOnly();
 
         private ForumTopic()
-            : base(new Guid())
+            : base(Guid.Empty)
         {
         }
 
         private ForumTopic(string title, Guid authorId)
-            : base(Guid.NewGuid())
+            : base(Guid.Empty)
         {
             Title = title;
             AuthorId = authorId;

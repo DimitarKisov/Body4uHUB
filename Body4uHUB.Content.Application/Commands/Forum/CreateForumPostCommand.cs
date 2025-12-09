@@ -41,15 +41,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum
 
                 topic.AddPost(post);
 
-                try
-                {
-                    await _unitOfWork.SaveChangesAsync(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-
-                    throw;
-                }
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return Result.Success(post.Id);
             }

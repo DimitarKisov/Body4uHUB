@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Shared;
 using Body4uHUB.Shared.Application;
 using MediatR;
 
@@ -14,11 +15,14 @@ namespace Body4uHUB.Content.Application.Queries.Forum
         internal class GetForumTopicByIdQueryHandler : IRequestHandler<GetForumTopicByIdQuery, Result<ForumTopicDto>>
         {
             private readonly IForumTopicRepository _topicRepository;
+            private readonly IUnitOfWork _unitOfWork;
 
             public GetForumTopicByIdQueryHandler(
-                IForumTopicRepository topicRepository)
+                IForumTopicRepository topicRepository,
+                IUnitOfWork unitOfWork)
             {
                 _topicRepository = topicRepository;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<ForumTopicDto>> Handle(GetForumTopicByIdQuery request, CancellationToken cancellationToken)
@@ -30,6 +34,8 @@ namespace Body4uHUB.Content.Application.Queries.Forum
                 }
 
                 topic.IncrementViewCount();
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 var forumTopicDto = new ForumTopicDto
                 {

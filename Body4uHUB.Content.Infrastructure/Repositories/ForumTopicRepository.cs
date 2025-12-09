@@ -36,7 +36,9 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
 
         public async Task<ForumTopic> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.ForumTopics.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            return await _dbContext.ForumTopics
+                .Include(x => x.Posts)
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
         public void Remove(ForumTopic forumTopic)

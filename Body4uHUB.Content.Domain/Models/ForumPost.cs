@@ -12,12 +12,12 @@ namespace Body4uHUB.Content.Domain.Models
         public bool IsDeleted { get; private set; }
 
         private ForumPost()
-            : base(Guid.NewGuid())
+            : base(Guid.Empty)
         {
         }
 
         private ForumPost(string content, Guid authorId)
-            : base(Guid.NewGuid())
+            : base(Guid.Empty)
         {
             Content = content;
             AuthorId = authorId;
