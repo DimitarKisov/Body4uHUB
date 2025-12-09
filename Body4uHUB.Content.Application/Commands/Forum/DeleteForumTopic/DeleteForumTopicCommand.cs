@@ -13,20 +13,20 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic
 
         internal class DeleteForumTopicCommandHandler : IRequestHandler<DeleteForumTopicCommand, Result>
         {
-            private readonly IForumRepository _forumTopicRepository;
+            private readonly IForumRepository _forumRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public DeleteForumTopicCommandHandler(
-                IForumRepository forumTopicRepository,
+                IForumRepository forumRepository,
                 IUnitOfWork unitOfWork)
             {
-                _forumTopicRepository = forumTopicRepository;
+                _forumRepository = forumRepository;
                 _unitOfWork = unitOfWork;
             }
 
             public async Task<Result> Handle(DeleteForumTopicCommand request, CancellationToken cancellationToken)
             {
-                var topic = await _forumTopicRepository.GetByIdAsync(request.TopicId);
+                var topic = await _forumRepository.GetByIdAsync(request.TopicId);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity(ForumTopicNotFound);

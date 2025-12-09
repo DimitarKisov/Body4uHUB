@@ -36,13 +36,16 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
 
         public async Task<ForumTopic> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.ForumTopics.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            return await _dbContext.ForumTopics
+                .Where(x => !x.IsDeleted)
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
         public async Task<ForumTopic> GetByIdWithPostsAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.ForumTopics
-                .Include(x => x.Posts)
+                .Include(x => x.Posts
+                    .Where(y => !y.IsDeleted))
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 

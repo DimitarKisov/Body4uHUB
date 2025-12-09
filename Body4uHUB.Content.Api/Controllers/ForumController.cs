@@ -4,6 +4,7 @@ using Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.EditForumPost;
+using Body4uHUB.Content.Application.Commands.Forum.EditForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.LockForumTopic;
 using Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic;
 using Body4uHUB.Content.Application.DTOs;
@@ -53,6 +54,26 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> DeleteForumTopic(Guid topicId)
         {
             var result = await Mediator.Send(new DeleteForumTopicCommand { TopicId = topicId });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Edit forum topic title (Author or Admin only)
+        /// </summary>
+        [HttpPut("topics/{topicId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> EditForumTopic(Guid topicId, [FromBody] EditForumTopicCommand command)
+        {
+            command.TopicId = topicId;
+            command.CurrentUserId = User.GetUserId();
+            command.IsAdmin = User.IsAdmin();
+
+            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
 

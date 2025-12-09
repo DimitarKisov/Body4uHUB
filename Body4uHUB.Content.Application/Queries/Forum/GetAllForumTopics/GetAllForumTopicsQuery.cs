@@ -13,16 +13,16 @@ namespace Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics
 
         internal class GetAllForumTopicsQueryHandler : IRequestHandler<GetAllForumTopicsQuery, Result<IEnumerable<ForumTopicDto>>>
         {
-            private readonly IForumReadRepository _forumTopicReadRepository;
+            private readonly IForumReadRepository _forumReadRepository;
 
-            public GetAllForumTopicsQueryHandler(IForumReadRepository forumTopicReadRepository)
+            public GetAllForumTopicsQueryHandler(IForumReadRepository forumReadRepository)
             {
-                _forumTopicReadRepository = forumTopicReadRepository;
+                _forumReadRepository = forumReadRepository;
             }
 
             public async Task<Result<IEnumerable<ForumTopicDto>>> Handle(GetAllForumTopicsQuery request, CancellationToken cancellationToken)
             {
-                var topics = await _forumTopicReadRepository.GetAllAsync(request.Skip, request.Take, cancellationToken);
+                var topics = await _forumReadRepository.GetAllAsync(request.Skip, request.Take, cancellationToken);
 
                 return Result.Success(topics);
             }

@@ -18,20 +18,20 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
 
         internal class EditForumPostCommandHandler : IRequestHandler<EditForumPostCommand, Result>
         {
-            private readonly IForumRepository _forumTopicRepository;
+            private readonly IForumRepository _forumRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public EditForumPostCommandHandler(
-                IForumRepository forumTopicRepository,
+                IForumRepository forumRepository,
                 IUnitOfWork unitOfWork)
             {
-                _forumTopicRepository = forumTopicRepository;
+                _forumRepository = forumRepository;
                 _unitOfWork = unitOfWork;
             }
 
             public async Task<Result> Handle(EditForumPostCommand request, CancellationToken cancellationToken)
             {
-                var topic = await _forumTopicRepository.GetByIdAsync(request.TopicId, cancellationToken);
+                var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity(ForumTopicNotFound);

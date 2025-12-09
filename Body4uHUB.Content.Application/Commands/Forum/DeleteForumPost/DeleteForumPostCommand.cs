@@ -3,6 +3,7 @@ using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
 
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
@@ -16,20 +17,20 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
 
         internal class DeleteForumPostCommandHandler : IRequestHandler<DeleteForumPostCommand, Result>
         {
-            private readonly IForumRepository _topicRepository;
+            private readonly IForumRepository _forumRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public DeleteForumPostCommandHandler(
-                IForumRepository topicRepository,
+                IForumRepository forumRepository,
                 IUnitOfWork unitOfWork)
             {
-                _topicRepository = topicRepository;
+                _forumRepository = forumRepository;
                 _unitOfWork = unitOfWork;
             }
 
             public async Task<Result> Handle(DeleteForumPostCommand request, CancellationToken cancellationToken)
             {
-                var topic = await _topicRepository.GetByIdAsync(request.TopicId, cancellationToken);
+                var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity(ForumTopicNotFound);

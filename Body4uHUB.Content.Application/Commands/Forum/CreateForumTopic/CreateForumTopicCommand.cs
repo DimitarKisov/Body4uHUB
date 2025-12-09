@@ -15,20 +15,20 @@ namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic
 
         internal class CreateForumTopicCommandHandler : IRequestHandler<CreateForumTopicCommand, Result<Guid>>
         {
-            private readonly IForumRepository _topicRepository;
+            private readonly IForumRepository _forumRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public CreateForumTopicCommandHandler(
-                IForumRepository topicRepository,
+                IForumRepository forumRepository,
                 IUnitOfWork unitOfWork)
             {
-                _topicRepository = topicRepository;
+                _forumRepository = forumRepository;
                 _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Guid>> Handle(CreateForumTopicCommand request, CancellationToken cancellationToken)
             {
-                var titleExists = await _topicRepository.ExistsByTitleAsync(request.Title, cancellationToken);
+                var titleExists = await _forumRepository.ExistsByTitleAsync(request.Title, cancellationToken);
                 if (titleExists)
                 {
                     return Result.Conflict<Guid>(string.Format(ForumTopicExists, request.Title));
@@ -38,7 +38,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic
                     request.Title,
                     request.AuthorId);
 
-                _topicRepository.Add(topic);
+                _forumRepository.Add(topic);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

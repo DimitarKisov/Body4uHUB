@@ -14,20 +14,20 @@ namespace Body4uHUB.Content.Application.Queries.Forum
 
         internal class GetForumTopicByIdQueryHandler : IRequestHandler<GetForumTopicByIdQuery, Result<ForumTopicDto>>
         {
-            private readonly IForumRepository _topicRepository;
+            private readonly IForumRepository _forumRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public GetForumTopicByIdQueryHandler(
-                IForumRepository topicRepository,
+                IForumRepository forumRepository,
                 IUnitOfWork unitOfWork)
             {
-                _topicRepository = topicRepository;
+                _forumRepository = forumRepository;
                 _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<ForumTopicDto>> Handle(GetForumTopicByIdQuery request, CancellationToken cancellationToken)
             {
-                var topic = await _topicRepository.GetByIdAsync(request.TopicId, cancellationToken);
+                var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity<ForumTopicDto>(ForumTopicNotFound);

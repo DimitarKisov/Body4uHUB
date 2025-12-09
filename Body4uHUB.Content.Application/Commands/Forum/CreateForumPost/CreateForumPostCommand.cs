@@ -16,20 +16,20 @@ namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumPost
 
         internal class CreateForumPostCommandHandler : IRequestHandler<CreateForumPostCommand, Result<Guid>>
         {
-            private readonly IForumRepository _forumTopicRepository;
+            private readonly IForumRepository _forumRepository;
             private readonly IUnitOfWork _unitOfWork;
 
             public CreateForumPostCommandHandler(
-                IForumRepository forumTopicRepository,
+                IForumRepository forumRepository,
                 IUnitOfWork unitOfWork)
             {
-                _forumTopicRepository = forumTopicRepository;
+                _forumRepository = forumRepository;
                 _unitOfWork = unitOfWork;
             }
 
             public async Task<Result<Guid>> Handle(CreateForumPostCommand request, CancellationToken cancellationToken)
             {
-                var topic = await _forumTopicRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
+                var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity<Guid>(ForumTopicNotFound);
