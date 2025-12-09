@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
+using Body4uHUB.Content.Application.Commands.Articles.Archive;
 using Body4uHUB.Content.Application.Commands.Articles.Create;
 using Body4uHUB.Content.Application.Commands.Articles.Edit;
 using Body4uHUB.Content.Application.Commands.Articles.Publish;
@@ -19,6 +20,29 @@ namespace Body4uHUB.Content.Api.Controllers
     [Route("api/articles")]
     public class ArticleController : ApiController
     {
+        /// <summary>
+        /// Archive article (Author or Admin only)
+        /// </summary>
+        [HttpPost("{id}/archive")]
+        [Authorize(Policy = "TrainerOrAdmin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> ArchiveArticle(int id)
+        {
+            var command = new ArchiveArticleCommand
+            {
+                Id = id,
+                CurrentUserId = User.GetUserId(),
+                IsAdmin = User.IsAdmin()
+            };
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
+        }
+
         /// <summary>
         /// Create a new article (Trainers and Admins only)
         /// </summary>
