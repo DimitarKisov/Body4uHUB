@@ -29,7 +29,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum
 
             public async Task<Result<Guid>> Handle(CreateForumPostCommand request, CancellationToken cancellationToken)
             {
-                var topic = await _forumTopicRepository.GetByIdAsync(request.TopicId, cancellationToken);
+                var topic = await _forumTopicRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity<Guid>(ForumTopicNotFound);
