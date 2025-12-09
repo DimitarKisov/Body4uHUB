@@ -48,8 +48,7 @@ namespace Body4uHUB.Shared.Api
         /// <param name="result">Result object</param>
         /// <param name="responseFactory">Function to create response object from extracted value</param>
         /// <returns>IActionResult with appropriate status code</returns>
-        protected IActionResult HandleResult<T>(Result<T> result, System.Func<object, object> responseFactory)
-            where T : class
+        protected IActionResult HandleResult<T>(Result<T> result, Func<object, object> responseFactory)
         {
             if (result.IsSuccess)
             {
@@ -62,7 +61,7 @@ namespace Body4uHUB.Shared.Api
                 }
 
                 // Fallback to default handling
-                return Ok(result.Value);
+                return Ok(responseFactory(result.Value));
             }
 
             return result.ErrorType switch

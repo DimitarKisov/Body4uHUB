@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Body4uHUB.Content.Api.Controllers
 {
     [Authorize]
-    [Route("api/forum")]
+    [Route("api/forums")]
     public class ForumController : ApiController
     {
         /// <summary>
@@ -22,12 +22,14 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateForumTopic([FromBody] CreateForumTopicCommand command)
         {
             command.AuthorId = User.GetUserId();
 
-            var topicId = await Mediator.Send(command);
-            return Ok(new { topicId });
+            var result = await Mediator.Send(command);
+
+            return HandleResult(result, id => new { topicId = id });
         }
 
         /// <summary>
@@ -36,11 +38,11 @@ namespace Body4uHUB.Content.Api.Controllers
         [HttpGet("topics/{topicId}")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ForumTopicDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetForumTopic(Guid topicId)
         {
-            var topic = await Mediator.Send(new GetForumTopicByIdQuery { TopicId = topicId });
-            return Ok(topic);
+            var result = await Mediator.Send(new GetForumTopicByIdQuery { TopicId = topicId });
+            return HandleResult(result);
         }
 
         /// <summary>
@@ -50,14 +52,14 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CreateForumPost(Guid topicId, [FromBody] CreateForumPostCommand command)
         {
             command.TopicId = topicId;
             command.AuthorId = User.GetUserId();
 
-            var postId = await Mediator.Send(command);
-            return Ok(new { postId });
+            var result = await Mediator.Send(command);
+            return HandleResult(result, id => new { postId = id });
         }
     }
 }

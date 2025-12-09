@@ -1,17 +1,17 @@
-﻿namespace Body4uHUB.Content.Application.Queries.Forum
+﻿using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Shared.Application;
+using MediatR;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
+
+namespace Body4uHUB.Content.Application.Queries.Forum
 {
-    using Body4uHUB.Content.Application.DTOs;
-    using Body4uHUB.Content.Domain.Repositories;
-    using Body4uHUB.Shared.Exceptions;
-    using MediatR;
-
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
-
-    public class GetForumTopicByIdQuery : IRequest<ForumTopicDto>
+    public class GetForumTopicByIdQuery : IRequest<Result<ForumTopicDto>>
     {
         public Guid TopicId { get; set; }
 
-        internal class GetForumTopicByIdQueryHandler : IRequestHandler<GetForumTopicByIdQuery, ForumTopicDto>
+        internal class GetForumTopicByIdQueryHandler : IRequestHandler<GetForumTopicByIdQuery, Result<ForumTopicDto>>
         {
             private readonly IForumTopicRepository _topicRepository;
 
@@ -21,17 +21,17 @@
                 _topicRepository = topicRepository;
             }
 
-            public async Task<ForumTopicDto> Handle(GetForumTopicByIdQuery request, CancellationToken cancellationToken)
+            public async Task<Result<ForumTopicDto>> Handle(GetForumTopicByIdQuery request, CancellationToken cancellationToken)
             {
                 var topic = await _topicRepository.GetByIdAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
-                    throw new NotFoundException(ForumTopicNotFound);
+                    return Result.UnprocessableEntity<ForumTopicDto>(ForumTopicNotFound);
                 }
 
                 topic.IncrementViewCount();
 
-                return new ForumTopicDto
+                var forumTopicDto = new ForumTopicDto
                 {
                     Id = topic.Id,
                     Title = topic.Title,
@@ -42,6 +42,8 @@
                     CreatedAt = topic.CreatedAt,
                     ModifiedAt = topic.ModifiedAt
                 };
+
+                return Result.Success(forumTopicDto);
             }
         }
     }

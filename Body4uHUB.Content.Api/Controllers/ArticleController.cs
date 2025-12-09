@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Body4uHUB.Content.Api.Controllers
 {
     [Route("api/articles")]
-    public class ArticlesController : ApiController
+    public class ArticleController : ApiController
     {
         /// <summary>
         /// Create a new article (Trainers and Admins only)

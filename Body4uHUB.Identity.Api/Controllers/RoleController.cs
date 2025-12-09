@@ -9,7 +9,7 @@ namespace Body4uHUB.Identity.Api.Controllers
 {
     [Authorize(Policy = "AdminOnly")]
     [Route("api/roles")]
-    public class RolesController : ApiController
+    public class RoleController : ApiController
     {
         /// <summary>
         /// Add roles to a user (Admin only)

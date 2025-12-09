@@ -12,7 +12,7 @@ namespace Body4uHUB.Identity.Api.Controllers
 {
     [Authorize]
     [Route("api/users")]
-    public class UsersController : ApiController
+    public class UserController : ApiController
     {
         /// <summary>
         /// Change current user password
