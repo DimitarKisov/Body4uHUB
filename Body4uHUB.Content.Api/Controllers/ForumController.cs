@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Application.Commands.Forum;
+using Body4uHUB.Content.Application.Commands.Forum.LockForumTopic;
 using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Forum;
 using Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics;
@@ -56,6 +57,22 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> GetForumTopic(Guid topicId)
         {
             var result = await Mediator.Send(new GetForumTopicByIdQuery { TopicId = topicId });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Lock forum topic (Admin only)
+        /// </summary>
+        [HttpPost("topics/{topicId}/lock")]
+        [Authorize(Policy = "AdminOnly")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> LockForumTopic(Guid topicId)
+        {
+            var result = await Mediator.Send(new LockForumTopicCommand { TopicId = topicId });
             return HandleResult(result);
         }
 
