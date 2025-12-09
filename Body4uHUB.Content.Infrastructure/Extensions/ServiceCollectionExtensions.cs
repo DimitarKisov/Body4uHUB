@@ -25,6 +25,7 @@ namespace Body4uHUB.Content.Infrastructure.Extensions
             services.AddScoped<IArticleRepository, ArticleRepository>();
             services.AddScoped<IArticleReadRepository, ArticleReadRepository>();
             services.AddScoped<IForumTopicRepository, ForumTopicRepository>();
+            services.AddScoped<IForumTopicReadRepository, ForumTopicReadRepository>();
             services.AddScoped<IBookmarkRepository, BookmarkRepository>();
             services.AddScoped<IDbInitializer, DbInitializer>();
 
