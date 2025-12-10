@@ -5,7 +5,7 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Bookmarks
+namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.RemoveBookmark
 {
     public class RemoveBookmarkCommand : IRequest<Result>
     {

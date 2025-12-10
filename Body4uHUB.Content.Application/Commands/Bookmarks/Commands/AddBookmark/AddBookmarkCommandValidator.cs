@@ -1,4 +1,4 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Bookmarks
+﻿namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark
 {
     using FluentValidation;
 

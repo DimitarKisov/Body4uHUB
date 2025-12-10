@@ -9,7 +9,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 
 
-namespace Body4uHUB.Content.Application.Commands.Bookmarks
+namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark
 {
     public class AddBookmarkCommand : IRequest<Result<Guid>>
     {

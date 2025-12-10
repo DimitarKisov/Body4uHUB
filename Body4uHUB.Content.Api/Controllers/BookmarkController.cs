@@ -1,9 +1,12 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Application.Commands.Bookmarks;
+using Body4uHUB.Content.Application.Commands.Bookmarks.Queries;
+using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Api.Controllers
@@ -28,8 +31,27 @@ namespace Body4uHUB.Content.Api.Controllers
             };
 
             var result = await Mediator.Send(command);
-
             return HandleResult(result, id => new { bookmarkId = id });
+        }
+
+        /// <summary>
+        /// Get all bookmarks for current user
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<BookmarkDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetMyBookmarks([FromQuery] int skip = 0, [FromQuery] int take = 10)
+        {
+            var userId = User.GetUserId();
+            var command = new GetUserBookmarksQuery
+            {
+                UserId = userId,
+                Skip = skip,
+                Take = take
+            };
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
         }
 
         /// <summary>
@@ -43,13 +65,13 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> RemoveBookmark(int articleId)
         {
             var userId = User.GetUserId();
-
-            var result = await Mediator.Send(new RemoveBookmarkCommand
+            var command = new RemoveBookmarkCommand
             {
                 UserId = userId,
                 ArticleId = articleId
-            });
+            };
 
+            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
     }
