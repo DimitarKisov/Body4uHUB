@@ -37,6 +37,28 @@ namespace Body4uHUB.Shared
             ThrowException<TException>($"{name} cannot be null or empty.");
         }
 
+        public static void AgainstNegative<TException>(int value, string name = "Value")
+            where TException : BaseDomainException, new()
+        {
+            if (value >= 0)
+            {
+                return;
+            }
+
+            ThrowException<TException>($"{name} cannot be negative.");
+        }
+
+        public static void AgainsOutOfRange<TException>(int value, int minValue, int maxValue, string name = "Value")
+            where TException : BaseDomainException, new()
+        {
+            if (value >= minValue && value <= maxValue)
+            {
+                return;
+            }
+
+            ThrowException<TException>($"{name} must be between {minValue} and {maxValue}.");
+        }
+
         public static void AgainstNotContainingSpecialChars<TException>(string value, string message, string specialChars = "!@#$%^&*()")
             where TException : BaseDomainException, new()
         {
