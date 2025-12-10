@@ -7,7 +7,7 @@ services:
         environment:
             - ACCEPT_EULA=Y
             - SA_PASSWORD=myStrongPassword12#$
-        # restart: on-failure
+        restart: on-failure
         volumes:
             - sqldata:/var/opt/mssql
         networks:
@@ -15,7 +15,7 @@ services:
             
     identity:
         container_name: identity
-        image: dkisov/body4u-hub-identity-service
+        image: body4u-hub-identity-service
         build:
             context: ./
             dockerfile: ./Body4uHUB.Identity.Api/Dockerfile
@@ -23,7 +23,25 @@ services:
             - "5001:80"
         env_file: 
             - ./Body4uHUB.Identity.Api/identity.env
-        # restart: on-failure
+        restart: on-failure
+        volumes:
+            - data-protection:/root/.aspnet/DataProtection-Keys
+        networks:
+            - body4uhub-network
+        depends_on:
+            - data
+            
+    content:
+        container_name: content
+        image: body4u-hub-content-service
+        build:
+            context: ./
+            dockerfile: ./Body4uHUB.Content.Api/Dockerfile
+        ports:
+            - "5002:80"
+        env_file:
+            - ./Body4uHUB.Content.Api/content.env
+        restart: on-failure
         volumes:
             - data-protection:/root/.aspnet/DataProtection-Keys
         networks:
