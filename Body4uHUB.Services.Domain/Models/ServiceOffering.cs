@@ -20,7 +20,7 @@ namespace Body4uHUB.Services.Domain.Models
         public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
 
-        public ServiceOffering()
+        private ServiceOffering()
             : base(default!)
         {
         }

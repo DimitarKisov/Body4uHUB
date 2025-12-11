@@ -9,7 +9,7 @@ namespace Body4uHUB.Services.Domain.ValueObjects
     {
         public int Value { get; private set; }
 
-        public ServiceOfferingId(int value)
+        private ServiceOfferingId(int value)
         {
             Value = value;
         }
@@ -17,11 +17,7 @@ namespace Body4uHUB.Services.Domain.ValueObjects
         // Public - за application layer
         public static ServiceOfferingId Create(int value)
         {
-            if (value <= 0)
-            {
-                throw new InvalidValueObjectException(ServiceOfferingIdCannotBeZeroOrNegative);
-            }
-
+            Validate(value);
             return new ServiceOfferingId(value);
         }
 
@@ -34,6 +30,11 @@ namespace Body4uHUB.Services.Domain.ValueObjects
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return Value;
+        }
+
+        private static void Validate(int value)
+        {
+            Guard.AgainstNegative<InvalidValueObjectException>(value, ServiceOfferingIdCannotBeZeroOrNegative);
         }
     }
 }
