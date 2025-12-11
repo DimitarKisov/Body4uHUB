@@ -1,6 +1,6 @@
 ﻿using Body4uHUB.Shared.Exceptions;
 
-namespace Body4uHUB.Content.Domain.Exceptions
+namespace Body4uHUB.Shared.Domain.Exceptions
 {
     public class InvalidValueObjectException : BaseDomainException
     {

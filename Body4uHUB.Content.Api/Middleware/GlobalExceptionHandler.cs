@@ -1,6 +1,6 @@
 ﻿namespace Body4uHUB.Content.Api.Middleware
 {
-    using Body4uHUB.Content.Domain.Exceptions;
+    using Body4uHUB.Shared.Domain.Exceptions;
     using Body4uHUB.Shared.Exceptions;
     using FluentValidation;
     using Microsoft.AspNetCore.Http;

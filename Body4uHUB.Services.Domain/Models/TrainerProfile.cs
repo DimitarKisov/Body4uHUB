@@ -1,7 +1,10 @@
-﻿using Body4uHUB.Services.Domain.Exceptions;
+﻿using Body4uHUB.Services.Domain.Enumerations;
+using Body4uHUB.Services.Domain.Exceptions;
+using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared;
 
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.TrainerProfile;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 
 namespace Body4uHUB.Services.Domain.Models
 {
@@ -9,6 +12,7 @@ namespace Body4uHUB.Services.Domain.Models
     {
         private readonly List<string> _specializations = new();
         private readonly List<string> _certifications = new();
+        private readonly List<ServiceOffering> _services = new();
 
         public Guid UserId { get; private set; }
         public string Bio { get; private set; }
@@ -18,6 +22,7 @@ namespace Body4uHUB.Services.Domain.Models
 
         public IReadOnlyCollection<string> Specializations => _specializations.AsReadOnly();
         public IReadOnlyCollection<string> Certifications => _certifications.AsReadOnly();
+        public IReadOnlyCollection<ServiceOffering> Services => _services.AsReadOnly();
 
         private TrainerProfile()
             : base(Guid.Empty)
@@ -105,6 +110,100 @@ namespace Body4uHUB.Services.Domain.Models
             _certifications.Clear();
         }
 
+        public ServiceOfferingId AddService(
+            string title,
+            string description,
+            Money price,
+            int durationMinutes,
+            ServiceCategory category,
+            bool isActive,
+            int maxParticipants,
+            bool isOnline,
+            DateTime? startDate,
+            DateTime? endDate)
+        {
+            // Check for duplicate title
+            if (_services.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new InvalidServiceOfferingException(ServiceAlreadyExists);
+            }
+
+            var service = ServiceOffering.Create(
+                title,
+                description,
+                price,
+                durationMinutes,
+                category,
+                true,
+                maxParticipants,
+                isOnline,
+                startDate,
+                endDate);
+
+            _services.Add(service);
+
+            return service.Id;
+        }
+
+        public void UpdateService(
+            ServiceOfferingId id,
+            string title,
+            string description,
+            Money price,
+            int durationMinutes,
+            ServiceCategory category,
+            bool isActive,
+            int maxParticipants,
+            bool isOnline,
+            DateTime? startDate,
+            DateTime? endDate)
+        {
+            if (_services.Any(x => x.Id != id && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new InvalidServiceOfferingException(ServiceAlreadyExists);
+            }
+
+            var service = GetService(id);
+
+            service.UpdateTitle(title);
+            service.UpdateDescription(description);
+            service.UpdatePrice(price);
+            service.UpdateDurationInMinutes(durationMinutes);
+            service.UpdateCategory(category);
+            service.UpdateMaxParticipants(maxParticipants);
+            service.UpdateStartDate(startDate);
+            service.UpdateEndDate(endDate);
+        }
+
+        public void ActivateService(ServiceOfferingId id)
+        {
+            var service = GetService(id);
+            service.Activate();
+        }
+
+        public void DeactivateService(ServiceOfferingId id)
+        {
+            var service = GetService(id);
+            service.Deactivate();
+        }
+
+        public void RemoveService(ServiceOfferingId id)
+        {
+            var service = GetService(id);
+            _services.Remove(service);
+        }
+
+        public ServiceOffering GetService(ServiceOfferingId id)
+        {
+            var service = _services.FirstOrDefault(x => x.Id == id);
+            if (service == null)
+            {
+                throw new InvalidServiceOfferingException(ServiceNotFound);
+            }
+
+            return service;
+        }
+
         private static void Validate(Guid userId, string bio, int yearsOfExperience)
         {
             ValidateUserId(userId);
@@ -130,7 +229,7 @@ namespace Body4uHUB.Services.Domain.Models
 
         private static void ValidateRating(int rating)
         {
-            Guard.AgainsOutOfRange<InvalidTrainerProfileException>(rating, RatingLowerLimit, RatingUpperLimit, nameof(rating));
+            Guard.AgainstOutOfRange<InvalidTrainerProfileException>(rating, RatingLowerLimit, RatingUpperLimit, nameof(rating));
         }
 
         private static void ValidateSpecialization(string specialization)

@@ -1,0 +1,192 @@
+﻿using Body4uHUB.Services.Domain.Enumerations;
+using Body4uHUB.Services.Domain.Exceptions;
+using Body4uHUB.Services.Domain.ValueObjects;
+using Body4uHUB.Shared;
+
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
+
+namespace Body4uHUB.Services.Domain.Models
+{
+    public class ServiceOffering : Entity<ServiceOfferingId>
+    {
+        public string Title { get; private set; }
+        public string Description { get; private set; }
+        public Money Price { get; private set; }
+        public int? DurationInMinutes { get; private set; }
+        public ServiceCategory Category { get; private set; }
+        public bool IsActive { get; private set; }
+        public int MaxParticipants { get; private set; }
+        public bool IsOnline { get; private set; }
+        public DateTime? StartDate { get; private set; }
+        public DateTime? EndDate { get; private set; }
+
+        public ServiceOffering()
+            : base(default!)
+        {
+        }
+
+        private ServiceOffering(
+            string title,
+            string description,
+            Money price,
+            int? durationInMinutes,
+            ServiceCategory category,
+            bool isActive,
+            int maxParticipants,
+            bool isOnline,
+            DateTime? startDate,
+            DateTime? endDate)
+            : base(default!)
+        {
+            Title = title;
+            Description = description;
+            Price = price;
+            DurationInMinutes = durationInMinutes;
+            Category = category;
+            IsActive = isActive;
+            MaxParticipants = maxParticipants;
+            IsOnline = isOnline;
+            StartDate = startDate;
+            EndDate = endDate;
+        }
+
+        public static ServiceOffering Create(
+            string title,
+            string description,
+            Money price,
+            int? durationInMinutes,
+            ServiceCategory category,
+            bool isActive,
+            int maxParticipants,
+            bool isOnline,
+            DateTime? startDate,
+            DateTime? endDate)
+        {
+            Validate(title, description, durationInMinutes, maxParticipants, startDate, endDate);
+
+            return new ServiceOffering(
+                title,
+                description,
+                price,
+                durationInMinutes,
+                category,
+                isActive,
+                maxParticipants,
+                isOnline,
+                startDate,
+                endDate);
+        }
+
+        public void UpdateTitle(string title)
+        {
+            ValidateTitle(title);
+            Title = title;
+        }
+
+        public void UpdateDescription(string description)
+        {
+            ValidateDescription(description);
+            Description = description;
+        }
+
+        public void UpdatePrice(Money price)
+        {
+            Price = price;
+        }
+
+        public void UpdateDurationInMinutes(int? durationInMinutes)
+        {
+            ValidateDurationInMinutes(durationInMinutes);
+            DurationInMinutes = durationInMinutes;
+        }
+
+        public void UpdateCategory(ServiceCategory category)
+        {
+            Category = category;
+        }
+
+        public void UpdateMaxParticipants(int maxParticipants)
+        {
+            ValidateMaxParticipants(maxParticipants);
+            MaxParticipants = maxParticipants;
+        }
+
+        public void UpdateStartDate(DateTime? startDate)
+        {
+            ValidateStartDate(startDate);
+            StartDate = startDate;
+        }
+
+        public void UpdateEndDate(DateTime? endDate)
+        {
+            ValidateEndDate(endDate);
+            EndDate = endDate;
+        }
+
+        public void Activate()
+        {
+            IsActive = true;
+        }
+
+        public void Deactivate()
+        {
+            IsActive = false;
+        }
+
+        public void SetOnlineMode(bool isOnline)
+        {
+            IsOnline = isOnline;
+        }
+
+        private static void Validate(string title, string description, int? durationInMinutes, int maxParticipants, DateTime? startDate, DateTime? endDate)
+        {
+            ValidateTitle(title);
+            ValidateDescription(description);
+            ValidateDurationInMinutes(durationInMinutes);
+            ValidateMaxParticipants(maxParticipants);
+            ValidateStartDate(startDate);
+            ValidateEndDate(endDate);
+        }
+
+        private static void ValidateTitle(string title)
+        {
+            Guard.AgainstEmptyString<InvalidServiceOfferingException>(title, nameof(Title));
+            Guard.ForStringLength<InvalidServiceOfferingException>(title, TitleMinLength, TitleMaxLength, nameof(Title));
+        }
+
+        private static void ValidateDescription(string description)
+        {
+            Guard.AgainstEmptyString<InvalidServiceOfferingException>(description, nameof(Description));
+            Guard.ForStringLength<InvalidServiceOfferingException>(description, DescriptionMinLength, DescriptionMaxLength, nameof(Description));
+        }
+
+        private static void ValidateDurationInMinutes(int? durationInMinutes)
+        {
+            if (durationInMinutes.HasValue)
+            {
+                Guard.AgainstOutOfRange<InvalidServiceOfferingException>(durationInMinutes.Value, MinDurationMinutes, MaxDurationMinutes, nameof(DurationInMinutes));
+            }
+        }
+
+        private static void ValidateMaxParticipants(int maxParticipants)
+        {
+            Guard.AgainstNegative<InvalidServiceOfferingException>(maxParticipants, nameof(MaxParticipants));
+        }
+
+        private static void ValidateStartDate(DateTime? startDate)
+        {
+            if (startDate.HasValue)
+            {
+                Guard.AgainstPastDate<InvalidServiceOfferingException>(startDate.Value, nameof(StartDate));
+            }
+        }
+
+        private static void ValidateEndDate(DateTime? endDate)
+        {
+            if (endDate.HasValue)
+            {
+                Guard.AgainstMoreThanOneYearInFuture<InvalidServiceOfferingException>(endDate.Value, nameof(EndDate));
+            }
+        } 
+    }
+}
