@@ -5,5 +5,6 @@ namespace Body4uHUB.Services.Domain.Repositories
 {
     public interface IServiceOrderRepository : IRepository<ServiceOrder>
     {
+        void Add(ServiceOrder serviceOrder);
     }
 }

@@ -8,6 +8,8 @@ namespace Body4uHUB.Services.Domain.Constants
         public class CommonConstants
         {
             public const string TrainerIdRequired = "Trainer ID is required";
+            public const string ServiceOfferingIdRequired = "Service Offering ID is required";
+            public const string ClientIdRequired = "Client ID is required";
         }
 
         public class TrainerProfileConstants
@@ -69,6 +71,7 @@ namespace Body4uHUB.Services.Domain.Constants
 
             public const string ServiceOfferingNotFound = "Service offering not found.";
             public const string ServiceOfferingAlreadyExists = "Service with this title already exists for this trainer.";
+            public const string ServiceOfferingInactive = "The service offering is inactive.";
         }
 
         public class ServiceOrderConstants
@@ -90,6 +93,7 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string ServiceOrderIdCannotBeZeroOrNegative = "ServiceOrder ID must be greater than 0.";
             public const string ReviewAlreadyExists = "A review has already been added for this order.";
             public const string ReviewNotFound = "Review not found for this order.";
+            public const string NoteMaxLengthMessage = "Notes cannot exceed {0} characters.";
         }
     }
 }
