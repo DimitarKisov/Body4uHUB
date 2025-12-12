@@ -125,7 +125,7 @@ namespace Body4uHUB.Services.Domain.Models
             // Check for duplicate title
             if (_services.Any(x => x.Name.Equals(title, StringComparison.OrdinalIgnoreCase)))
             {
-                throw new InvalidServiceOfferingException(ServiceAlreadyExists);
+                throw new InvalidServiceOfferingException(ServiceOfferingAlreadyExists);
             }
 
             var service = ServiceOffering.Create(
@@ -160,7 +160,7 @@ namespace Body4uHUB.Services.Domain.Models
         {
             if (_services.Any(x => x.Id != id && x.Name.Equals(title, StringComparison.OrdinalIgnoreCase)))
             {
-                throw new InvalidServiceOfferingException(ServiceAlreadyExists);
+                throw new InvalidServiceOfferingException(ServiceOfferingAlreadyExists);
             }
 
             var service = GetService(id);
@@ -198,7 +198,7 @@ namespace Body4uHUB.Services.Domain.Models
             var service = _services.FirstOrDefault(x => x.Id == id);
             if (service == null)
             {
-                throw new InvalidServiceOfferingException(ServiceNotFound);
+                throw new InvalidServiceOfferingException(ServiceOfferingNotFound);
             }
 
             return service;

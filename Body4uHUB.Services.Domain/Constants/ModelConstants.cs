@@ -61,12 +61,13 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string MinDuration = "Duration must be at least {0} minutes.";
             public const string NameRequired = "Service name is required";
             public const string NameLength = "Service name must be between {0} and {1} characters";
-            public const string ServiceAlreadyExists = "Service with this title already exists for this trainer";
             public const string ServiceOfferingIdCannotBeZeroOrNegative = "ServiceOffering ID must be greater than 0.";
             public const string ServiceTypeRequired = "Service type is required";
             public const string ServiceTypeInvalid = "Invalid service type. Valid values are: {0}";
-            public const string ServiceNotFound = "Service offering not found";
             public const string MinPrice = "Price must be bigger than 0.";
+
+            public const string ServiceOfferingNotFound = "Service offering not found";
+            public const string ServiceOfferingAlreadyExists = "Service with this title already exists for this trainer";
         }
 
         public class ServiceOrderConstants
