@@ -35,7 +35,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
 
             public async Task<Result> Handle(UpdateServiceOfferingCommand request, CancellationToken cancellationToken)
             {
-                var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId);
+                var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
                     return Result.UnprocessableEntity(TrainerProfileNotFound);

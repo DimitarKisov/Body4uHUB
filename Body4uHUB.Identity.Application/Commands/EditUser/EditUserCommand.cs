@@ -29,7 +29,7 @@ namespace Body4uHUB.Identity.Application.Commands.EditUser
 
             public async Task<Result> Handle(EditUserCommand request, CancellationToken cancellationToken)
             {
-                var user = await _userRepository.GetByIdAsync(request.Id);
+                var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
                 if (user == null)
                 {
                     return Result.UnprocessableEntity(UserNotFound);

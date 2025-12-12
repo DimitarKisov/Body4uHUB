@@ -26,7 +26,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic
 
             public async Task<Result> Handle(DeleteForumTopicCommand request, CancellationToken cancellationToken)
             {
-                var topic = await _forumRepository.GetByIdAsync(request.TopicId);
+                var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
                     return Result.UnprocessableEntity(ForumTopicNotFound);
