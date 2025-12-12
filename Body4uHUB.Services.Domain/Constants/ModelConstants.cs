@@ -55,19 +55,20 @@ namespace Body4uHUB.Services.Domain.Constants
             public const int MinDurationMinutes = 15;
             public const int MaxDurationMinutes = 480;
 
-            public const string CurrencyRequired = "Currency is required";
-            public const string DescriptionRequired = "Service description is required";
-            public const string DescriptionLength = "Service description must be between {0} and {1} characters";
+            public const string ServiceOfferingIdRequired = "ServiceOffering ID is required.";
+            public const string CurrencyRequired = "Currency is required.";
+            public const string DescriptionRequired = "Service description is required.";
+            public const string DescriptionLength = "Service description must be between {0} and {1} characters.";
             public const string MinDuration = "Duration must be at least {0} minutes.";
-            public const string NameRequired = "Service name is required";
-            public const string NameLength = "Service name must be between {0} and {1} characters";
+            public const string NameRequired = "Service name is required.";
+            public const string NameLength = "Service name must be between {0} and {1} characters.";
             public const string ServiceOfferingIdCannotBeZeroOrNegative = "ServiceOffering ID must be greater than 0.";
-            public const string ServiceTypeRequired = "Service type is required";
-            public const string ServiceTypeInvalid = "Invalid service type. Valid values are: {0}";
+            public const string ServiceTypeRequired = "Service type is required.";
+            public const string ServiceTypeInvalid = "Invalid service type. Valid values are: {0}.";
             public const string MinPrice = "Price must be bigger than 0.";
 
-            public const string ServiceOfferingNotFound = "Service offering not found";
-            public const string ServiceOfferingAlreadyExists = "Service with this title already exists for this trainer";
+            public const string ServiceOfferingNotFound = "Service offering not found.";
+            public const string ServiceOfferingAlreadyExists = "Service with this title already exists for this trainer.";
         }
 
         public class ServiceOrderConstants
