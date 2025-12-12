@@ -9,7 +9,7 @@ namespace Body4uHUB.Services.Domain.Models
 {
     public class ServiceOffering : Entity<ServiceOfferingId>
     {
-        public string Title { get; private set; }
+        public string Name { get; private set; }
         public string Description { get; private set; }
         public Money Price { get; private set; }
         public int? DurationInMinutes { get; private set; }
@@ -26,7 +26,7 @@ namespace Body4uHUB.Services.Domain.Models
         }
 
         private ServiceOffering(
-            string title,
+            string name,
             string description,
             Money price,
             int? durationInMinutes,
@@ -38,7 +38,7 @@ namespace Body4uHUB.Services.Domain.Models
             DateTime? endDate)
             : base(default!)
         {
-            Title = title;
+            Name = name;
             Description = description;
             Price = price;
             DurationInMinutes = durationInMinutes;
@@ -51,7 +51,7 @@ namespace Body4uHUB.Services.Domain.Models
         }
 
         public static ServiceOffering Create(
-            string title,
+            string name,
             string description,
             Money price,
             int? durationInMinutes,
@@ -62,10 +62,10 @@ namespace Body4uHUB.Services.Domain.Models
             DateTime? startDate,
             DateTime? endDate)
         {
-            Validate(title, description, durationInMinutes, maxParticipants, startDate, endDate);
+            Validate(name, description, durationInMinutes, maxParticipants, startDate, endDate);
 
             return new ServiceOffering(
-                title,
+                name,
                 description,
                 price,
                 durationInMinutes,
@@ -77,10 +77,10 @@ namespace Body4uHUB.Services.Domain.Models
                 endDate);
         }
 
-        public void UpdateTitle(string title)
+        public void UpdateName(string name)
         {
-            ValidateTitle(title);
-            Title = title;
+            ValidateName(name);
+            Name = name;
         }
 
         public void UpdateDescription(string description)
@@ -138,9 +138,9 @@ namespace Body4uHUB.Services.Domain.Models
             IsOnline = isOnline;
         }
 
-        private static void Validate(string title, string description, int? durationInMinutes, int maxParticipants, DateTime? startDate, DateTime? endDate)
+        private static void Validate(string name, string description, int? durationInMinutes, int maxParticipants, DateTime? startDate, DateTime? endDate)
         {
-            ValidateTitle(title);
+            ValidateName(name);
             ValidateDescription(description);
             ValidateDurationInMinutes(durationInMinutes);
             ValidateMaxParticipants(maxParticipants);
@@ -148,10 +148,10 @@ namespace Body4uHUB.Services.Domain.Models
             ValidateEndDate(endDate);
         }
 
-        private static void ValidateTitle(string title)
+        private static void ValidateName(string name)
         {
-            Guard.AgainstEmptyString<InvalidServiceOfferingException>(title, nameof(Title));
-            Guard.ForStringLength<InvalidServiceOfferingException>(title, TitleMinLength, TitleMaxLength, nameof(Title));
+            Guard.AgainstEmptyString<InvalidServiceOfferingException>(name, nameof(Name));
+            Guard.ForStringLength<InvalidServiceOfferingException>(name, NameMinLength, NameMaxLength, nameof(Name));
         }
 
         private static void ValidateDescription(string description)

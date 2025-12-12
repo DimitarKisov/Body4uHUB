@@ -123,7 +123,7 @@ namespace Body4uHUB.Services.Domain.Models
             DateTime? endDate)
         {
             // Check for duplicate title
-            if (_services.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase)))
+            if (_services.Any(x => x.Name.Equals(title, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidServiceOfferingException(ServiceAlreadyExists);
             }
@@ -158,14 +158,14 @@ namespace Body4uHUB.Services.Domain.Models
             DateTime? startDate,
             DateTime? endDate)
         {
-            if (_services.Any(x => x.Id != id && x.Title.Equals(title, StringComparison.OrdinalIgnoreCase)))
+            if (_services.Any(x => x.Id != id && x.Name.Equals(title, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidServiceOfferingException(ServiceAlreadyExists);
             }
 
             var service = GetService(id);
 
-            service.UpdateTitle(title);
+            service.UpdateName(title);
             service.UpdateDescription(description);
             service.UpdatePrice(price);
             service.UpdateDurationInMinutes(durationMinutes);
