@@ -5,5 +5,6 @@ namespace Body4uHUB.Services.Domain.Repositories
 {
     public interface ITrainerProfileRepository : IRepository<TrainerProfile>
     {
+        Task<TrainerProfile> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }
