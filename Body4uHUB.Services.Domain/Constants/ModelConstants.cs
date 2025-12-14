@@ -88,7 +88,7 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string CannotReviewOwnService = "Trainers cannot review their own services.";
             public const string OrderCannotBeCancelled = "The order cannot be cancelled within 24 hours of the scheduled time.";
             public const string OrderAlreadyCancelled = "The order has already been cancelled.";
-            public const string OnlyClientCanReview = "Only the client who placed the order can add a review.";
+            public const string OnlyClientCanReview = "Only the client who placed the order can  add a review.";
             public const string CannotConfirmNonPendingOrder = "Only pending orders can be confirmed.";
             public const string CannotCompleteNonConfirmedOrder = "Only confirmed orders can be completed.";
             public const string CannotCancelCompletedOrder = "Completed orders cannot be cancelled.";
