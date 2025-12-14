@@ -2,7 +2,7 @@
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Services.Application.Queries.GetTrainerProfile
+namespace Body4uHUB.Services.Application.Queries.TrainerProfile.GetTrainerProfile
 {
     public class GetTrainerProfileByIdQueryValidator : AbstractValidator<GetTrainerProfileByIdQuery>
     {

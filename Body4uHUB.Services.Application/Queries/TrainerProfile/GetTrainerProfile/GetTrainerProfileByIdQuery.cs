@@ -5,7 +5,7 @@ using MediatR;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Queries.GetTrainerProfile
+namespace Body4uHUB.Services.Application.Queries.TrainerProfile.GetTrainerProfile
 {
     public class GetTrainerProfileByIdQuery : IRequest<Result<TrainerProfileDto>>
     {

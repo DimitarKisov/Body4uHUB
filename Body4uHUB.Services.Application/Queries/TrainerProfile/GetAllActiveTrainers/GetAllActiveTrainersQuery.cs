@@ -2,7 +2,7 @@
 using Body4uHUB.Services.Application.Repositories;
 using MediatR;
 
-namespace Body4uHUB.Services.Application.Queries.GetAllActiveTrainers
+namespace Body4uHUB.Services.Application.Queries.TrainerProfile.GetAllActiveTrainers
 {
     public class GetAllActiveTrainersQuery : IRequest<IEnumerable<TrainerProfileDto>>
     {
