@@ -1,6 +1,6 @@
 ﻿namespace Body4uHUB.Content.Application.Extensions
 {
-    using Body4uHUB.Content.Application.Behaviours;
+    using Body4uHUB.Shared.Application.Behaviours;
     using FluentValidation;
     using MediatR;
     using Microsoft.AspNetCore.Authentication.JwtBearer;

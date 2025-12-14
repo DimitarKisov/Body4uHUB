@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Identity.Application.Behaviours;
+﻿using Body4uHUB.Shared.Application.Behaviours;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
