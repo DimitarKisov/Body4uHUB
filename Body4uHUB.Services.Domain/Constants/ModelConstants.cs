@@ -43,6 +43,9 @@ namespace Body4uHUB.Services.Domain.Constants
             public const int MinCommentLength = 5;
             public const int MaxCommentLength = 1000;
 
+            public const string CommentRequired = "Comment is required.";
+            public const string CommentLength = "Comment must be between {0} and {1} characters.";
+            public const string ServiceRatingOutOfRange = "Rating must be between {0} and {1}.";
             public const string ReviewIdCannotBeZeroOrNegative = "Review ID must be greater than 0.";
         }
 
