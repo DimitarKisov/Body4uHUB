@@ -19,6 +19,7 @@ namespace Body4uHUB.Services.Domain.Models
         public int YearsOfExperience { get; private set; }
         public decimal AverageRating { get; private set; }
         public int TotalReviews { get; private set; }
+        public bool IsActive { get; private set; }
 
         public IReadOnlyCollection<string> Specializations => _specializations.AsReadOnly();
         public IReadOnlyCollection<string> Certifications => _certifications.AsReadOnly();
@@ -37,6 +38,7 @@ namespace Body4uHUB.Services.Domain.Models
             YearsOfExperience = yearsOfExperience;
             AverageRating = 0;
             TotalReviews = 0;
+            IsActive = true;
         }
 
         public static TrainerProfile Create(Guid userId, string bio, int yearsOfExperience)
@@ -64,6 +66,16 @@ namespace Body4uHUB.Services.Domain.Models
 
             TotalReviews++;
             AverageRating = ((AverageRating * (TotalReviews - 1)) + rating) / TotalReviews;
+        }
+
+        public void ActivateProfile()
+        {
+            IsActive = true;
+        }
+
+        public void DeactivateProfile()
+        {
+            IsActive = false;
         }
 
         public void AddSpecialization(string specialization)
