@@ -6,5 +6,6 @@ namespace Body4uHUB.Services.Application.Repositories
     {
         Task<TrainerProfileDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<IEnumerable<TrainerProfileDto>> GetAllActiveAsync(CancellationToken cancellationToken = default);
+        Task<IEnumerable<ServiceOfferingDto>> GetServiceOfferingsByTrainerIdAsync(Guid trainerId, CancellationToken cancellationToken = default);
     }
 }
