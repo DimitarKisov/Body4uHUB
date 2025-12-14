@@ -78,6 +78,9 @@ namespace Body4uHUB.Services.Domain.Constants
             public const int NotesMinLength = 0;
             public const int NotesMaxLength = 1000;
 
+            public const string ServiceOrderNotFound = "Service order not found.";
+            public const string ServiceOrderIdCannotBeZeroOrNegative = "ServiceOrder ID must be greater than 0.";
+
             public const string OrderNotCompleted = "Cannot add a review to an order that is not completed.";
             public const string CannotMarkPaymentRefunded = "Payment can only be marked as refunded if it is currently pending.";
             public const string CannotMarkPaymentFailed = "Payment can only be marked as failed if it is not already completed or failed.";
@@ -89,7 +92,6 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string CannotConfirmNonPendingOrder = "Only pending orders can be confirmed.";
             public const string CannotCompleteNonConfirmedOrder = "Only confirmed orders can be completed.";
             public const string CannotCancelCompletedOrder = "Completed orders cannot be cancelled.";
-            public const string ServiceOrderIdCannotBeZeroOrNegative = "ServiceOrder ID must be greater than 0.";
             public const string ReviewAlreadyExists = "A review has already been added for this order.";
             public const string ReviewNotFound = "Review not found for this order.";
             public const string NoteMaxLengthMessage = "Notes cannot exceed {0} characters.";
