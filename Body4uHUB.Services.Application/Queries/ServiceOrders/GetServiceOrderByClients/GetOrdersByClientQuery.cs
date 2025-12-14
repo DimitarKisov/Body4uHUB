@@ -9,7 +9,7 @@ namespace Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderBy
     {
         public Guid ClientId { get; set; }
 
-        internal class GetOrdersByClientQueryHandler : IRequestHandler<GetOrdersByClientQuery, Result<IEnumerable<ServiceOrderDto>>
+        internal class GetOrdersByClientQueryHandler : IRequestHandler<GetOrdersByClientQuery, Result<IEnumerable<ServiceOrderDto>>>
         {
             private readonly IServiceOrderReadRepository _serviceOrderReadRepository;
 
