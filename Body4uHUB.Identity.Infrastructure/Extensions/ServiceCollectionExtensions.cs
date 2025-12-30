@@ -28,10 +28,12 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
                 .AddScoped<IUserReadRepository, UserReadRepository>()
                 .AddScoped<IRoleRepository, RoleRepository>()
                 .AddScoped<IRoleReadRepository, RoleReadRepository>()
-                .AddScoped<IJwtTokenService, JwtTokenService>()
-                .AddScoped<IPasswordHasherService, PasswordHasherService>()
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IDbInitializer, DbInitializer>();
+
+            services
+                .AddSingleton<IJwtTokenService, JwtTokenService>()
+                .AddSingleton<IPasswordHasherService, PasswordHasherService>();
 
             return services;
         }

@@ -21,7 +21,6 @@ namespace Body4uHUB.Content.Infrastructure.Extensions
                     configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName)));
 
-            // Domain Repositories (Write)
             services.AddScoped<IArticleRepository, ArticleRepository>();
             services.AddScoped<IArticleReadRepository, ArticleReadRepository>();
             services.AddScoped<IForumRepository, ForumRepository>();
@@ -29,7 +28,6 @@ namespace Body4uHUB.Content.Infrastructure.Extensions
             services.AddScoped<IBookmarkRepository, BookmarkRepository>();
             services.AddScoped<IBookmarkReadRepository, BookmarkReadRepository>();
             services.AddScoped<IDbInitializer, DbInitializer>();
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
