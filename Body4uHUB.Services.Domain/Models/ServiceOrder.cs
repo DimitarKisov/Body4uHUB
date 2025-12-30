@@ -13,7 +13,7 @@ namespace Body4uHUB.Services.Domain.Models
 
         public Guid ClientId { get; private set; }
         public Guid TrainerId { get; private set; }
-        public ServiceOfferingId ServiceId { get; private set; }
+        public ServiceOfferingId ServiceOfferingId { get; private set; }
         public OrderStatus Status { get; private set; }
         public Money TotalPrice { get; private set; }
         public PaymentStatus PaymentStatus { get; private set; }
@@ -39,7 +39,7 @@ namespace Body4uHUB.Services.Domain.Models
         {
             ClientId = clientId;
             TrainerId = trainerId;
-            ServiceId = serviceId;
+            ServiceOfferingId = serviceId;
             Status = status;
             TotalPrice = totalPrice;
             PaymentStatus = paymentStatus;

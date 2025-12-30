@@ -13,6 +13,7 @@ namespace Body4uHUB.Services.Infrastructure.Persistence
 
         public DbSet<TrainerProfile> TrainerProfiles { get; set; }
         public DbSet<ServiceOrder> ServiceOrders { get; set; }
+        public DbSet<ServiceOffering> ServiceOfferings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
