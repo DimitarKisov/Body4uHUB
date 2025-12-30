@@ -4,7 +4,7 @@ namespace Body4uHUB.Services.Application.DTOs
 {
     public class ServiceOrderDto
     {
-        public Guid Id { get; set; }
+        public ServiceOrderId Id { get; set; }
         public Guid ClientId { get; set; }
         public Guid TrainerProfileId { get; set; }
         public ServiceOfferingId ServiceOfferingId { get; set; }
@@ -13,7 +13,6 @@ namespace Body4uHUB.Services.Application.DTOs
         public string Currency { get; set; }
         public string Status { get; set; }
         public DateTime OrderDate { get; set; }
-        public DateTime? ScheduledDate { get; set; }
         public DateTime? CompletedDate { get; set; }
         public string Notes { get; set; }
         public ReviewDto Review { get; set; }
