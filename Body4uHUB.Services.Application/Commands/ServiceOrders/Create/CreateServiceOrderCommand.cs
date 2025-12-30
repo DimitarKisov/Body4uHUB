@@ -36,7 +36,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Create
 
             public async Task<Result<ServiceOrderId>> Handle(CreateServiceOrderCommand request, CancellationToken cancellationToken)
             {
-                var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId, cancellationToken);
+                var trainerProfile = await _trainerRepository.GetWithServicesByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
                     return Result.UnprocessableEntity<ServiceOrderId>(TrainerProfileNotFound);

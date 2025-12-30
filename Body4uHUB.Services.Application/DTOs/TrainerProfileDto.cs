@@ -8,10 +8,10 @@
         public List<string> Specializations { get; set; }
         public List<string> Certifications { get; set; }
         public int YearsOfExperience { get; set; }
-        public decimal Rating { get; set; }
+        public decimal AverageRating { get; set; }
         public int TotalReviews { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime? ModifiedAt { get; set; }
         public List<ServiceOfferingDto> ServiceOfferings { get; set; }
     }
 }
