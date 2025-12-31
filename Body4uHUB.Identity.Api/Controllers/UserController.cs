@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Identity.Application.Commands.ChangePassword;
+using Body4uHUB.Identity.Application.Commands.CreateTrainer;
 using Body4uHUB.Identity.Application.Commands.EditUser;
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllUsers;
@@ -24,6 +25,21 @@ namespace Body4uHUB.Identity.Api.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
         {
             command.UserId = User.GetUserId();
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Create a new trainer account (Admin only)
+        /// </summary>
+        [HttpPost("createTrainer")]
+        [Authorize(Policy = "AdminOnly")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> CreateTrainerAccount(CreateTrainerAccountCommand command)
+        {
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }
