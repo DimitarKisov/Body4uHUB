@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Services.Domain.Models;
 using Body4uHUB.Shared.Domain;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Services.Infrastructure.Persistence
@@ -20,6 +21,10 @@ namespace Body4uHUB.Services.Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ServicesDbContext).Assembly);
+
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

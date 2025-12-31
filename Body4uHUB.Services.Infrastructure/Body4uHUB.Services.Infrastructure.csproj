@@ -7,17 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+  	<PackageReference Include="MassTransit" Version="8.5.7" />
+  	<PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.4.1" />
+  	<PackageReference Include="MassTransit.RabbitMQ" Version="8.5.7" />
   	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.21" />
   	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.21">
   		<PrivateAssets>all</PrivateAssets>
   		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
   	</PackageReference>
   	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.21" />
+  	<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
   </ItemGroup>
 	
   <ItemGroup>
     <ProjectReference Include="..\Body4uHUB.Services.Application\Body4uHUB.Services.Application.csproj" />
     <ProjectReference Include="..\Body4uHUB.Shared.Infrastructure\Body4uHUB.Shared.Infrastructure.csproj" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="Messaging\" />
   </ItemGroup>
 
 </Project>
