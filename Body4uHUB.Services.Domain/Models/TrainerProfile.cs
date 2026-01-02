@@ -3,7 +3,7 @@ using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared;
 
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 
 namespace Body4uHUB.Services.Domain.Models

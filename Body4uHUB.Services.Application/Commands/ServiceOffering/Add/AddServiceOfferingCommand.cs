@@ -6,7 +6,7 @@ using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
 
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Add
 {

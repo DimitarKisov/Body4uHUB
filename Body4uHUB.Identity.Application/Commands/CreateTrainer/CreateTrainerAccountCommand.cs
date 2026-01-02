@@ -4,11 +4,16 @@ using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain;
 using MediatR;
 
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
+
 namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
 {
     public class CreateTrainerAccountCommand : IRequest<Result>
     {
         public Guid UserId { get; set; }
+        public string Bio { get; set; }
+        public int YearsOfExperience { get; set; }
 
         internal class CreateTrainerAccountCommandHandler : IRequestHandler<CreateTrainerAccountCommand, Result>
         {
@@ -32,19 +37,19 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
                 var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
                 if (user == null)
                 {
-                    return Result.UnprocessableEntity("User does not exist.");
+                    return Result.UnprocessableEntity(UserNotFound);
                 }
 
                 var role = await _roleRepository.FindByNameAsync("Trainer", cancellationToken);
                 if (role == null)
                 {
-                    return Result.UnprocessableEntity("Trainer role does not exist.");
+                    return Result.UnprocessableEntity(RoleNotFound);
                 }
 
                 var userIsInRole = user.Roles.Any(x => x.Id == role.Id);
                 if (!userIsInRole)
                 {
-                    return Result.UnprocessableEntity("User is not assigned to the Trainer role.");
+                    return Result.UnprocessableEntity(UserNotInRole);
                 }
 
                 var @event = new TrainerAccountCreatedEvent

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json;
 
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
 {

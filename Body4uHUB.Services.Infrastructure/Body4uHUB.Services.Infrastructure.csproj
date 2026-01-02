@@ -23,9 +23,5 @@
     <ProjectReference Include="..\Body4uHUB.Services.Application\Body4uHUB.Services.Application.csproj" />
     <ProjectReference Include="..\Body4uHUB.Shared.Infrastructure\Body4uHUB.Shared.Infrastructure.csproj" />
   </ItemGroup>
-	
-  <ItemGroup>
-    <Folder Include="Messaging\" />
-  </ItemGroup>
 
 </Project>
