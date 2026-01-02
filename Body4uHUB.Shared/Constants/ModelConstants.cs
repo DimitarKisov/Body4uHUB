@@ -24,6 +24,9 @@
             public const string TrainerProfileNotFound = "Trainer profile not found";
             //public const string TrainerProfileAlreadyExists = "Trainer profile already exists for this user";
             public const string MinYearsOfExperienceMessage = "Years of experience must be greater than or equal to {0}";
+
+            public const string TrainerProfileAlreadyExists = "Trainer profile already exists for UserId: {0}";
+            public const string TrainerProfileCreatedSuccessfully = "Trainer profile created successfully for UserId: {0}";
         }
     }
 }
