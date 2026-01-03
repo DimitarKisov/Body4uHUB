@@ -62,23 +62,9 @@ namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
                     .IsRequired();
             });
 
-            builder.OwnsOne(x => x.Review, review =>
-            {
-                review.Property(y => y.Rating)
-                    .HasColumnName("ReviewRating")
-                    .IsRequired();
-
-                review.Property(y => y.Comment)
-                    .HasColumnName("ReviewComment")
-                    .HasMaxLength(MaxCommentLength);
-
-                review.Property(y => y.CreatedAt)
-                    .HasColumnName("ReviewCreatedAt")
-                    .IsRequired();
-
-                review.Property(y => y.ModifiedAt)
-                    .HasColumnName("ReviewModifiedAt");
-            });
+            builder.Property(x => x.IsReviewed)
+                .IsRequired()
+                .HasDefaultValue(false);
 
             builder.HasIndex(x => x.ClientId);
 
