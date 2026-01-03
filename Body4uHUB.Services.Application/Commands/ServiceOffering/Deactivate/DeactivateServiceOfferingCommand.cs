@@ -5,6 +5,7 @@ using Body4uHUB.Shared.Domain;
 using MediatR;
 
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate
 {
@@ -12,6 +13,8 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate
     {
         public int Id { get; set; }
         public Guid TrainerId { get; set; }
+        public Guid CurrentUserId { get; set; }
+        public bool IsAdmin { get; set; }
 
         internal class DeactivateServiceOfferingCommandHandler : IRequestHandler<DeactivateServiceOfferingCommand, Result>
         {
@@ -32,6 +35,11 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate
                 if (trainerProfile == null)
                 {
                     return Result.UnprocessableEntity(TrainerProfileNotFound);
+                }
+
+                if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)
+                {
+                    return Result.Forbidden(ServiceOfferingForbidden);
                 }
 
                 trainerProfile.DeactivateService(ServiceOfferingId.Create(request.Id));

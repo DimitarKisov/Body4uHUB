@@ -47,6 +47,7 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string ServiceTypeInvalid = "Invalid service type. Valid values are: {0}.";
             public const string MinPrice = "Price must be bigger than 0.";
 
+            public const string ServiceOfferingForbidden = "You do not have permission to modify this service offering.";
             public const string ServiceOfferingNotFound = "Service offering not found.";
             public const string ServiceOfferingAlreadyExists = "Service with this title already exists for this trainer.";
             public const string ServiceOfferingInactive = "The service offering is inactive.";

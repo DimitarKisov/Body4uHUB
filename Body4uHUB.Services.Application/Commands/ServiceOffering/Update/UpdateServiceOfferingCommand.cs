@@ -11,7 +11,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
 {
     public class UpdateServiceOfferingCommand : IRequest<Result>
     {
-        public ServiceOfferingId Id { get; set; }
+        public int Id { get; set; }
         public Guid TrainerId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -19,6 +19,8 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
         public string Currency { get; set; }
         public int DurationMinutes { get; set; }
         public string ServiceType { get; set; }
+        public Guid CurrentUserId { get; set; }
+        public bool IsAdmin { get; set; }
 
         internal class UpdateServiceOfferingCommandHandler : IRequestHandler<UpdateServiceOfferingCommand, Result>
         {
@@ -41,10 +43,15 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
                     return Result.UnprocessableEntity(TrainerProfileNotFound);
                 }
 
-                var serviceOffering = trainerProfile.GetService(request.Id);
+                var serviceOffering = trainerProfile.GetService(ServiceOfferingId.Create(request.Id));
                 if (serviceOffering == null)
                 {
                     return Result.UnprocessableEntity(ServiceOfferingNotFound);
+                }
+
+                if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)
+                {
+                    return Result.Forbidden(ServiceOfferingForbidden);
                 }
 
                 var money = Money.Create(request.Price, serviceOffering.Price.Currency);

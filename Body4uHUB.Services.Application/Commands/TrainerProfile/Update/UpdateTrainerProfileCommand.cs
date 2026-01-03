@@ -4,6 +4,7 @@ using Body4uHUB.Shared.Domain;
 using MediatR;
 
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 
 namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
 {
@@ -12,6 +13,8 @@ namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
         public Guid Id { get; set; }
         public string Bio { get; set; }
         public int YearsOfExperience { get; set; }
+        public Guid CurrentUserId { get; set; }
+        public bool IsAdmin { get; set; }
 
         internal class UpdateTrainerProfileCommandHandler : IRequestHandler<UpdateTrainerProfileCommand, Result>
         {
@@ -32,6 +35,11 @@ namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
                 if (trainerProfile == null)
                 {
                     return Result.UnprocessableEntity(TrainerProfileNotFound);
+                }
+
+                if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)
+                {
+                    return Result.Forbidden(ServiceOfferingForbidden);
                 }
 
                 trainerProfile.UpdateBio(request.Bio);
