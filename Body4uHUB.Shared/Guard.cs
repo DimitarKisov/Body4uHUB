@@ -48,6 +48,17 @@ namespace Body4uHUB.Shared
             ThrowException<TException>($"{name} cannot be negative.");
         }
 
+        public static void AgainstNegativeAndZero<TException>(int value, string name = "Value")
+            where TException : BaseDomainException, new()
+        {
+            if (value > 0)
+            {
+                return;
+            }
+
+            ThrowException<TException>($"{name} cannot be negative or zero.");
+        }
+
         public static void AgainstOutOfRange<TException>(int value, int minValue, int maxValue, string name = "Value")
             where TException : BaseDomainException, new()
         {

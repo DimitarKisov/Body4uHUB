@@ -60,12 +60,22 @@ namespace Body4uHUB.Services.Domain.Models
             YearsOfExperience = yearsOfExperience;
         }
 
-        public void UpdateRating(int rating)
+        public void UpdateRating()
         {
-            ValidateRating(rating);
+            var servicesWithReviews = _services
+                .Where(x => x.Reviews.Count != 0)
+                .ToList();
 
-            TotalReviews++;
-            AverageRating = ((AverageRating * (TotalReviews - 1)) + rating) / TotalReviews;
+            if (servicesWithReviews.Any())
+            {
+                AverageRating = servicesWithReviews.Average(x => x.AverageRating);
+                TotalReviews = servicesWithReviews.Sum(x => x.Reviews.Count);
+            }
+            else
+            {
+                AverageRating = 0;
+                TotalReviews = 0;
+            }
         }
 
         public void ActivateProfile()
@@ -134,7 +144,7 @@ namespace Body4uHUB.Services.Domain.Models
             DateTime? startDate,
             DateTime? endDate)
         {
-            // Check for duplicate title
+            //TODO: Премести в command - application layer
             if (_services.Any(x => x.Name.Equals(title, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidServiceOfferingException(ServiceOfferingAlreadyExists);

@@ -9,8 +9,6 @@ namespace Body4uHUB.Services.Domain.Models
 {
     public class ServiceOrder : Entity<ServiceOrderId>, IAggregateRoot
     {
-        private Review _review;
-
         public Guid ClientId { get; private set; }
         public Guid TrainerId { get; private set; }
         public ServiceOfferingId ServiceOfferingId { get; private set; }
@@ -20,8 +18,7 @@ namespace Body4uHUB.Services.Domain.Models
         public string Notes { get; private set; }
         public DateTime? CompletedAt { get; private set; }
         public DateTime? CancelledAt { get; private set; }
-        public Review Review => _review;
-        public bool HasReview => _review != null;
+        public bool IsReviewed { get; private set; }
 
         private ServiceOrder()
             : base(default!)
@@ -44,6 +41,7 @@ namespace Body4uHUB.Services.Domain.Models
             TotalPrice = totalPrice;
             PaymentStatus = paymentStatus;
             Notes = notes;
+            IsReviewed = false;
         }
 
         public static ServiceOrder Create(
@@ -145,46 +143,19 @@ namespace Body4uHUB.Services.Domain.Models
             PaymentStatus = PaymentStatus.Refunded;
         }
 
-        public void AddReview(int rating, string comment, Guid clientId)
+        public void MarkAsReviewed()
         {
             if (Status != OrderStatus.Completed)
             {
-                throw new InvalidReviewException(OrderNotCompleted);
+                throw new InvalidServiceOrderException(OrderNotCompleted);
             }
 
-            if (HasReview)
+            if (IsReviewed)
             {
                 throw new InvalidServiceOrderException(ReviewAlreadyExists);
             }
 
-            if (ClientId != clientId)
-            {
-                throw new InvalidReviewException(OnlyClientCanReview);
-            }
-
-            if (ClientId == TrainerId)
-            {
-                throw new InvalidReviewException(CannotReviewOwnService);
-            }
-
-            var review = Review.Create(rating, comment);
-
-            _review = review;
-        }
-
-        public void UpdateReview(int rating, string comment, Guid clientId)
-        {
-            if (_review == null)
-            {
-                throw new InvalidReviewException(ReviewNotFound);
-            }
-
-            if (ClientId != clientId)
-            {
-                throw new InvalidReviewException(OnlyClientCanReview);
-            }
-
-            _review.Update(rating, comment);
+            IsReviewed = true;
         }
 
         private static void Validate(

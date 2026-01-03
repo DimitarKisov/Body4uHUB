@@ -9,6 +9,8 @@ namespace Body4uHUB.Services.Domain.Models
 {
     public class ServiceOffering : Entity<ServiceOfferingId>
     {
+        private readonly List<Review> _reviews = new();
+
         public string Name { get; private set; }
         public string Description { get; private set; }
         public Money Price { get; private set; }
@@ -19,6 +21,8 @@ namespace Body4uHUB.Services.Domain.Models
         public bool IsOnline { get; private set; }
         public DateTime? StartDate { get; private set; }
         public DateTime? EndDate { get; private set; }
+        public decimal AverageRating { get; private set; }
+        public IReadOnlyCollection<Review> Reviews => _reviews.AsReadOnly();
 
         private ServiceOffering()
             : base(default!)
@@ -48,6 +52,7 @@ namespace Body4uHUB.Services.Domain.Models
             IsOnline = isOnline;
             StartDate = startDate;
             EndDate = endDate;
+            AverageRating = 0;
         }
 
         public static ServiceOffering Create(
@@ -138,6 +143,15 @@ namespace Body4uHUB.Services.Domain.Models
             IsOnline = isOnline;
         }
 
+        public void AddReview(Guid clientId, ServiceOrderId orderId, int rating, string comment)
+        {
+
+            var review = Review.Create(clientId, orderId, rating, comment);
+            _reviews.Add(review);
+
+            RecalculateAverageRating();
+        }
+
         private static void Validate(string name, string description, int? durationInMinutes, int maxParticipants, DateTime? startDate, DateTime? endDate)
         {
             ValidateName(name);
@@ -187,6 +201,18 @@ namespace Body4uHUB.Services.Domain.Models
             {
                 Guard.AgainstMoreThanOneYearInFuture<InvalidServiceOfferingException>(endDate.Value, nameof(EndDate));
             }
-        } 
+        }
+
+        private void RecalculateAverageRating()
+        {
+            if (_reviews.Any())
+            {
+                AverageRating = (decimal)_reviews.Average(r => r.Rating);
+            }
+            else
+            {
+                AverageRating = 0;
+            }
+        }
     }
 }

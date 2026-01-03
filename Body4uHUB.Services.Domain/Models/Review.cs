@@ -8,6 +8,8 @@ namespace Body4uHUB.Services.Domain.Models
 {
     public class Review : Entity<ReviewId>
     {
+        public Guid ClientId { get; private set; }
+        public ServiceOrderId OrderId { get; private set; }
         public int Rating { get; private set; }
         public string Comment { get; private set; }
 
@@ -16,30 +18,45 @@ namespace Body4uHUB.Services.Domain.Models
         {
         }
 
-        private Review(int rating, string comment)
+        private Review(Guid reviewerId, ServiceOrderId orderId, int rating, string comment)
             : base(default!)
         {
+            ClientId = reviewerId;
+            OrderId = orderId;
             Rating = rating;
             Comment = comment;
         }
 
-        internal static Review Create(int rating, string comment)
+        internal static Review Create(Guid reviewerId, ServiceOrderId orderId, int rating, string comment)
         {
-            Validate(rating, comment);
-            return new Review(rating, comment);
+            Validate(reviewerId, orderId, rating, comment);
+            return new Review(reviewerId, orderId, rating, comment);
         }
 
         internal void Update(int rating, string comment)
         {
-            Validate(rating, comment);
+            ValidateRating(rating);
+            ValidateComment(comment);
             Rating = rating;
             Comment = comment;
         }
 
-        private static void Validate(int rating, string comment)
+        private static void Validate(Guid clientId, ServiceOrderId orderId, int rating, string comment)
         {
+            ValidateClientId(clientId);
+            ValidateOrderId(orderId);
             ValidateRating(rating);
             ValidateComment(comment);
+        }
+
+        private static void ValidateClientId(Guid clientId)
+        {
+           Guard.AgainstEmptyGuid<InvalidReviewException>(clientId, nameof(ClientId));
+        }
+
+        private static void ValidateOrderId(ServiceOrderId orderId)
+        {
+            Guard.AgainstNegativeAndZero<InvalidReviewException>(orderId.Value, nameof(OrderId));
         }
 
         private static void ValidateRating(int rating)
