@@ -4,6 +4,7 @@ using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
 
 namespace Body4uHUB.Services.Domain.Models
 {
@@ -145,6 +146,10 @@ namespace Body4uHUB.Services.Domain.Models
 
         public void AddReview(Guid clientId, ServiceOrderId orderId, int rating, string comment)
         {
+            if (_reviews.Any(x => x.OrderId == orderId))
+            {
+                throw new InvalidReviewException(ReviewAlreadyExists);
+            }
 
             var review = Review.Create(clientId, orderId, rating, comment);
             _reviews.Add(review);
@@ -207,7 +212,7 @@ namespace Body4uHUB.Services.Domain.Models
         {
             if (_reviews.Any())
             {
-                AverageRating = (decimal)_reviews.Average(r => r.Rating);
+                AverageRating = (decimal)_reviews.Average(x => x.Rating);
             }
             else
             {

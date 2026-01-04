@@ -4,6 +4,7 @@ using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
 
 namespace Body4uHUB.Services.Domain.Models
 {

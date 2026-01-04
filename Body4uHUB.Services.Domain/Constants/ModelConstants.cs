@@ -23,6 +23,8 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string CommentLength = "Comment must be between {0} and {1} characters.";
             public const string ServiceRatingOutOfRange = "Rating must be between {0} and {1}.";
             public const string ReviewIdCannotBeZeroOrNegative = "Review ID must be greater than 0.";
+            public const string ReviewAlreadyExists = "A review has already been added for this order.";
+            public const string ReviewNotFound = "Review not found for this order.";
         }
 
         public class ServiceOfferingConstants
@@ -72,8 +74,6 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string CannotConfirmNonPendingOrder = "Only pending orders can be confirmed.";
             public const string CannotCompleteNonConfirmedOrder = "Only confirmed orders can be completed.";
             public const string CannotCancelCompletedOrder = "Completed orders cannot be cancelled.";
-            public const string ReviewAlreadyExists = "A review has already been added for this order.";
-            public const string ReviewNotFound = "Review not found for this order.";
             public const string NoteMaxLengthMessage = "Notes cannot exceed {0} characters.";
         }
     }

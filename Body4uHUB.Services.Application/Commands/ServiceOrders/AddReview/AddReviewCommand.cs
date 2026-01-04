@@ -5,6 +5,8 @@ using Body4uHUB.Shared.Domain;
 using MediatR;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOrders.AddReview
 {
@@ -39,13 +41,21 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.AddReview
                     return Result.UnprocessableEntity(ServiceOrderNotFound);
                 }
 
-                serviceOrder.AddReview(request.Rating, request.Comment, request.ClientId);
-
                 var trainerProfile = await _trainerRepository.GetByIdAsync(serviceOrder.TrainerId);
-                if (trainerProfile != null)
+                if (trainerProfile == null)
                 {
-                    trainerProfile.UpdateRating(request.Rating);
+                    return Result.UnprocessableEntity(TrainerProfileNotFound);
                 }
+
+                var serviceOffering = trainerProfile.GetService(serviceOrder.ServiceOfferingId);
+                if (serviceOffering == null)
+                {
+                    return Result.UnprocessableEntity(ServiceOfferingNotFound);
+                }
+
+                serviceOffering.AddReview(request.ClientId, serviceOrder.Id, request.Rating, request.Comment);
+
+                trainerProfile.UpdateRating();
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
