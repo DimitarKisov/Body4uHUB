@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Body4uHUB.Shared\Body4uHUB.Shared.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+  	<InternalsVisibleTo Include="Body4uHUB.Services.Infrastructure" />
+  </ItemGroup>
+
 </Project>

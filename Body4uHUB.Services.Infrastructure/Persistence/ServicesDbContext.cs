@@ -1,4 +1,6 @@
 ﻿using Body4uHUB.Services.Domain.Models;
+using Body4uHUB.Services.Domain.ValueObjects;
+using Body4uHUB.Services.Infrastructure.Persistence.Converters;
 using Body4uHUB.Shared.Domain;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +27,23 @@ namespace Body4uHUB.Services.Infrastructure.Persistence
             modelBuilder.AddInboxStateEntity();
             modelBuilder.AddOutboxStateEntity();
             modelBuilder.AddOutboxMessageEntity();
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder
+                .Properties<ServiceOfferingId>()
+                .HaveConversion<ServiceOfferingConverter>();
+
+            configurationBuilder
+                .Properties<ServiceOrderId>()
+                .HaveConversion<ServiceOrderConverter>();
+
+            configurationBuilder
+                .Properties<ReviewId>()
+                .HaveConversion<ReviewConverter>();
+
+            base.ConfigureConventions(configurationBuilder);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
