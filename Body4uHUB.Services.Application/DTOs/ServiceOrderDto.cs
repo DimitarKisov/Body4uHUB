@@ -15,6 +15,6 @@ namespace Body4uHUB.Services.Application.DTOs
         public DateTime OrderDate { get; set; }
         public DateTime? CompletedDate { get; set; }
         public string Notes { get; set; }
-        public ReviewDto Review { get; set; }
+        public bool IsReviewed { get; set; }
     }
 }

@@ -30,12 +30,7 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
                     OrderDate = x.CreatedAt,
                     CompletedDate = x.CompletedAt,
                     Notes = x.Notes,
-                    Review = x.Review != null ? new ReviewDto
-                    {
-                        Rating = x.Review.Rating,
-                        Comment = x.Review.Comment,
-                        CreatedAt = x.Review.CreatedAt
-                    } : null
+                    IsReviewed = x.IsReviewed
                 })
                 .ToListAsync(cancellationToken);
         }
@@ -55,12 +50,7 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
                     OrderDate = x.CreatedAt,
                     CompletedDate = x.CompletedAt,
                     Notes = x.Notes,
-                    Review = x.Review != null ? new ReviewDto
-                    {
-                        Rating = x.Review.Rating,
-                        Comment = x.Review.Comment,
-                        CreatedAt = x.Review.CreatedAt
-                    } : null
+                    IsReviewed = x.IsReviewed
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }
