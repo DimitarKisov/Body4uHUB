@@ -2,7 +2,6 @@
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Add;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Update;
-using Body4uHUB.Services.Application.Commands.ServiceOrders.AddReview;
 using Body4uHUB.Services.Application.Commands.TrainerProfile.Update;
 using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOfferingsByTrainer;
