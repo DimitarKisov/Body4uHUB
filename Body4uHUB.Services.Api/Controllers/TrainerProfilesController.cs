@@ -5,6 +5,7 @@ using Body4uHUB.Services.Application.Commands.ServiceOffering.Update;
 using Body4uHUB.Services.Application.Commands.TrainerProfile.Update;
 using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOfferingsByTrainer;
+using Body4uHUB.Services.Application.Queries.TrainerProfile.GetAllActiveTrainers;
 using Body4uHUB.Services.Application.Queries.TrainerProfile.GetTrainerProfile;
 using Body4uHUB.Shared.Api;
 using MediatR;
@@ -19,10 +20,20 @@ namespace Body4uHUB.Services.Api.Controllers
         #region Trainer Profile Management
 
         /// <summary>
+        /// Get all trainer profiles with pagination and filters
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<TrainerProfileDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllActiveTrainerProfiles([FromQuery] int skip, [FromQuery] int take)
+        {
+            var result = await Mediator.Send(new GetAllActiveTrainersQuery { Skip = skip, Take = take });
+            return HandleResult(result);
+        }
+
+        /// <summary>
         /// Get trainer profile by ID
         /// </summary>
         [HttpGet("{id}")]
-        [AllowAnonymous]
         [ProducesResponseType(typeof(TrainerProfileDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetTrainerProfile(Guid id)

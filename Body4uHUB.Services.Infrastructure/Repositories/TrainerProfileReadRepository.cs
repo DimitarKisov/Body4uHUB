@@ -1,6 +1,7 @@
 ﻿using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Repositories;
 using Body4uHUB.Services.Infrastructure.Persistence;
+using Body4uHUB.Shared.Application;
 using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Services.Infrastructure.Repositories
@@ -14,10 +15,13 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<TrainerProfileDto>> GetAllActiveAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<TrainerProfileDto>> GetAllActiveAsync(int skip, int take, CancellationToken cancellationToken = default)
         {
             return await _dbContext.TrainerProfiles
                 .Where(x => x.IsActive)
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip(skip)
+                .Take(take)
                 .Select(x => new TrainerProfileDto
                 {
                     Id = x.Id,
@@ -39,7 +43,6 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
                         DurationInMinutes = y.DurationInMinutes
                     }).ToList()
                 })
-                .OrderByDescending(x => x.AverageRating)
                 .ToListAsync(cancellationToken);
         }
 
@@ -92,5 +95,7 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
                 })
                 .ToListAsync(cancellationToken);
         }
+
+        
     }
 }

@@ -1,12 +1,16 @@
 ﻿using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Repositories;
+using Body4uHUB.Shared.Application;
 using MediatR;
 
 namespace Body4uHUB.Services.Application.Queries.TrainerProfile.GetAllActiveTrainers
 {
-    public class GetAllActiveTrainersQuery : IRequest<IEnumerable<TrainerProfileDto>>
+    public class GetAllActiveTrainersQuery : IRequest<Result<IEnumerable<TrainerProfileDto>>>
     {
-        internal class GetAllActiveTrainersQueryHandler : IRequestHandler<GetAllActiveTrainersQuery, IEnumerable<TrainerProfileDto>>
+        public int Skip { get; set; } = 0;
+        public int Take { get; set; } = 20;
+
+        internal class GetAllActiveTrainersQueryHandler : IRequestHandler<GetAllActiveTrainersQuery, Result<IEnumerable<TrainerProfileDto>>>
         {
             private readonly ITrainerProfileReadRepository _trainerReadRepository;
 
@@ -15,9 +19,11 @@ namespace Body4uHUB.Services.Application.Queries.TrainerProfile.GetAllActiveTrai
                 _trainerReadRepository = trainerReadRepository;
             }
 
-            public async Task<IEnumerable<TrainerProfileDto>> Handle(GetAllActiveTrainersQuery request, CancellationToken cancellationToken)
+            public async Task<Result<IEnumerable<TrainerProfileDto>>> Handle(GetAllActiveTrainersQuery request, CancellationToken cancellationToken)
             {
-                return await _trainerReadRepository.GetAllActiveAsync(cancellationToken);
+                var trainerProfiles = await _trainerReadRepository.GetAllActiveAsync(request.Skip, request.Take, cancellationToken);
+
+                return Result.Success(trainerProfiles);
             }
         }
     }
