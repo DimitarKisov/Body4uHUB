@@ -1,38 +1,34 @@
 ﻿using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Application.Events;
-using Body4uHUB.Shared.Domain;
 using MediatR;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
 
-namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
+namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
 {
-    public class CreateTrainerAccountCommand : IRequest<Result>
+    public class DeleteTrainerCommand : IRequest<Result>
     {
         public Guid UserId { get; set; }
-        public string Bio { get; set; }
-        public int YearsOfExperience { get; set; }
 
-        internal class CreateTrainerAccountCommandHandler : IRequestHandler<CreateTrainerAccountCommand, Result>
+        internal class DeleteTrainerCommandHandler : IRequestHandler<DeleteTrainerCommand, Result>
         {
             private readonly IUserRepository _userRepository;
             private readonly IRoleRepository _roleRepository;
-            private readonly IUnitOfWork _unitOfWork;
             private readonly IEventBus _eventBus;
 
-            public CreateTrainerAccountCommandHandler(
+            public DeleteTrainerCommandHandler(
                 IUserRepository userRepository,
                 IRoleRepository roleRepository,
-                IUnitOfWork unitOfWork,
                 IEventBus eventBus)
             {
+                _userRepository = userRepository;
                 _roleRepository = roleRepository;
                 _eventBus = eventBus;
             }
 
-            public async Task<Result> Handle(CreateTrainerAccountCommand request, CancellationToken cancellationToken)
+            public async Task<Result> Handle(DeleteTrainerCommand request, CancellationToken cancellationToken)
             {
                 var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
                 if (user == null)
@@ -52,11 +48,9 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
                     return Result.UnprocessableEntity(UserNotInRole);
                 }
 
-                var @event = new TrainerAccountCreatedEvent
+                var @event = new TrainerAccountDeletedEvent
                 {
-                    UserId = request.UserId,
-                    Bio = request.Bio,
-                    YearsOfExperience = request.YearsOfExperience
+                    UserId = user.Id
                 };
 
                 await _eventBus.PublishAsync(@event);

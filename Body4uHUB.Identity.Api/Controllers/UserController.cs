@@ -30,7 +30,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         }
 
         /// <summary>
-        /// Create a new trainer account (Admin only)
+        /// Create a new trainer account
         /// </summary>
         [HttpPost("createTrainer")]
         [Authorize(Policy = "AdminOnly")]
@@ -40,6 +40,26 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CreateTrainerAccount(CreateTrainerAccountCommand command)
         {
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Delete trainer account (Admin only)
+        /// </summary> 
+        [HttpDelete("deleteTrainer/{userId}")]
+        [Authorize(Policy = "AdminOnly")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> DeleteTrainerAccount(Guid userId)
+        {
+            var command = new CreateTrainerAccountCommand
+            {
+                UserId = userId
+            };
+
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }

@@ -8,7 +8,6 @@ using Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOfferings
 using Body4uHUB.Services.Application.Queries.TrainerProfile.GetAllActiveTrainers;
 using Body4uHUB.Services.Application.Queries.TrainerProfile.GetTrainerProfile;
 using Body4uHUB.Shared.Api;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

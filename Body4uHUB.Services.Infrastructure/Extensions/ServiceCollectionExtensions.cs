@@ -37,9 +37,7 @@ namespace Body4uHUB.Services.Infrastructure.Extensions
             return services;
         }
 
-        private static IServiceCollection AddMassTransitWithRabbitMq(
-        this IServiceCollection services,
-        IConfiguration configuration)
+        private static IServiceCollection AddMassTransitWithRabbitMq(this IServiceCollection services, IConfiguration configuration)
         {
             var host = configuration.GetSection("MassTransit")["Host"];
             var virtualHost = configuration.GetSection("MassTransit")["VirtualHost"];
@@ -53,6 +51,7 @@ namespace Body4uHUB.Services.Infrastructure.Extensions
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<TrainerAccountCreatedEventConsumer>();
+                x.AddConsumer<TrainerAccountDeletedEventConsumer>();
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
