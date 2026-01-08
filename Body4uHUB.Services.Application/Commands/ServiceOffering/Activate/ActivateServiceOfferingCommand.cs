@@ -5,6 +5,7 @@ using Body4uHUB.Shared.Domain;
 using MediatR;
 
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
 {
@@ -12,6 +13,8 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
     {
         public int Id { get; set; }
         public Guid TrainerId { get; set; }
+        public Guid CurrentUserId { get; set; }
+        public bool IsAdmin { get; set; }
 
         internal class ActivateServiceOfferingCommandHandler : IRequestHandler<ActivateServiceOfferingCommand, Result>
         {
@@ -32,6 +35,11 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
                 if (trainerProfile == null)
                 {
                     return Result.ResourceNotFound(TrainerProfileNotFound);
+                }
+
+                if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)
+                {
+                    return Result.Forbidden(ServiceOfferingForbidden);
                 }
 
                 trainerProfile.ActivateService(ServiceOfferingId.Create(request.Id));

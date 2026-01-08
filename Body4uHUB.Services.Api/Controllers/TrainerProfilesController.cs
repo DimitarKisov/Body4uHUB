@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Services.Api.Extensions;
+using Body4uHUB.Services.Application.Commands.ServiceOffering.Activate;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Add;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Update;
@@ -73,6 +74,48 @@ namespace Body4uHUB.Services.Api.Controllers
         #region Service Offerings
 
         /// <summary>
+        /// Activate a service offering
+        /// </summary> 
+        [HttpPost("{trainerId}/services/{serviceId}/activate")]
+        [Authorize(Policy= "TrainerOrAdmin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> ActivateServiceOffering(Guid trainerId, int serviceId)
+        {
+            var command = new ActivateServiceOfferingCommand
+            {
+                Id = serviceId,
+                TrainerId = trainerId,
+                CurrentUserId = User.GetUserId(),
+                IsAdmin = User.IsAdmin()
+            };
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Create a new service offering
+        /// </summary>
+        [HttpPost("{trainerId}/services")]
+        [Authorize(Policy = "TrainerOrAdmin")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> CreateServiceOffering(Guid trainerId, [FromBody] AddServiceOfferingCommand command)
+        {
+            command.TrainerId = trainerId;
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result, id => new { serviceId = id });
+        }
+
+        /// <summary>
         /// Get all service offerings for a trainer
         /// </summary>
         [HttpGet("{trainerId}/services")]
@@ -92,23 +135,7 @@ namespace Body4uHUB.Services.Api.Controllers
             return HandleResult(result);
         }
 
-        /// <summary>
-        /// Create a new service offering (Trainer own profile only)
-        /// </summary>
-        [HttpPost("{trainerId}/services")]
-        [Authorize(Policy = "TrainerOrAdmin")]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> CreateServiceOffering(Guid trainerId, [FromBody] AddServiceOfferingCommand command)
-        {
-            command.TrainerId = trainerId;
-
-            var result = await Mediator.Send(command);
-            return HandleResult(result, id => new { serviceId = id });
-        }
+        
 
         /// <summary>
         /// Update service offering
