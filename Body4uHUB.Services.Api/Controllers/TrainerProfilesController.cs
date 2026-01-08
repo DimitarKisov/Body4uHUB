@@ -1,6 +1,7 @@
 ﻿using Body4uHUB.Services.Api.Extensions;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Activate;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Add;
+using Body4uHUB.Services.Application.Commands.ServiceOffering.AddReview;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Update;
 using Body4uHUB.Services.Application.Commands.TrainerProfile.Update;
@@ -98,6 +99,21 @@ namespace Body4uHUB.Services.Api.Controllers
         }
 
         /// <summary>
+        /// Add a review for a service offering
+        /// </summary>
+        [HttpPost("services/reviews")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> AddReview(AddReviewCommand command)
+        {
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        /// <summary>
         /// Create a new service offering
         /// </summary>
         [HttpPost("{trainerId}/services")]
@@ -113,6 +129,30 @@ namespace Body4uHUB.Services.Api.Controllers
 
             var result = await Mediator.Send(command);
             return HandleResult(result, id => new { serviceId = id });
+        }
+
+        /// <summary>
+        /// Delete service offering
+        /// </summary>
+        [HttpDelete("{trainerId}/services/{serviceId}")]
+        [Authorize(Policy = "TrainerOrAdmin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> DeleteServiceOffering(Guid trainerId, int serviceId)
+        {
+            var command = new DeactivateServiceOfferingCommand
+            {
+                Id = serviceId,
+                TrainerId = trainerId,
+                CurrentUserId = User.GetUserId(),
+                IsAdmin = User.IsAdmin()
+            };
+
+            var result = await Mediator.Send(command);
+            return HandleResult(result);
         }
 
         /// <summary>
@@ -161,29 +201,7 @@ namespace Body4uHUB.Services.Api.Controllers
             return HandleResult(result);
         }
 
-        /// <summary>
-        /// Delete service offering
-        /// </summary>
-        [HttpDelete("{trainerId}/services/{serviceId}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> DeleteServiceOffering(Guid trainerId, int serviceId)
-        {
-            var command = new DeactivateServiceOfferingCommand
-            {
-                Id = serviceId,
-                TrainerId = trainerId,
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
-            };
-
-            var result = await Mediator.Send(command);
-            return HandleResult(result);
-        }
+        
 
         #endregion
     }
