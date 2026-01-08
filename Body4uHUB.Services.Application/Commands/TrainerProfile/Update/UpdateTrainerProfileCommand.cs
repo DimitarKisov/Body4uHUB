@@ -2,9 +2,9 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
-
-using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using System.Text.Json.Serialization;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
 {
@@ -13,8 +13,9 @@ namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
         public Guid Id { get; set; }
         public string Bio { get; set; }
         public int YearsOfExperience { get; set; }
-        public Guid CurrentUserId { get; set; }
-        public bool IsAdmin { get; set; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; set; }
 
         internal class UpdateTrainerProfileCommandHandler : IRequestHandler<UpdateTrainerProfileCommand, Result>
         {
@@ -37,7 +38,7 @@ namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
                     return Result.ResourceNotFound(TrainerProfileNotFound);
                 }
 
-                if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)
+                if (!request.AuthContext.IsAdmin && trainerProfile.Id != request.AuthContext.CurrentUserId)
                 {
                     return Result.Forbidden(ServiceOfferingForbidden);
                 }

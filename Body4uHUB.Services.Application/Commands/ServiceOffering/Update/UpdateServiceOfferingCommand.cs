@@ -3,9 +3,9 @@ using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
-
-using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using System.Text.Json.Serialization;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
 {
@@ -19,8 +19,9 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
         public string Currency { get; set; }
         public int DurationMinutes { get; set; }
         public string ServiceType { get; set; }
-        public Guid CurrentUserId { get; set; }
-        public bool IsAdmin { get; set; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; set; }
 
         internal class UpdateServiceOfferingCommandHandler : IRequestHandler<UpdateServiceOfferingCommand, Result>
         {
@@ -49,7 +50,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
                     return Result.ResourceNotFound(ServiceOfferingNotFound);
                 }
 
-                if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)
+                if (!request.AuthContext.IsAdmin && trainerProfile.Id != request.AuthContext.CurrentUserId)
                 {
                     return Result.Forbidden(ServiceOfferingForbidden);
                 }

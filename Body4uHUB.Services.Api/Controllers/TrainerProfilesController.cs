@@ -10,9 +10,9 @@ using Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOfferings
 using Body4uHUB.Services.Application.Queries.TrainerProfile.GetAllActiveTrainers;
 using Body4uHUB.Services.Application.Queries.TrainerProfile.GetTrainerProfile;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Body4uHUB.Services.Api.Controllers
 {
@@ -63,8 +63,10 @@ namespace Body4uHUB.Services.Api.Controllers
         public async Task<IActionResult> UpdateTrainerProfile(Guid id, [FromBody] UpdateTrainerProfileCommand command)
         {
             command.Id = id;
-            command.CurrentUserId = User.GetUserId();
-            command.IsAdmin = User.IsAdmin();
+            command.AuthContext = AuthorizationContext.Create(
+                User.GetUserId(),
+                User.IsAdmin()
+            );
 
             var result = await Mediator.Send(command);
             return HandleResult(result);
@@ -90,8 +92,10 @@ namespace Body4uHUB.Services.Api.Controllers
             {
                 Id = serviceId,
                 TrainerId = trainerId,
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
+                AuthContext = AuthorizationContext.Create(
+                    User.GetUserId(),
+                    User.IsAdmin()
+                )
             };
 
             var result = await Mediator.Send(command);
@@ -147,8 +151,10 @@ namespace Body4uHUB.Services.Api.Controllers
             {
                 Id = serviceId,
                 TrainerId = trainerId,
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
+                AuthContext = AuthorizationContext.Create(
+                    User.GetUserId(),
+                    User.IsAdmin()
+                )
             };
 
             var result = await Mediator.Send(command);
@@ -175,8 +181,6 @@ namespace Body4uHUB.Services.Api.Controllers
             return HandleResult(result);
         }
 
-        
-
         /// <summary>
         /// Update service offering
         /// </summary>
@@ -187,21 +191,18 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> UpdateServiceOffering(
-            Guid trainerId,
-            int serviceId,
-            [FromBody] UpdateServiceOfferingCommand command)
+        public async Task<IActionResult> UpdateServiceOffering(Guid trainerId, int serviceId, [FromBody] UpdateServiceOfferingCommand command)
         {
             command.Id = serviceId;
             command.TrainerId = trainerId;
-            command.CurrentUserId = User.GetUserId();
-            command.IsAdmin = User.IsAdmin();
+            command.AuthContext = AuthorizationContext.Create(
+                User.GetUserId(),
+                User.IsAdmin()
+            );
 
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }
-
-        
 
         #endregion
     }

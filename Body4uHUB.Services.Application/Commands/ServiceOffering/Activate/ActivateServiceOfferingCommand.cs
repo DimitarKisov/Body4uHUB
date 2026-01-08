@@ -1,11 +1,12 @@
-﻿using Body4uHUB.Services.Domain.ValueObjects;
-using Body4uHUB.Services.Domain.Repositories;
+﻿using Body4uHUB.Services.Domain.Repositories;
+using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
+using System.Text.Json.Serialization;
 
-using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
 {
@@ -13,8 +14,9 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
     {
         public int Id { get; set; }
         public Guid TrainerId { get; set; }
-        public Guid CurrentUserId { get; set; }
-        public bool IsAdmin { get; set; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; set; }
 
         internal class ActivateServiceOfferingCommandHandler : IRequestHandler<ActivateServiceOfferingCommand, Result>
         {
@@ -37,7 +39,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
                     return Result.ResourceNotFound(TrainerProfileNotFound);
                 }
 
-                if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)
+                if (!request.AuthContext.IsAdmin && trainerProfile.Id != request.AuthContext.CurrentUserId)
                 {
                     return Result.Forbidden(ServiceOfferingForbidden);
                 }
