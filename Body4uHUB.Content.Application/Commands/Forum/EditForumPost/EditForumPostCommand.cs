@@ -2,9 +2,10 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
+using System.Text.Json.Serialization;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
 {
@@ -13,8 +14,9 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
         public Guid PostId { get; set; }
         public Guid TopicId { get; set; }
         public string Content { get; set; }
-        public Guid CurrentUserId { get; set; }
-        public bool IsAdmin { get; set; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; set; }
 
         internal class EditForumPostCommandHandler : IRequestHandler<EditForumPostCommand, Result>
         {
@@ -43,7 +45,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
                     return Result.ResourceNotFound(ForumPostNotFound);
                 }
 
-                if (!request.IsAdmin && post.AuthorId != request.CurrentUserId)
+                if (!request.AuthContext.IsAdmin && post.AuthorId != request.AuthContext.CurrentUserId)
                 {
                     return Result.Forbidden(ForumPostEditForbidden);
                 }

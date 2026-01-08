@@ -2,6 +2,7 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
+using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
@@ -12,8 +13,9 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
     {
         public Guid PostId { get; set; }
         public Guid TopicId { get; set; }
-        public Guid CurrentUserId { get; set; }
-        public bool IsAdmin { get; set; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; set; }
 
         internal class DeleteForumPostCommandHandler : IRequestHandler<DeleteForumPostCommand, Result>
         {
@@ -42,7 +44,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
                     return Result.ResourceNotFound(ForumPostNotFound);
                 }
 
-                if (!request.IsAdmin && post.AuthorId != request.CurrentUserId)
+                if (!request.AuthContext.IsAdmin && post.AuthorId != request.AuthContext.CurrentUserId)
                 {
                     return Result.Forbidden(ForumPostDeleteForbidden);
                 }

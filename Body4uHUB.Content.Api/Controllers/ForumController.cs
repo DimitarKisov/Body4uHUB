@@ -11,6 +11,7 @@ using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Forum;
 using Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -70,8 +71,10 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> EditForumTopic(Guid topicId, [FromBody] EditForumTopicCommand command)
         {
             command.TopicId = topicId;
-            command.CurrentUserId = User.GetUserId();
-            command.IsAdmin = User.IsAdmin();
+            command.AuthContext = AuthorizationContext.Create(
+                User.GetUserId(),
+                User.IsAdmin()
+            );
 
             var result = await Mediator.Send(command);
             return HandleResult(result);
@@ -167,8 +170,10 @@ namespace Body4uHUB.Content.Api.Controllers
             {
                 PostId = postId,
                 TopicId = topicId,
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
+                AuthContext = AuthorizationContext.Create(
+                    User.GetUserId(),
+                    User.IsAdmin()
+                )
             };
 
             var result = await Mediator.Send(command);
@@ -188,8 +193,10 @@ namespace Body4uHUB.Content.Api.Controllers
         {
             command.PostId = postId;
             command.TopicId = topicId;
-            command.CurrentUserId = User.GetUserId();
-            command.IsAdmin = User.IsAdmin();
+            command.AuthContext = AuthorizationContext.Create(
+                User.GetUserId(),
+                User.IsAdmin()
+            );
 
             var result = await Mediator.Send(command);
             return HandleResult(result);

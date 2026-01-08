@@ -2,6 +2,7 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
+using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
@@ -11,8 +12,9 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumTopic
     {
         public Guid TopicId { get; set; }
         public string Title { get; set; }
-        public Guid CurrentUserId { get; set; }
-        public bool IsAdmin { get; set; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; set; }
 
         internal class EditForumTopicCommandHandler : IRequestHandler<EditForumTopicCommand, Result>
         {
@@ -41,7 +43,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumTopic
                     return Result.ResourceNotFound(ForumTopicNotFound);
                 }
 
-                if (!request.IsAdmin && topic.AuthorId != request.CurrentUserId)
+                if (!request.AuthContext.IsAdmin && topic.AuthorId != request.AuthContext.CurrentUserId)
                 {
                     return Result.Forbidden(ForumTopicEditForbidden);
                 }
