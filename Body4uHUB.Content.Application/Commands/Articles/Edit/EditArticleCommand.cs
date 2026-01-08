@@ -3,6 +3,7 @@ using Body4uHUB.Content.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
+using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
@@ -13,8 +14,9 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
         public int Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public Guid CurrentUserId { get; set; }
-        public bool IsAdmin { get; set; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; set; }
 
         internal class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Result>
         {
@@ -37,7 +39,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
                     return Result.ResourceNotFound(ArticleNotFound);
                 }
 
-                if (!request.IsAdmin && article.AuthorId != request.CurrentUserId)
+                if (!request.AuthContext.IsAdmin && article.AuthorId != request.AuthContext.CurrentUserId)
                 {
                     return Result.Forbidden(ArticleEditForbidden);
                 }

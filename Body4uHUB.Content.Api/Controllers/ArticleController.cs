@@ -11,6 +11,7 @@ using Body4uHUB.Content.Application.Queries.Articles;
 using Body4uHUB.Content.Application.Queries.Articles.GetAll;
 using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,8 +39,11 @@ namespace Body4uHUB.Content.Api.Controllers
             var command = new ArchiveArticleCommand
             {
                 Id = id,
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
+                AuthContext = new AuthorizationContext
+                {
+                    CurrentUserId = User.GetUserId(),
+                    IsAdmin = User.IsAdmin()
+                }
             };
 
             var result = await Mediator.Send(command);
@@ -78,8 +82,11 @@ namespace Body4uHUB.Content.Api.Controllers
             var command = new DeleteArticleCommand
             {
                 Id = id,
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
+                AuthContext = new AuthorizationContext
+                {
+                    CurrentUserId = User.GetUserId(),
+                    IsAdmin = User.IsAdmin()
+                }
             };
 
             var result = await Mediator.Send(command);
@@ -136,8 +143,11 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> EditArticle(int id, [FromBody] EditArticleCommand command)
         {
             command.Id = id;
-            command.CurrentUserId = User.GetUserId();
-            command.IsAdmin = User.IsAdmin();
+            command.AuthContext = new AuthorizationContext
+            {
+                CurrentUserId = User.GetUserId(),
+                IsAdmin = User.IsAdmin()
+            };
 
             var result = await Mediator.Send(command);
             return HandleResult(result);
@@ -157,8 +167,11 @@ namespace Body4uHUB.Content.Api.Controllers
             var command = new PublishArticleCommand();
 
             command.Id = id;
-            command.CurrentUserId = User.GetUserId();
-            command.IsAdmin = User.IsAdmin();
+            command.AuthContext = new AuthorizationContext
+            {
+                CurrentUserId = User.GetUserId(),
+                IsAdmin = User.IsAdmin()
+            };
 
             var result = await Mediator.Send(command);
             return HandleResult(result);
@@ -198,8 +211,11 @@ namespace Body4uHUB.Content.Api.Controllers
             {
                 Id = commentId,
                 ArticleId = articleId,
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
+                AuthContext = new AuthorizationContext
+                {
+                    CurrentUserId = User.GetUserId(),
+                    IsAdmin = User.IsAdmin()
+                }
             };
 
             var result = await Mediator.Send(command);

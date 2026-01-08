@@ -13,6 +13,7 @@
             
             public const string ArticleAlreadyPublished = "Article is already published.";
             public const string ArticleExists = "Article with title '{0}' already exists";
+            public const string ArticleDeleteForibidden = "You do not have permission to delete this article.";
             public const string ArticleNotFound = "Article not found.";
             public const string ArticleNotPublished = "Article is not published.";
             public const string ArticlePublishForbidden = "You do not have permission to publish this article.";

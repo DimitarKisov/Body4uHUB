@@ -3,6 +3,7 @@ using Body4uHUB.Content.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
+using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
@@ -13,8 +14,9 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Delete
     {
         public int Id { get; set; }
         public int ArticleId { get; set; }
-        public Guid CurrentUserId { get; set; }
-        public bool IsAdmin { get; set; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; set; }
 
         internal class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, Result>
         {
@@ -43,7 +45,7 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Delete
                     return Result.ResourceNotFound(CommentNotFound);
                 }
 
-                if (!request.IsAdmin && comment.AuthorId != request.CurrentUserId)
+                if (!request.AuthContext.IsAdmin && comment.AuthorId != request.AuthContext.CurrentUserId)
                 {
                     return Result.Forbidden(CommentDeleteForbidden);
                 }
