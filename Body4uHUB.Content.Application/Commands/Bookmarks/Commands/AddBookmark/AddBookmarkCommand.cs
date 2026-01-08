@@ -39,13 +39,13 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark
                 var articleExists = await _articleRepository.ExistsByIdAsync(articleId, cancellationToken);
                 if (!articleExists)
                 {
-                    return Result.UnprocessableEntity<Guid>(ArticleNotFound);
+                    return Result.ResourceNotFound<Guid>(ArticleNotFound);
                 }
 
                 var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, articleId, cancellationToken);
                 if (bookmarkExists)
                 {
-                    return Result.UnprocessableEntity<Guid>(BookmarkAlreadyExists);
+                    return Result.ResourceNotFound<Guid>(BookmarkAlreadyExists);
                 }
 
                 var bookmark = Bookmark.Create(request.UserId, articleId);

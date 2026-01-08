@@ -34,13 +34,13 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Delete
                 var article = await _articleRepository.GetByIdAsync(Domain.ValueObjects.ArticleId.Create(request.ArticleId), cancellationToken);
                 if (article == null)
                 {
-                    return Result.UnprocessableEntity(ArticleNotFound);
+                    return Result.ResourceNotFound(ArticleNotFound);
                 }
 
                 var comment = article.Comments.FirstOrDefault(x => x.Id == CommentId.Create(request.Id));
                 if (comment == null)
                 {
-                    return Result.UnprocessableEntity(CommentNotFound);
+                    return Result.ResourceNotFound(CommentNotFound);
                 }
 
                 if (!request.IsAdmin && comment.AuthorId != request.CurrentUserId)

@@ -10,6 +10,7 @@ using Body4uHUB.Services.Application.Queries.TrainerProfile.GetTrainerProfile;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Body4uHUB.Services.Api.Controllers
 {
@@ -25,7 +26,13 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<TrainerProfileDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllActiveTrainerProfiles([FromQuery] int skip, [FromQuery] int take)
         {
-            var result = await Mediator.Send(new GetAllActiveTrainersQuery { Skip = skip, Take = take });
+            var query = new GetAllActiveTrainersQuery
+            {
+                Skip = skip,
+                Take = take
+            };
+
+            var result = await Mediator.Send(query);
             return HandleResult(result);
         }
 
@@ -72,9 +79,16 @@ namespace Body4uHUB.Services.Api.Controllers
         [AllowAnonymous]
         [ProducesResponseType(typeof(IEnumerable<ServiceOfferingDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> GetServiceOfferings(Guid trainerId)
+        public async Task<IActionResult> GetServiceOfferings([FromRoute] Guid trainerId, [FromQuery] int skip, [FromQuery] int take)
         {
-            var result = await Mediator.Send(new GetServiceOfferingsByTrainerQuery { TrainerId = trainerId });
+            var query = new GetServiceOfferingsByTrainerQuery
+            {
+                TrainerId = trainerId,
+                Skip = skip,
+                Take = take
+            };
+
+            var result = await Mediator.Send(query);
             return HandleResult(result);
         }
 

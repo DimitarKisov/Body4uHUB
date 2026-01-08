@@ -39,18 +39,18 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Create
                 var trainerProfile = await _trainerRepository.GetWithServicesByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
-                    return Result.UnprocessableEntity<ServiceOrderId>(TrainerProfileNotFound);
+                    return Result.ResourceNotFound<ServiceOrderId>(TrainerProfileNotFound);
                 }
 
                 var serviceOffering = trainerProfile.GetService(Domain.ValueObjects.ServiceOfferingId.Create(request.ServiceOfferingId));
                 if (serviceOffering == null)
                 {
-                    return Result.UnprocessableEntity<ServiceOrderId>(ServiceOfferingNotFound);
+                    return Result.ResourceNotFound<ServiceOrderId>(ServiceOfferingNotFound);
                 }
 
                 if (!serviceOffering.IsActive)
                 {
-                    return Result.Failure<ServiceOrderId>(ServiceOfferingInactive);
+                    return Result.BusinessRuleViolation<ServiceOrderId>(ServiceOfferingInactive);
                 }
 
                 var serviceOrder = ServiceOrder.Create(

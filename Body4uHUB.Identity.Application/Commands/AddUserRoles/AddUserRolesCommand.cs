@@ -33,7 +33,7 @@ namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
                 var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
                 if (user == null)
                 {
-                    return Result.UnprocessableEntity(UserNotFound);
+                    return Result.ResourceNotFound(UserNotFound);
                 }
 
                 foreach (var roleId in request.RoleIds)
@@ -41,7 +41,7 @@ namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
                     var role = await _roleRepository.FindByIdAsync(roleId, cancellationToken);
                     if (role == null)
                     {
-                        return Result.UnprocessableEntity($"Role '{roleId}' does not exist.");
+                        return Result.ResourceNotFound($"Role '{roleId}' does not exist.");
                     }
 
                     user.AddRole(role);

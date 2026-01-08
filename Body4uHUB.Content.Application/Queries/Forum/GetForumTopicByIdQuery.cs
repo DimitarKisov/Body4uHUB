@@ -30,7 +30,7 @@ namespace Body4uHUB.Content.Application.Queries.Forum
                 var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
-                    return Result.UnprocessableEntity<ForumTopicDto>(ForumTopicNotFound);
+                    return Result.ResourceNotFound<ForumTopicDto>(ForumTopicNotFound);
                 }
 
                 topic.IncrementViewCount();

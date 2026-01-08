@@ -34,7 +34,7 @@ namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
                 var trainerProfile = await _trainerRepository.GetByIdAsync(request.Id, cancellationToken);
                 if (trainerProfile == null)
                 {
-                    return Result.UnprocessableEntity(TrainerProfileNotFound);
+                    return Result.ResourceNotFound(TrainerProfileNotFound);
                 }
 
                 if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)

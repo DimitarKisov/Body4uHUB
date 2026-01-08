@@ -40,13 +40,13 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
                 var trainerProfile = await _trainerRepository.GetWithServicesByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
-                    return Result.UnprocessableEntity(TrainerProfileNotFound);
+                    return Result.ResourceNotFound(TrainerProfileNotFound);
                 }
 
                 var serviceOffering = trainerProfile.GetService(ServiceOfferingId.Create(request.Id));
                 if (serviceOffering == null)
                 {
-                    return Result.UnprocessableEntity(ServiceOfferingNotFound);
+                    return Result.ResourceNotFound(ServiceOfferingNotFound);
                 }
 
                 if (!request.IsAdmin && trainerProfile.Id != request.CurrentUserId)

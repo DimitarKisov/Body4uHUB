@@ -6,11 +6,11 @@
     public enum ErrorType
     {
         None,
-        Validation,             // 400 Bad Request - валидационни грешки от FluentValidation
-        Conflict,               // 409 Conflict - конфликт с existing data (email already exists)
         Unauthorized,           // 401 Unauthorized - невалидна автентикация (invalid credentials)
-        Forbidden,              // 403 Forbidden - валидна автентикация, но няма права (email not confirmed)
-        UnprocessableEntity     // 422 Unprocessable Entity - ресурс не е намерен (user not found, article not found)
+        Forbidden,              // 403 Forbidden - валидна автентикация, но няма права
+        ResourceNotFound,       // 422 Unprocessable Entity - ресурс не съществува в базата
+        Conflict,               // 409 Conflict - конфликт с existing data (email already exists)
+        BusinessRule            // 422 Unprocessable Entity - нарушено бизнес правило (domain logic)
     }
 
     /// <summary>
@@ -39,32 +39,28 @@
             ErrorType = errorType;
         }
 
+        // Success
         public static Result Success() => new Result(true, string.Empty);
 
-        public static Result Failure(string error, ErrorType errorType = ErrorType.Validation)
-            => new Result(false, error, errorType);
-
-        public static Result Conflict(string error)
-            => new Result(false, error, ErrorType.Conflict);
-
+        // Failures
         public static Result Unauthorized(string error)
             => new Result(false, error, ErrorType.Unauthorized);
 
         public static Result Forbidden(string error)
             => new Result(false, error, ErrorType.Forbidden);
 
-        public static Result UnprocessableEntity(string error)
-            => new Result(false, error, ErrorType.UnprocessableEntity);
+        public static Result ResourceNotFound(string error)
+            => new Result(false, error, ErrorType.ResourceNotFound);
+
+        public static Result Conflict(string error)
+            => new Result(false, error, ErrorType.Conflict);
+
+        public static Result BusinessRuleViolation(string error)
+            => new Result(false, error, ErrorType.BusinessRule);
 
         // Generic methods
         public static Result<T> Success<T>(T value)
             => new Result<T>(value, true, string.Empty, ErrorType.None);
-
-        public static Result<T> Failure<T>(string error, ErrorType errorType = ErrorType.Validation)
-            => new Result<T>(default, false, error, errorType);
-
-        public static Result<T> Conflict<T>(string error)
-            => new Result<T>(default, false, error, ErrorType.Conflict);
 
         public static Result<T> Unauthorized<T>(string error)
             => new Result<T>(default, false, error, ErrorType.Unauthorized);
@@ -72,8 +68,14 @@
         public static Result<T> Forbidden<T>(string error)
             => new Result<T>(default, false, error, ErrorType.Forbidden);
 
-        public static Result<T> UnprocessableEntity<T>(string error)
-            => new Result<T>(default, false, error, ErrorType.UnprocessableEntity);
+        public static Result<T> ResourceNotFound<T>(string error)
+            => new Result<T>(default, false, error, ErrorType.ResourceNotFound);
+
+        public static Result<T> Conflict<T>(string error)
+            => new Result<T>(default, false, error, ErrorType.Conflict);
+
+        public static Result<T> BusinessRuleViolation<T>(string error)
+            => new Result<T>(default, false, error, ErrorType.BusinessRule);
     }
 
     /// <summary>

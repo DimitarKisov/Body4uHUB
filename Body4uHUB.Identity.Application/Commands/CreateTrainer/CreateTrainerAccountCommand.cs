@@ -37,19 +37,19 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
                 var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
                 if (user == null)
                 {
-                    return Result.UnprocessableEntity(UserNotFound);
+                    return Result.ResourceNotFound(UserNotFound);
                 }
 
                 var role = await _roleRepository.FindByNameAsync("Trainer", cancellationToken);
                 if (role == null)
                 {
-                    return Result.UnprocessableEntity(RoleNotFound);
+                    return Result.ResourceNotFound(RoleNotFound);
                 }
 
                 var userIsInRole = user.Roles.Any(x => x.Id == role.Id);
                 if (!userIsInRole)
                 {
-                    return Result.UnprocessableEntity(UserNotInRole);
+                    return Result.ResourceNotFound(UserNotInRole);
                 }
 
                 var @event = new TrainerAccountCreatedEvent

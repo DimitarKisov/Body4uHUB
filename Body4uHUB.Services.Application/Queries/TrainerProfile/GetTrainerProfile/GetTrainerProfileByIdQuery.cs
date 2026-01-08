@@ -25,7 +25,7 @@ namespace Body4uHUB.Services.Application.Queries.TrainerProfile.GetTrainerProfil
                 var trainerProfile = await _trainerReadRepository.GetByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
-                    return Result.UnprocessableEntity<TrainerProfileDto>(TrainerProfileNotFound);
+                    return Result.ResourceNotFound<TrainerProfileDto>(TrainerProfileNotFound);
                 }
 
                 return Result.Success(trainerProfile);

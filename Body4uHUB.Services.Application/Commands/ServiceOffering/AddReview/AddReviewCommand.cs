@@ -38,19 +38,19 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.AddReview
                 var serviceOrder = await _serviceOrderRepository.GetByIdAsync(ServiceOrderId.Create(request.OrderId), cancellationToken);
                 if (serviceOrder == null)
                 {
-                    return Result.UnprocessableEntity(ServiceOrderNotFound);
+                    return Result.ResourceNotFound(ServiceOrderNotFound);
                 }
 
                 var trainerProfile = await _trainerRepository.GetByIdAsync(serviceOrder.TrainerId);
                 if (trainerProfile == null)
                 {
-                    return Result.UnprocessableEntity(TrainerProfileNotFound);
+                    return Result.ResourceNotFound(TrainerProfileNotFound);
                 }
 
                 var serviceOffering = trainerProfile.GetService(serviceOrder.ServiceOfferingId);
                 if (serviceOffering == null)
                 {
-                    return Result.UnprocessableEntity(ServiceOfferingNotFound);
+                    return Result.ResourceNotFound(ServiceOfferingNotFound);
                 }
 
                 serviceOffering.AddReview(request.ClientId, serviceOrder.Id, request.Rating, request.Comment);

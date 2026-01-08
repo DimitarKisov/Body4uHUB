@@ -38,7 +38,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumTopic
                 var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
-                    return Result.UnprocessableEntity(ForumTopicNotFound);
+                    return Result.ResourceNotFound(ForumTopicNotFound);
                 }
 
                 if (!request.IsAdmin && topic.AuthorId != request.CurrentUserId)

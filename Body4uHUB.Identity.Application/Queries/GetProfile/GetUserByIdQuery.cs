@@ -25,7 +25,7 @@ namespace Body4uHUB.Identity.Application.Queries.GetProfile
                 var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
                 if (user == null)
                 {
-                    return Result.UnprocessableEntity<UserDto>(UserNotFound);
+                    return Result.ResourceNotFound<UserDto>(UserNotFound);
                 }
 
                 var userDto = new UserDto

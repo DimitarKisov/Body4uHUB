@@ -25,7 +25,7 @@ namespace Body4uHUB.Identity.Application.Queries.GetUserById
                 var user = await _userReadRepository.GetByIdAsync(request.Id, cancellationToken);
                 if (user == null)
                 {
-                    return Result.UnprocessableEntity<UserDto>(UserNotFound);
+                    return Result.ResourceNotFound<UserDto>(UserNotFound);
                 }
 
                 return Result.Success(user);

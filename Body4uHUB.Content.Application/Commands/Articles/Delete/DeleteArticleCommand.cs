@@ -32,7 +32,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
                 var article = await _articleRepository.GetByIdAsync(ArticleId.Create(request.Id), cancellationToken);
                 if (article == null)
                 {
-                    return Result.UnprocessableEntity(ArticleNotFound);
+                    return Result.ResourceNotFound(ArticleNotFound);
                 }
 
                 if (!request.IsAdmin && article.AuthorId != request.CurrentUserId)

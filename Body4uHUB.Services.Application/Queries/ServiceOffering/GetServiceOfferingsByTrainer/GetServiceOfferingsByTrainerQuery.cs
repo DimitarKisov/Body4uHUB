@@ -10,6 +10,8 @@ namespace Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOffer
     public class GetServiceOfferingsByTrainerQuery : IRequest<Result<IEnumerable<ServiceOfferingDto>>>
     {
         public Guid TrainerId { get; set; }
+        public int Skip { get; set; } = 0;
+        public int Take { get; set; } = 10;
 
         internal class GetServiceOfferingsByTrainerQueryHandler : IRequestHandler<GetServiceOfferingsByTrainerQuery, Result<IEnumerable<ServiceOfferingDto>>>
         {
@@ -22,11 +24,13 @@ namespace Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOffer
 
             public async Task<Result<IEnumerable<ServiceOfferingDto>>> Handle(GetServiceOfferingsByTrainerQuery request, CancellationToken cancellationToken)
             {
-                var serviceOfferings = await _trainerReadRepository.GetServiceOfferingsByTrainerIdAsync(request.TrainerId);
-                if (serviceOfferings == null)
+                var trainerExists = await _trainerReadRepository.ExistsByIdAsync(request.TrainerId);
+                if (!trainerExists)
                 {
-                    return Result.UnprocessableEntity<IEnumerable<ServiceOfferingDto>>(TrainerProfileNotFound);
+                    return Result.ResourceNotFound<IEnumerable<ServiceOfferingDto>>(TrainerProfileNotFound);
                 }
+
+                var serviceOfferings = await _trainerReadRepository.GetServiceOfferingsByTrainerIdAsync(request.TrainerId, request.Skip, request.Take);
 
                 return Result.Success(serviceOfferings);
             }

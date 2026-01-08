@@ -31,12 +31,12 @@ namespace Body4uHUB.Shared.Api
 
             return result.ErrorType switch
             {
-                ErrorType.UnprocessableEntity => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.ResourceNotFound => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
                 ErrorType.Conflict => Conflict(new { error = result.Error }),
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
                 ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
-                ErrorType.Validation => BadRequest(new { error = result.Error }),
-                _ => BadRequest(new { error = result.Error })
+                _ => StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error" })
             };
         }
 
@@ -66,12 +66,12 @@ namespace Body4uHUB.Shared.Api
 
             return result.ErrorType switch
             {
-                ErrorType.UnprocessableEntity => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.ResourceNotFound => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
                 ErrorType.Conflict => Conflict(new { error = result.Error }),
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
                 ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
-                ErrorType.Validation => BadRequest(new { error = result.Error }),
-                _ => BadRequest(new { error = result.Error })
+                _ => StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error" })
             };
         }
 
@@ -89,12 +89,12 @@ namespace Body4uHUB.Shared.Api
 
             return result.ErrorType switch
             {
-                ErrorType.UnprocessableEntity => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.ResourceNotFound => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
                 ErrorType.Conflict => Conflict(new { error = result.Error }),
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
                 ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
-                ErrorType.Validation => BadRequest(new { error = result.Error }),
-                _ => BadRequest(new { error = result.Error })
+                _ => StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error" })
             };
         }
 
@@ -115,12 +115,12 @@ namespace Body4uHUB.Shared.Api
 
             return result.ErrorType switch
             {
-                ErrorType.UnprocessableEntity => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.ResourceNotFound => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
                 ErrorType.Conflict => Conflict(new { error = result.Error }),
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
                 ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
-                ErrorType.Validation => BadRequest(new { error = result.Error }),
-                _ => BadRequest(new { error = result.Error })
+                _ => StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error" })
             };
         }
     }

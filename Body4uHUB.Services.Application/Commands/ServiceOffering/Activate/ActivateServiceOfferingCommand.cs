@@ -31,7 +31,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
                 var trainerProfile = await _trainerRepository.GetWithServicesByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
-                    return Result.UnprocessableEntity(TrainerProfileNotFound);
+                    return Result.ResourceNotFound(TrainerProfileNotFound);
                 }
 
                 trainerProfile.ActivateService(ServiceOfferingId.Create(request.Id));

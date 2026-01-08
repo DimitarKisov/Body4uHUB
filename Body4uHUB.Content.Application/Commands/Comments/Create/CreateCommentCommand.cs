@@ -34,7 +34,7 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Create
                 var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
                 if (article == null)
                 {
-                    return Result.UnprocessableEntity<CommentId>(ArticleNotFound);
+                    return Result.ResourceNotFound<CommentId>(ArticleNotFound);
                 }
 
                 var comment = Comment.Create(

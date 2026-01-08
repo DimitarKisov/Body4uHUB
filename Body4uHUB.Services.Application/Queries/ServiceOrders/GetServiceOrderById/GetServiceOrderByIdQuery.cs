@@ -26,7 +26,7 @@ namespace Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderBy
                 var serviceOrder = await _serviceOrderReadRepository.GetByIdAsync(ServiceOrderId.Create(request.Id), cancellationToken);
                 if (serviceOrder == null)
                 {
-                    return Result.UnprocessableEntity<ServiceOrderDto>(ServiceOrderNotFound);
+                    return Result.ResourceNotFound<ServiceOrderDto>(ServiceOrderNotFound);
                 }
 
                 return Result.Success(serviceOrder);

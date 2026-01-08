@@ -36,7 +36,7 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.RemoveBookma
 
                 if (bookmark == null)
                 {
-                    return Result.UnprocessableEntity(BookmarkNotFound);
+                    return Result.ResourceNotFound(BookmarkNotFound);
                 }
 
                 _bookmarkRepository.Remove(bookmark);

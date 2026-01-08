@@ -32,7 +32,7 @@ namespace Body4uHUB.Identity.Application.Commands.EditUser
                 var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
                 if (user == null)
                 {
-                    return Result.UnprocessableEntity(UserNotFound);
+                    return Result.ResourceNotFound(UserNotFound);
                 }
 
                 user.UpdateFirstName(request.FirstName);

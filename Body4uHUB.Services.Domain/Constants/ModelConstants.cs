@@ -9,6 +9,8 @@ namespace Body4uHUB.Services.Domain.Constants
         {
             public const string TrainerIdRequired = "Trainer ID is required";
             public const string ServiceOfferingIdRequired = "Service Offering ID is required";
+            public const string SkipInvalid = "Skip must be greater than or equal to 0";
+            public const string TakeInvalid = "Take must be between 1 and 100";
             public const string ClientIdRequired = "Client ID is required";
         }
 

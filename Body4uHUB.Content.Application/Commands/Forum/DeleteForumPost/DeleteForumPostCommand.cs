@@ -33,13 +33,13 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
                 var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
                 if (topic == null)
                 {
-                    return Result.UnprocessableEntity(ForumTopicNotFound);
+                    return Result.ResourceNotFound(ForumTopicNotFound);
                 }
 
                 var post = topic.Posts.FirstOrDefault(x => x.Id == request.PostId);
                 if (post == null)
                 {
-                    return Result.UnprocessableEntity(ForumPostNotFound);
+                    return Result.ResourceNotFound(ForumPostNotFound);
                 }
 
                 if (!request.IsAdmin && post.AuthorId != request.CurrentUserId)

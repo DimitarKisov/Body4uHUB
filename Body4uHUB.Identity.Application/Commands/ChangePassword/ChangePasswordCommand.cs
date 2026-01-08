@@ -35,7 +35,7 @@ namespace Body4uHUB.Identity.Application.Commands.ChangePassword
                 var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
                 if (user == null)
                 {
-                    return Result.UnprocessableEntity(UserNotFound);
+                    return Result.ResourceNotFound(UserNotFound);
                 }
 
                 if (!_passwordHasherService.VerifyPassword(request.CurrentPassword, user.PasswordHash))
@@ -46,7 +46,7 @@ namespace Body4uHUB.Identity.Application.Commands.ChangePassword
                 var newPasswordHash = _passwordHasherService.HashPassword(request.NewPassword);
                 if (string.IsNullOrWhiteSpace(newPasswordHash))
                 {
-                    return Result.UnprocessableEntity(PasswordInvalid);
+                    return Result.ResourceNotFound(PasswordInvalid);
                 }
 
                 user.UpdatePasswordHash(newPasswordHash);

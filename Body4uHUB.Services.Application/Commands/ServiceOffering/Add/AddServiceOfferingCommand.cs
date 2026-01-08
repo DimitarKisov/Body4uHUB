@@ -42,7 +42,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Add
                 var trainerProfile = await _trainerRepository.GetWithServicesByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
-                    return Result.UnprocessableEntity<ServiceOfferingId>(TrainerProfileNotFound);
+                    return Result.ResourceNotFound<ServiceOfferingId>(TrainerProfileNotFound);
                 }
 
                 var money = Money.Create(request.Price, request.Currency);

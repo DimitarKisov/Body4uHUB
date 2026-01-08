@@ -10,6 +10,14 @@ namespace Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOffer
         {
             RuleFor(x => x.TrainerId)
                 .NotEmpty().WithMessage(TrainerIdRequired);
+
+            RuleFor(x => x.Skip)
+                .GreaterThanOrEqualTo(0)
+                .WithMessage(SkipInvalid);
+
+            RuleFor(x => x.Take)
+                .InclusiveBetween(1, 100)
+                .WithMessage(TakeInvalid);
         }
     }
 }

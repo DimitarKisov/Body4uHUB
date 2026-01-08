@@ -15,6 +15,11 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.TrainerProfiles.AnyAsync(x => x.Id == id, cancellationToken);
+        }
+
         public async Task<IEnumerable<TrainerProfileDto>> GetAllActiveAsync(int skip, int take, CancellationToken cancellationToken = default)
         {
             return await _dbContext.TrainerProfiles
@@ -75,12 +80,15 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<ServiceOfferingDto>> GetServiceOfferingsByTrainerIdAsync(Guid trainerId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<ServiceOfferingDto>> GetServiceOfferingsByTrainerIdAsync(Guid trainerId, int skip, int take, CancellationToken cancellationToken = default)
         {
             return await _dbContext.TrainerProfiles
                 .Where(x => x.Id == trainerId)
                 .SelectMany(x => x.Services)
                 .Where(x => x.IsActive)
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip(skip)
+                .Take(take)
                 .Select(x => new ServiceOfferingDto
                 {
                     Id = x.Id,
@@ -95,7 +103,5 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
                 })
                 .ToListAsync(cancellationToken);
         }
-
-        
     }
 }

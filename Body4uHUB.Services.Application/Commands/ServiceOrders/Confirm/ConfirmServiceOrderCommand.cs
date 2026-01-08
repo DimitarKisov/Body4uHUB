@@ -30,7 +30,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Confirm
                 var serviceOrder = await _serviceOrderRepository.GetByIdAsync(ServiceOrderId.Create(request.Id), cancellationToken);
                 if (serviceOrder == null)
                 {
-                    return Result.UnprocessableEntity(ServiceOrderNotFound);
+                    return Result.ResourceNotFound(ServiceOrderNotFound);
                 }
 
                 serviceOrder.Confirm();

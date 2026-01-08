@@ -32,7 +32,7 @@ namespace Body4uHUB.Content.Application.Queries.Articles
                 var article = await _articleRepository.GetByIdAsync(ArticleId.Create(request.Id), cancellationToken);
                 if (article == null)
                 {
-                    return Result.UnprocessableEntity<ArticleDto>(ArticleNotFound);
+                    return Result.ResourceNotFound<ArticleDto>(ArticleNotFound);
                 }
 
                 article.IncrementViewCount();

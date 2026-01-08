@@ -48,7 +48,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 var passwordHash = _passwordHasherService.HashPassword(request.Password);
                 if (string.IsNullOrWhiteSpace(passwordHash))
                 {
-                    return Result.UnprocessableEntity<AuthResponseDto>(PasswordInvalid);
+                    return Result.ResourceNotFound<AuthResponseDto>(PasswordInvalid);
                 }
 
                 var user = User.Create(
