@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Services.Application.Commands.ServiceOrders.Cancel;
+﻿using Body4uHUB.Services.Api.Extensions;
+using Body4uHUB.Services.Application.Commands.ServiceOrders.Cancel;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Complete;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Confirm;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Create;
@@ -7,6 +8,7 @@ using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderByClie
 using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderById;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,14 +20,23 @@ namespace Body4uHUB.Services.Api.Controllers
         /// <summary>
         /// Cancels a service order
         /// </summary>
-        [HttpPost("cancel")]
+        [HttpPut("{id}/cancel")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> CancelServiceOrder(CancelServiceOrderCommand command)
+        public async Task<IActionResult> CancelServiceOrder(int id)
         {
+            var command = new CancelServiceOrderCommand
+            {
+                Id = id,
+                AuthContext = AuthorizationContext.Create(
+                    User.GetUserId(),
+                    User.IsAdmin()
+                )
+            };
+
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }

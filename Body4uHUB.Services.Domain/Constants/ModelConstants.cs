@@ -77,6 +77,7 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string CannotCompleteNonConfirmedOrder = "Only confirmed orders can be completed.";
             public const string CannotCancelCompletedOrder = "Completed orders cannot be cancelled.";
             public const string NoteMaxLengthMessage = "Notes cannot exceed {0} characters.";
+            public const string ServiceOrderForbidden = "You do not have permission to modify this service order.";
         }
     }
 }

@@ -3,6 +3,7 @@ using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain;
 using MediatR;
+using System.Text.Json.Serialization;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
@@ -12,9 +13,12 @@ namespace Body4uHUB.Services.Application.Commands.Review.Add
 {
     public class AddReviewCommand : IRequest<Result>
     {
+        [JsonIgnore]
         public int OrderId { get; set; }
         public int Rating { get; set; }
         public string Comment { get; set; }
+
+        [JsonIgnore]
         public Guid ClientId { get; set; }
 
         internal class AddReviewCommandHandler : IRequestHandler<AddReviewCommand, Result>
