@@ -1,7 +1,7 @@
 ﻿using Body4uHUB.Services.Api.Extensions;
+using Body4uHUB.Services.Application.Commands.Review.Add;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Activate;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Add;
-using Body4uHUB.Services.Application.Commands.ServiceOffering.AddReview;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Update;
 using Body4uHUB.Services.Application.Commands.TrainerProfile.Update;

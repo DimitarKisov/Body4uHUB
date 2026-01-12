@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Body4uHUB.Shared.Application\Body4uHUB.Shared.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Commands\ServiceOffering\AddReview\" />
+  </ItemGroup>
+
 </Project>

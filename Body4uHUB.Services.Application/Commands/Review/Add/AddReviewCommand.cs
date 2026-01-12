@@ -8,7 +8,7 @@ using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderCons
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Commands.ServiceOffering.AddReview
+namespace Body4uHUB.Services.Application.Commands.Review.Add
 {
     public class AddReviewCommand : IRequest<Result>
     {
