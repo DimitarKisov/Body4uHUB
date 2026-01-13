@@ -12,8 +12,6 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Cancel
     {
         public int Id { get; set; }
 
-        public AuthorizationContext AuthContext { get; set; }
-
         internal class CancelServiceOrderCommandHandler : IRequestHandler<CancelServiceOrderCommand, Result>
         {
             private readonly IServiceOrderRepository _serviceOrderRepository;
@@ -33,11 +31,6 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Cancel
                 if (serviceOrder == null)
                 {
                     return Result.ResourceNotFound(ServiceOrderNotFound);
-                }
-
-                if (!request.AuthContext.IsAdmin && serviceOrder.ClientId != request.AuthContext.CurrentUserId)
-                {
-                    return Result.Forbidden(ServiceOrderForbidden);
                 }
 
                 serviceOrder.Cancel();

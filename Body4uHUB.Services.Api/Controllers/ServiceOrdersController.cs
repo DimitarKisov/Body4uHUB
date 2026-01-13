@@ -30,11 +30,7 @@ namespace Body4uHUB.Services.Api.Controllers
         {
             var command = new CancelServiceOrderCommand
             {
-                Id = id,
-                AuthContext = AuthorizationContext.Create(
-                    User.GetUserId(),
-                    User.IsAdmin()
-                )
+                Id = id
             };
 
             var result = await Mediator.Send(command);
@@ -44,14 +40,19 @@ namespace Body4uHUB.Services.Api.Controllers
         /// <summary>
         /// Completes a service order
         /// </summary>
-        [HttpPost("complete")]
+        [HttpPut("{id}/complete")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> CompleteServiceOrder(CompleteServiceOrderCommand command)
+        public async Task<IActionResult> CompleteServiceOrder(int id)
         {
+            var command = new CompleteServiceOrderCommand
+            {
+                Id = id
+            };
+
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }
@@ -59,14 +60,19 @@ namespace Body4uHUB.Services.Api.Controllers
         /// <summary>
         /// Confirms a service order
         /// </summary>
-        [HttpPost("confirm")]
+        [HttpPut("{id}/confirm")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> ConfirmServiceOrder(ConfirmServiceOrderCommand command)
+        public async Task<IActionResult> ConfirmServiceOrder(int id)
         {
+            var command = new ConfirmServiceOrderCommand
+            {
+                Id = id
+            };
+
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }
