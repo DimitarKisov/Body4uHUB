@@ -52,7 +52,7 @@ namespace Body4uHUB.Content.Application.Queries.Articles
                     ModifiedAt = article.ModifiedAt,
                     Comments = article.Comments.Select(x => new CommentDto
                     {
-                        Id = x.Id.Value,
+                        Id = x.Id,
                         AuthorId = x.AuthorId,
                         Content = x.Content,
                         CreatedAt = x.CreatedAt,

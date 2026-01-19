@@ -1,25 +1,25 @@
 ﻿using Body4uHUB.Content.Domain.Exceptions;
-using Body4uHUB.Content.Domain.ValueObjects;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
+
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {
-    public class Comment : Entity<CommentId>
+    public class Comment : Entity<Guid>
     {
         public string Content { get; private set; }
         public Guid AuthorId { get; private set; }
-        public CommentId ParentCommentId { get; private set; }
+        public Guid? ParentCommentId { get; private set; }
         public bool IsDeleted { get; private set; }
 
         private Comment()
-            : base(default!)
+            : base()
         {
         }
 
-        private Comment(string content, Guid authorId, CommentId parentCommentId = null)
-            : base(default!)
+        private Comment(string content, Guid authorId, Guid? parentCommentId)
+            : base(Guid.NewGuid())
         {
             Content = content;
             AuthorId = authorId;
@@ -27,7 +27,7 @@ namespace Body4uHUB.Content.Domain.Models
             IsDeleted = false;
         }
 
-        public static Comment Create(string content, Guid authorId, CommentId parentCommentId = null)
+        public static Comment Create(string content, Guid authorId, Guid? parentCommentId)
         {
             Validate(content, authorId);
             return new Comment(content, authorId, parentCommentId);

@@ -9,14 +9,14 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Comments.Create
 {
-    public class CreateCommentCommand : IRequest<Result<CommentId>>
+    public class CreateCommentCommand : IRequest<Result<Guid>>
     {
         public string Content { get; set; }
         public Guid AuthorId { get; set; }
         public int ArticleId { get; set; }
-        public int? ParentCommentId { get; set; }
+        public Guid? ParentCommentId { get; set; }
 
-        internal class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<CommentId>>
+        internal class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<Guid>>
         {
             private readonly IArticleRepository _articleRepository;
             private readonly IUnitOfWork _unitOfWork;
@@ -29,18 +29,18 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Create
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<CommentId>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+            public async Task<Result<Guid>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
             {
                 var article = await _articleRepository.GetByNumberAsync(request.ArticleId, cancellationToken);
                 if (article == null)
                 {
-                    return Result.ResourceNotFound<CommentId>(ArticleNotFound);
+                    return Result.ResourceNotFound<Guid>(ArticleNotFound);
                 }
 
                 var comment = Comment.Create(
                     request.Content,
                     request.AuthorId,
-                    request.ParentCommentId.HasValue ? CommentId.Create(request.ParentCommentId.Value) : null);
+                    request.ParentCommentId.HasValue ? request.ParentCommentId.Value : null);
 
                 article.AddComment(comment);
 

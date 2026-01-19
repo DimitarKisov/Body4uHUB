@@ -12,7 +12,7 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Delete
 {
     public class DeleteCommentCommand : IRequest<Result>
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int ArticleId { get; set; }
 
         [JsonIgnore]
@@ -39,7 +39,7 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Delete
                     return Result.ResourceNotFound(ArticleNotFound);
                 }
 
-                var comment = article.Comments.FirstOrDefault(x => x.Id == CommentId.Create(request.Id));
+                var comment = article.Comments.FirstOrDefault(x => x.Id == request.Id);
                 if (comment == null)
                 {
                     return Result.ResourceNotFound(CommentNotFound);

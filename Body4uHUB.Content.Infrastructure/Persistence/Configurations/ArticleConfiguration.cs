@@ -62,7 +62,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
 
                 commentBuilder.Property(c => c.Id)
                     .ValueGeneratedOnAdd()
-                    .UseIdentityColumn()
                     .IsRequired();
 
                 commentBuilder.Property(c => c.Content)

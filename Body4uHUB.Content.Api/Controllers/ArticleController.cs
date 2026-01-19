@@ -205,7 +205,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> DeleteComment(int articleId, int commentId)
+        public async Task<IActionResult> DeleteComment(int articleId, Guid commentId)
         {
             var command = new DeleteCommentCommand
             {
