@@ -31,10 +31,35 @@
             builder.Property(x => x.ModifiedAt)
                 .IsRequired(false);
 
-            // Posts relationship
-            builder.HasMany(x => x.Posts)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.OwnsMany(b => b.Posts, postBuilder =>
+            {
+                postBuilder.ToTable("ForumPosts");
+
+                postBuilder.HasKey(x => x.Id);
+
+                postBuilder.Property(p => p.Id)
+                    .ValueGeneratedOnAdd();
+
+                postBuilder.WithOwner()
+                    .HasForeignKey("ForumTopicId");
+
+                postBuilder.Property(x => x.Content)
+                    .IsRequired();
+
+                postBuilder.Property(x => x.AuthorId)
+                    .IsRequired();
+
+                postBuilder.Property(x => x.IsDeleted)
+                    .IsRequired();
+
+                postBuilder.Property(x => x.CreatedAt)
+                    .IsRequired();
+
+                postBuilder.Property(x => x.ModifiedAt)
+                    .IsRequired(false);
+
+                postBuilder.HasIndex(x => x.AuthorId);
+            });
 
             // Indexes
             builder.HasIndex(x => x.AuthorId);

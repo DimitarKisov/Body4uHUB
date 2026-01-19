@@ -65,14 +65,13 @@ namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
             {
                 serviceBuilder.ToTable("ServiceOfferings");
 
-                serviceBuilder.WithOwner()
-                    .HasForeignKey("TrainerProfileId");
+                serviceBuilder.HasKey(s => s.Id);
 
-                serviceBuilder.Property<Guid>("Id")
-                    .HasColumnName("Id")
+                serviceBuilder.Property(s => s.Id)
                     .ValueGeneratedOnAdd();
 
-                serviceBuilder.HasKey("Id");
+                serviceBuilder.WithOwner()
+                    .HasForeignKey("TrainerProfileId");
 
                 serviceBuilder.Property(s => s.Name)
                     .HasMaxLength(NameMaxLength)
