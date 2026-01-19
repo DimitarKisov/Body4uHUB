@@ -1,15 +1,31 @@
+using Body4uHUB.Services.Api.Extensions;
+using Body4uHUB.Services.Api.Middleware;
+using Body4uHUB.Services.Application.Extensions;
+using Body4uHUB.Services.Infrastructure.Extensions;
+using Body4uHUB.Shared.Infrastructure.Interfaces;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configure Serilog
+builder.ConfigureSerilog();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var services = builder.Services;
+var configuration = builder.Configuration;
+
+// Add services
+services
+    .AddApiServices()
+    .AddApplication(configuration)
+    .AddInfrastructure(configuration)
+    .AddAuthorizationPolicies()
+    .ConfigureSwagger();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware pipeline
+app.UseMiddleware<GlobalExceptionHandler>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +33,24 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
-app.Run();
+using var scope = app.Services.CreateScope();
+var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+await dbInitializer.InitializeAsync();
+
+try
+{
+    Log.Information("Starting Body4uHUB.Services.Api");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

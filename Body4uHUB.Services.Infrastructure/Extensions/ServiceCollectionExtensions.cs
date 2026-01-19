@@ -6,6 +6,7 @@ using Body4uHUB.Services.Infrastructure.Persistence;
 using Body4uHUB.Services.Infrastructure.Repositories;
 using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain;
+using Body4uHUB.Shared.Infrastructure.Interfaces;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ namespace Body4uHUB.Services.Infrastructure.Extensions
                 .AddScoped<IServiceOrderReadRepository, ServiceOrderReadRepository>()
                 .AddScoped<ITrainerProfileRepository, TrainerProfileRepository>()
                 .AddScoped<ITrainerProfileReadRepository, TrainerProfileReadRepository>()
+                .AddScoped<IDbInitializer, DbInitializer>()
                 .AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddMassTransitWithRabbitMq(configuration);
