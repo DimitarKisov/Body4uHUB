@@ -1,6 +1,6 @@
 ﻿using Body4uHUB.Services.Domain.Models;
 using Body4uHUB.Services.Domain.ValueObjects;
-using Body4uHUB.Shared;
+using Body4uHUB.Shared.Domain.Abstractions;
 
 namespace Body4uHUB.Services.Domain.Repositories
 {

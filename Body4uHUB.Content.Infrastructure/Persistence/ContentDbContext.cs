@@ -4,7 +4,7 @@
     using Body4uHUB.Content.Domain.ValueObjects;
     using Body4uHUB.Content.Infrastructure.Persistence.Converters;
     using Body4uHUB.Shared;
-    using Body4uHUB.Shared.Domain;
+    using Body4uHUB.Shared.Domain.Abstractions;
     using Microsoft.EntityFrameworkCore;
 
     internal class ContentDbContext : DbContext

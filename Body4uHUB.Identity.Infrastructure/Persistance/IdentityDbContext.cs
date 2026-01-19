@@ -1,5 +1,5 @@
 ﻿using Body4uHUB.Identity.Domain.Models;
-using Body4uHUB.Shared;
+using Body4uHUB.Shared.Domain.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Identity.Infrastructure.Persistance

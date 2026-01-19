@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Shared;
+﻿using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Exceptions;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;

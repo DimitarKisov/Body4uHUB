@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Body4uHUB.Shared
+namespace Body4uHUB.Shared.Domain.Enumerations
 {
     public abstract class Enumeration : IComparable
     {

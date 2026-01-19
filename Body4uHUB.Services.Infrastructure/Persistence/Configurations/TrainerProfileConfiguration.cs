@@ -7,7 +7,7 @@ using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileCons
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
 using Body4uHUB.Services.Domain.Enumerations;
-using Body4uHUB.Shared;
+using Body4uHUB.Shared.Domain.Enumerations;
 
 namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
 {

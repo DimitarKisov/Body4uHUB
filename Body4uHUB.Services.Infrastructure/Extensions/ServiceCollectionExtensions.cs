@@ -5,7 +5,7 @@ using Body4uHUB.Services.Infrastructure.Messaging.Consumers;
 using Body4uHUB.Services.Infrastructure.Persistence;
 using Body4uHUB.Services.Infrastructure.Repositories;
 using Body4uHUB.Shared.Application.Events;
-using Body4uHUB.Shared.Domain;
+using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;

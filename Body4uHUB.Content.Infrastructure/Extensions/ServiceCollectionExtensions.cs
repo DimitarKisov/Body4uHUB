@@ -2,7 +2,7 @@
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Content.Infrastructure.Persistence;
 using Body4uHUB.Content.Infrastructure.Repositories;
-using Body4uHUB.Shared.Domain;
+using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

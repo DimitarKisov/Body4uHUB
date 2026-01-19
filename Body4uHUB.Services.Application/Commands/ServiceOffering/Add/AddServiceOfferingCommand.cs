@@ -1,9 +1,9 @@
 ﻿using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Services.Domain.ValueObjects;
-using Body4uHUB.Shared;
 using Body4uHUB.Shared.Application;
-using Body4uHUB.Shared.Domain;
+using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Domain.Enumerations;
 using MediatR;
 
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;

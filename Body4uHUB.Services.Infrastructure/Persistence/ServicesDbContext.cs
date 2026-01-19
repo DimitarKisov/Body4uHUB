@@ -1,7 +1,7 @@
 ﻿using Body4uHUB.Services.Domain.Models;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Services.Infrastructure.Persistence.Converters;
-using Body4uHUB.Shared.Domain;
+using Body4uHUB.Shared.Domain.Abstractions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 

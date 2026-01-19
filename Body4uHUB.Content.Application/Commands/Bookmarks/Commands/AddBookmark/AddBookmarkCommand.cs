@@ -1,11 +1,11 @@
 ﻿using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
-using Body4uHUB.Shared.Domain;
 using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+using Body4uHUB.Shared.Domain.Abstractions;
 
 
 

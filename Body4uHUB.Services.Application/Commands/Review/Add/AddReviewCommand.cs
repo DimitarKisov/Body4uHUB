@@ -1,13 +1,13 @@
 ﻿using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
-using Body4uHUB.Shared.Domain;
 using MediatR;
 using System.Text.Json.Serialization;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using Body4uHUB.Shared.Domain.Abstractions;
 
 namespace Body4uHUB.Services.Application.Commands.Review.Add
 {

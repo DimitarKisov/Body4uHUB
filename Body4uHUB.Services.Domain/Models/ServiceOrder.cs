@@ -1,10 +1,12 @@
 ﻿using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Services.Domain.ValueObjects;
-using Body4uHUB.Shared;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
+using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Domain.Guards;
+using Body4uHUB.Shared.Domain.Base;
 
 namespace Body4uHUB.Services.Domain.Models
 {

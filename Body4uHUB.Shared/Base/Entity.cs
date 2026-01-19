@@ -1,6 +1,6 @@
-﻿using Body4uHUB.Shared.Domain;
+﻿using Body4uHUB.Shared.Domain.Abstractions;
 
-namespace Body4uHUB.Shared
+namespace Body4uHUB.Shared.Domain.Base
 {
     public abstract class Entity<TId> : IEquatable<Entity<TId>>, IModifiableEntity
         where TId : notnull

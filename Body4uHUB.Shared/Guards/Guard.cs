@@ -1,6 +1,6 @@
 ﻿using Body4uHUB.Shared.Exceptions;
 
-namespace Body4uHUB.Shared
+namespace Body4uHUB.Shared.Domain.Guards
 {
     public static class Guard
     {

@@ -1,5 +1,5 @@
 ﻿using Body4uHUB.Services.Domain.Enumerations;
-using Body4uHUB.Shared;
+using Body4uHUB.Shared.Domain.Enumerations;
 
 namespace Body4uHUB.Services.Application.Validators
 {

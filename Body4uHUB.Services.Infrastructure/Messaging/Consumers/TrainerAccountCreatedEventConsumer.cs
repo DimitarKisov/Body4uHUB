@@ -1,7 +1,7 @@
 ﻿using Body4uHUB.Services.Domain.Models;
 using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application.Events;
-using Body4uHUB.Shared.Domain;
+using Body4uHUB.Shared.Domain.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 

@@ -1,6 +1,6 @@
 ﻿using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application;
-using Body4uHUB.Shared.Domain;
+using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 using System.Text.Json.Serialization;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;

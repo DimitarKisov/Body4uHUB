@@ -1,11 +1,11 @@
 ﻿using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Models;
-using Body4uHUB.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
+using Body4uHUB.Shared.Domain.Enumerations;
 
 namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
 {

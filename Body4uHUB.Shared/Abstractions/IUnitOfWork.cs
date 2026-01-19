@@ -1,4 +1,4 @@
-﻿namespace Body4uHUB.Shared.Domain
+﻿namespace Body4uHUB.Shared.Domain.Abstractions
 {
     public interface IUnitOfWork
     {

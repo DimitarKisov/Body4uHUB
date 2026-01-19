@@ -1,6 +1,6 @@
 ﻿using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Models;
-using Body4uHUB.Shared;
+using Body4uHUB.Shared.Domain.Enumerations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

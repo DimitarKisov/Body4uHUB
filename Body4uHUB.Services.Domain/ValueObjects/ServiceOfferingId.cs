@@ -1,6 +1,6 @@
-﻿using Body4uHUB.Shared;
+﻿using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Exceptions;
-
+using Body4uHUB.Shared.Domain.Guards;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 
 namespace Body4uHUB.Services.Domain.ValueObjects

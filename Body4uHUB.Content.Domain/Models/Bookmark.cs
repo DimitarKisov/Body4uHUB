@@ -1,6 +1,8 @@
 ﻿using Body4uHUB.Content.Domain.Exceptions;
 using Body4uHUB.Content.Domain.ValueObjects;
-using Body4uHUB.Shared;
+using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Domain.Base;
+using Body4uHUB.Shared.Domain.Guards;
 
 namespace Body4uHUB.Content.Domain.Models
 {

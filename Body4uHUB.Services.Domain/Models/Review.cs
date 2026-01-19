@@ -1,7 +1,7 @@
 ﻿using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Services.Domain.ValueObjects;
-using Body4uHUB.Shared;
-
+using Body4uHUB.Shared.Domain.Base;
+using Body4uHUB.Shared.Domain.Guards;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
 
 namespace Body4uHUB.Services.Domain.Models

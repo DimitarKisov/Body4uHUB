@@ -1,6 +1,6 @@
 ﻿using Body4uHUB.Content.Domain.Exceptions;
-using Body4uHUB.Shared;
-
+using Body4uHUB.Shared.Domain.Base;
+using Body4uHUB.Shared.Domain.Guards;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
 
 namespace Body4uHUB.Content.Domain.Models

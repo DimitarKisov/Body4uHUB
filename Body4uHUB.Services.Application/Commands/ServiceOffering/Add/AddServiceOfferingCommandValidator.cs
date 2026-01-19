@@ -1,6 +1,6 @@
 ﻿using Body4uHUB.Services.Application.Validators;
 using Body4uHUB.Services.Domain.Enumerations;
-using Body4uHUB.Shared;
+using Body4uHUB.Shared.Domain.Enumerations;
 using FluentValidation;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.CommonConstants;

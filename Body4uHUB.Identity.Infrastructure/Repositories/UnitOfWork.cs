@@ -1,5 +1,5 @@
 ﻿using Body4uHUB.Identity.Infrastructure.Persistance;
-using Body4uHUB.Shared.Domain;
+using Body4uHUB.Shared.Domain.Abstractions;
 
 namespace Body4uHUB.Identity.Infrastructure.Repositories
 {

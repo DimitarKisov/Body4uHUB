@@ -1,8 +1,9 @@
 ﻿using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Exceptions;
 using Body4uHUB.Content.Domain.ValueObjects;
-using Body4uHUB.Shared;
-
+using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Domain.Base;
+using Body4uHUB.Shared.Domain.Guards;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Domain.Models

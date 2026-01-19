@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Body4uHUB.Shared
+namespace Body4uHUB.Shared.Domain.Abstractions
 {
     public interface IDomainEvent : INotification
     {

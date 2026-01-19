@@ -1,4 +1,4 @@
-﻿namespace Body4uHUB.Shared
+﻿namespace Body4uHUB.Shared.Domain.Base
 {
     public abstract class ValueObject : IEquatable<ValueObject>
     {

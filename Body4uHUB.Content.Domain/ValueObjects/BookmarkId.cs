@@ -1,5 +1,4 @@
-﻿using Body4uHUB.Shared;
-
+﻿using Body4uHUB.Shared.Domain.Base;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 
 namespace Body4uHUB.Content.Domain.ValueObjects
