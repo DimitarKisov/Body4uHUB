@@ -189,7 +189,7 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> AddComment(int articleId, [FromBody] CreateCommentCommand command)
         {
             command.AuthorId = User.GetUserId();
-            command.ArticleId = Domain.ValueObjects.ArticleId.Create(articleId);
+            command.ArticleId = articleId;
 
             var result = await Mediator.Send(command);
             return HandleResult(result, id => new { commentId = id });

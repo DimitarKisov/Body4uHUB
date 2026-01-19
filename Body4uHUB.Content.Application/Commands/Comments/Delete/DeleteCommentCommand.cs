@@ -33,7 +33,7 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Delete
 
             public async Task<Result> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
             {
-                var article = await _articleRepository.GetByIdAsync(Domain.ValueObjects.ArticleId.Create(request.ArticleId), cancellationToken);
+                var article = await _articleRepository.GetByNumberAsync(request.ArticleId, cancellationToken);
                 if (article == null)
                 {
                     return Result.ResourceNotFound(ArticleNotFound);

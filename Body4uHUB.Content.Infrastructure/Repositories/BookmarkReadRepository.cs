@@ -27,7 +27,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                               CreatedAt = b.CreatedAt,
                               Article = new ArticleDto
                               {
-                                  Id = a.Id.Value,
+                                  Id = a.ArticleNumber,
                                   Title = a.Title,
                                   Content = a.Content,
                                   AuthorId = a.AuthorId,

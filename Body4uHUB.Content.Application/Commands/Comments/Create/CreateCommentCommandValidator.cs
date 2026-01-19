@@ -17,7 +17,7 @@
                 .NotEmpty().WithMessage(AuthorIdRequired);
 
             RuleFor(x => x.ArticleId)
-                .NotEmpty().WithMessage(ArticleIdRequired);
+                .GreaterThan(0).WithMessage("ArticleId must be greater than 0.");
         }
     }
 }

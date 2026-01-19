@@ -27,11 +27,9 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.RemoveBookma
 
             public async Task<Result> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
             {
-                var articleId = Domain.ValueObjects.ArticleId.Create(request.ArticleId);
-
                 var bookmark = await _bookmarkRepository.GetByUserAndArticleAsync(
                     request.UserId,
-                    articleId,
+                    request.ArticleId,
                     cancellationToken);
 
                 if (bookmark == null)

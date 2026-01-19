@@ -13,7 +13,7 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Create
     {
         public string Content { get; set; }
         public Guid AuthorId { get; set; }
-        public ArticleId ArticleId { get; set; }
+        public int ArticleId { get; set; }
         public int? ParentCommentId { get; set; }
 
         internal class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<CommentId>>
@@ -31,7 +31,7 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Create
 
             public async Task<Result<CommentId>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
             {
-                var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
+                var article = await _articleRepository.GetByNumberAsync(request.ArticleId, cancellationToken);
                 if (article == null)
                 {
                     return Result.ResourceNotFound<CommentId>(ArticleNotFound);

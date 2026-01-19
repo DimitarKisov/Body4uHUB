@@ -31,7 +31,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
 
             public async Task<Result> Handle(DeleteArticleCommand request, CancellationToken cancellationToken)
             {
-                var article = await _articleRepository.GetByIdAsync(ArticleId.Create(request.Id), cancellationToken);
+                var article = await _articleRepository.GetByNumberAsync(request.Id, cancellationToken);
                 if (article == null)
                 {
                     return Result.ResourceNotFound(ArticleNotFound);

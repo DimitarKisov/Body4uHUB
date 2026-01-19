@@ -29,7 +29,7 @@ namespace Body4uHUB.Content.Application.Queries.Articles
             public async Task<Result<ArticleDto>> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
             {
 
-                var article = await _articleRepository.GetByIdAsync(ArticleId.Create(request.Id), cancellationToken);
+                var article = await _articleRepository.GetByNumberAsync(request.Id, cancellationToken);
                 if (article == null)
                 {
                     return Result.ResourceNotFound<ArticleDto>(ArticleNotFound);
@@ -41,7 +41,7 @@ namespace Body4uHUB.Content.Application.Queries.Articles
 
                 var articleDto = new ArticleDto
                 {
-                    Id = article.Id.Value,
+                    Id = article.ArticleNumber,
                     Title = article.Title,
                     Content = article.Content,
                     AuthorId = article.AuthorId,

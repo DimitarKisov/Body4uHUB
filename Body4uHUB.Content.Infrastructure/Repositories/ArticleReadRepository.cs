@@ -24,7 +24,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .Take(take)
                 .Select(x => new ArticleDto
                 {
-                    Id = x.Id.Value,
+                    Id = x.ArticleNumber,
                     Title = x.Title,
                     Content = x.Content,
                     AuthorId = x.AuthorId,
@@ -44,7 +44,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .OrderByDescending(a => a.CreatedAt)
                 .Select(x => new ArticleDto
                 {
-                    Id = x.Id.Value,
+                    Id = x.ArticleNumber,
                     Title = x.Title,
                     Content = x.Content,
                     AuthorId = x.AuthorId,

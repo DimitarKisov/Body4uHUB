@@ -6,6 +6,7 @@ using MediatR;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Content.Domain.ValueObjects;
 
 
 
@@ -34,10 +35,8 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark
 
             public async Task<Result<Guid>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
             {
-                var articleId = Domain.ValueObjects.ArticleId.Create(request.ArticleId);
-
-                var articleExists = await _articleRepository.ExistsByIdAsync(articleId, cancellationToken);
-                if (!articleExists)
+                var articleId = await _articleRepository.GetArticleIdByNumberAsync(request.ArticleId, cancellationToken);
+                if (articleId == Guid.Empty)
                 {
                     return Result.ResourceNotFound<Guid>(ArticleNotFound);
                 }
@@ -48,7 +47,7 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark
                     return Result.ResourceNotFound<Guid>(BookmarkAlreadyExists);
                 }
 
-                var bookmark = Bookmark.Create(request.UserId, articleId);
+                var bookmark = Bookmark.Create(request.UserId, articleId, request.ArticleId);
 
                 _bookmarkRepository.Add(bookmark);
 
