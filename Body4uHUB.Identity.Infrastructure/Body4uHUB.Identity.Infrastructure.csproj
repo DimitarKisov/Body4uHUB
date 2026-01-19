@@ -8,6 +8,9 @@
 
   <ItemGroup>
   	<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+	<PackageReference Include="MassTransit" Version="8.5.7" />
+	<PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.4.1" />
+	<PackageReference Include="MassTransit.RabbitMQ" Version="8.5.7" />
   	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.21" />
   	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.21">
   		<PrivateAssets>all</PrivateAssets>

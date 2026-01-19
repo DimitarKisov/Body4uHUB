@@ -29,8 +29,7 @@ namespace Body4uHUB.Services.Infrastructure.Extensions
                 .AddScoped<IServiceOrderReadRepository, ServiceOrderReadRepository>()
                 .AddScoped<ITrainerProfileRepository, TrainerProfileRepository>()
                 .AddScoped<ITrainerProfileReadRepository, TrainerProfileReadRepository>()
-                .AddScoped<IUnitOfWork, UnitOfWork>()
-                .AddScoped<IEventBus, EventBus>();
+                .AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddMassTransitWithRabbitMq(configuration);
 

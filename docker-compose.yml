@@ -13,6 +13,25 @@ services:
         networks:
             - body4uhub-network
             
+    message:
+        container_name: rabbitmq
+        image: rabbitmq:management-alpine
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        environment:
+            - RABBITMQ_DEFAULT_USER=devUser
+            - RABBITMQ_DEFAULT_PASS=devPassword
+        volumes:
+            - rabbitmq-lib:/var/lib/rabbitmq/
+        networks:
+            - body4uhub-network
+        healthcheck:
+            test: rabbitmq-diagnostics -q ping
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            
     identity:
         container_name: identity
         image: body4u-hub-identity-service
@@ -30,6 +49,7 @@ services:
             - body4uhub-network
         depends_on:
             - data
+            - message
             
     content:
         container_name: content
@@ -49,9 +69,29 @@ services:
         depends_on:
             - data
             
+    marketplace:
+        container_name: marketplace
+        image: dkisov/body4u-hub-marketplace-service
+        build:
+            context: ./
+            dockerfile: ./Body4uHUB.Services.Api/Dockerfile
+        ports:
+            - "5003:80"
+        env_file:
+            - ./Body4uHUB.Services.Api/service.env
+        restart: on-failure
+        volumes:
+            - data-protection:/root/.aspnet/DataProtection-Keys
+        networks:
+            - body4uhub-network
+        depends_on:
+            - data
+            - message
+            
 networks:
     body4uhub-network:
     
 volumes:
     sqldata:
     data-protection:
+    rabbitmq-lib:

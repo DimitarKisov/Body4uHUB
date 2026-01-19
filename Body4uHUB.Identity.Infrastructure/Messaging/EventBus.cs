@@ -2,7 +2,7 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-namespace Body4uHUB.Services.Infrastructure.Messaging
+namespace Body4uHUB.Identity.Infrastructure.Messaging
 {
     internal class EventBus : IEventBus
     {

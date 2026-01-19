@@ -19,13 +19,11 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
         {
             private readonly IUserRepository _userRepository;
             private readonly IRoleRepository _roleRepository;
-            private readonly IUnitOfWork _unitOfWork;
             private readonly IEventBus _eventBus;
 
             public CreateTrainerAccountCommandHandler(
                 IUserRepository userRepository,
                 IRoleRepository roleRepository,
-                IUnitOfWork unitOfWork,
                 IEventBus eventBus)
             {
                 _roleRepository = roleRepository;
