@@ -40,7 +40,6 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Create
                 var comment = Comment.Create(
                     request.Content,
                     request.AuthorId,
-                    request.ArticleId,
                     request.ParentCommentId.HasValue ? CommentId.Create(request.ParentCommentId.Value) : null);
 
                 article.AddComment(comment);

@@ -10,7 +10,6 @@ namespace Body4uHUB.Content.Domain.Models
     {
         public string Content { get; private set; }
         public Guid AuthorId { get; private set; }
-        public ArticleId ArticleId { get; private set; }
         public CommentId ParentCommentId { get; private set; }
         public bool IsDeleted { get; private set; }
 
@@ -19,20 +18,19 @@ namespace Body4uHUB.Content.Domain.Models
         {
         }
 
-        private Comment(string content, Guid authorId, ArticleId articleId, CommentId parentCommentId = null)
+        private Comment(string content, Guid authorId, CommentId parentCommentId = null)
             : base(default!)
         {
             Content = content;
             AuthorId = authorId;
-            ArticleId = articleId;
             ParentCommentId = parentCommentId;
             IsDeleted = false;
         }
 
-        public static Comment Create(string content, Guid authorId, ArticleId articleId, CommentId parentCommentId = null)
+        public static Comment Create(string content, Guid authorId, CommentId parentCommentId = null)
         {
-            Validate(content, authorId, articleId);
-            return new Comment(content, authorId, articleId, parentCommentId);
+            Validate(content, authorId);
+            return new Comment(content, authorId, parentCommentId);
         }
 
         public void UpdateContent(string content)
@@ -51,11 +49,10 @@ namespace Body4uHUB.Content.Domain.Models
             IsDeleted = true;
         }
 
-        private static void Validate(string content, Guid authorId, ArticleId articleId)
+        private static void Validate(string content, Guid authorId)
         {
             ValidateContent(content);
             ValidateAuthorId(authorId);
-            ValidateArticleId(articleId);
         }
 
         private static void ValidateContent(string content)
@@ -67,11 +64,6 @@ namespace Body4uHUB.Content.Domain.Models
         private static void ValidateAuthorId(Guid authorId)
         {
             Guard.AgainstEmptyString<InvalidCommentException>(authorId.ToString(), nameof(AuthorId));
-        }
-
-        private static void ValidateArticleId(ArticleId articleId)
-        {
-            Guard.AgainstDefault<InvalidCommentException, ArticleId>(articleId, nameof(ArticleId));
         }
     }
 }

@@ -1,12 +1,13 @@
-﻿namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
-{
-    using Body4uHUB.Content.Domain.Enumerations;
-    using Body4uHUB.Content.Domain.Models;
-    using Body4uHUB.Content.Domain.ValueObjects;
-    using Body4uHUB.Shared;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Body4uHUB.Content.Domain.Enumerations;
+using Body4uHUB.Content.Domain.Models;
+using Body4uHUB.Shared;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+using static Body4uHUB.Content.Domain.Constants.ModelConstants;
+
+namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
+{
     internal class ArticleConfiguration : IEntityTypeConfiguration<Article>
     {
         public void Configure(EntityTypeBuilder<Article> builder)
@@ -25,6 +26,7 @@
                 .IsRequired();
 
             builder.Property(x => x.Content)
+                .HasMaxLength(ArticleConstants.ContentMaxLength)
                 .IsRequired();
 
             builder.Property(x => x.AuthorId)
@@ -49,11 +51,47 @@
                     v => Enumeration.FromValue<ArticleStatus>(v))
                 .IsRequired();
 
-            // Comments relationship
-            builder.HasMany(x => x.Comments)
-                .WithOne()
-                .HasForeignKey(c => c.ArticleId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.OwnsMany(b => b.Comments, commentBuilder =>
+            {
+                commentBuilder.ToTable("Comments");
+
+                commentBuilder.HasKey(c => c.Id);
+
+                commentBuilder.Property(c => c.Id)
+                    .ValueGeneratedOnAdd()
+                    .UseIdentityColumn()
+                    .IsRequired();
+
+                commentBuilder.Property(c => c.Content)
+                    .HasMaxLength(CommentConstants.ContentMaxLength)
+                    .IsRequired();
+
+                commentBuilder.Property(c => c.AuthorId)
+                    .IsRequired();
+
+                commentBuilder.WithOwner()
+                    .HasForeignKey("ArticleId");
+
+                commentBuilder.Property(c => c.ParentCommentId)
+                    .IsRequired(false);
+
+                commentBuilder.Property(c => c.IsDeleted)
+                    .IsRequired();
+
+                commentBuilder.Property(c => c.CreatedAt)
+                    .IsRequired();
+
+                commentBuilder.Property(c => c.ModifiedAt)
+                    .IsRequired(false);
+
+                // Indexes
+                commentBuilder.HasIndex("ArticleId");
+                commentBuilder.HasIndex(c => c.AuthorId);
+                commentBuilder.HasIndex(c => c.ParentCommentId);
+
+                // Ignore domain events
+                commentBuilder.Ignore(c => c.DomainEvents);
+            });
 
             // Indexes
             builder.HasIndex(x => x.AuthorId);

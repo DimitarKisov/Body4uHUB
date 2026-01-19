@@ -1,12 +1,11 @@
 ﻿namespace Body4uHUB.Content.Application.Commands.Comments.Create
 {
-    using Body4uHUB.Content.Domain.Models;
     using FluentValidation;
 
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
 
-    public class CreateCommentCommandValidator : AbstractValidator<Comment>
+    public class CreateCommentCommandValidator : AbstractValidator<CreateCommentCommand>
     {
         public CreateCommentCommandValidator()
         {
