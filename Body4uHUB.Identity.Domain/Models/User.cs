@@ -1,13 +1,13 @@
 ﻿using Body4uHUB.Identity.Domain.Exceptions;
 using Body4uHUB.Identity.Domain.ValueObjects;
-using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
+
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Domain.Models
 {
-    public class User : Entity<Guid>, IAggregateRoot
+    public class User : AggregateRoot<Guid>
     {
         private readonly List<Role> _roles = new();
 

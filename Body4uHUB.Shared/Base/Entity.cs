@@ -5,8 +5,6 @@ namespace Body4uHUB.Shared.Domain.Base
     public abstract class Entity<TId> : IEquatable<Entity<TId>>, IModifiableEntity
         where TId : notnull
     {
-        private readonly List<IDomainEvent> _domainEvents = new();
-
         public TId Id { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime? ModifiedAt { get; protected set; }
@@ -19,18 +17,6 @@ namespace Body4uHUB.Shared.Domain.Base
 
         // За EF Core
         protected Entity() { }
-
-        public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
-
-        protected void AddDomainEvent(IDomainEvent domainEvent)
-        {
-            _domainEvents.Add(domainEvent);
-        }
-
-        public void ClearDomainEvents()
-        {
-            _domainEvents.Clear();
-        }
 
         public void SetModifiedAt()
         {

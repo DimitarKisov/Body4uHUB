@@ -1,11 +1,10 @@
 ﻿using Body4uHUB.Identity.Domain.Exceptions;
-using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
 
 namespace Body4uHUB.Identity.Domain.Models
 {
-    public class Role : Entity<Guid>, IAggregateRoot
+    public class Role : AggregateRoot<Guid>
     {
         public string Name { get; private set; }
 

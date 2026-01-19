@@ -88,9 +88,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
                 commentBuilder.HasIndex("ArticleId");
                 commentBuilder.HasIndex(c => c.AuthorId);
                 commentBuilder.HasIndex(c => c.ParentCommentId);
-
-                // Ignore domain events
-                commentBuilder.Ignore(c => c.DomainEvents);
             });
 
             // Indexes

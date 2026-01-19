@@ -1,12 +1,12 @@
 ﻿using Body4uHUB.Content.Domain.Exceptions;
-using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
+
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {
-    public class ForumTopic : Entity<Guid>, IAggregateRoot
+    public class ForumTopic : AggregateRoot<Guid>
     {
         private readonly List<ForumPost> _posts = new();
 

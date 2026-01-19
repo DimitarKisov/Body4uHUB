@@ -1,16 +1,15 @@
 ﻿using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Services.Domain.ValueObjects;
-
-using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
-using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Domain.Guards;
 using Body4uHUB.Shared.Domain.Base;
 
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
+
 namespace Body4uHUB.Services.Domain.Models
 {
-    public class TrainerProfile : Entity<Guid>, IAggregateRoot
+    public class TrainerProfile : AggregateRoot<Guid>
     {
         private readonly List<string> _specializations = new();
         private readonly List<string> _certifications = new();
