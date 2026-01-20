@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Shared.Domain.Base;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Identity.Infrastructure.Persistance
@@ -17,6 +18,11 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);
+
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
+
             base.OnModelCreating(modelBuilder);
         }
 

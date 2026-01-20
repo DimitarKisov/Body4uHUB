@@ -1,13 +1,13 @@
-﻿using Body4uHUB.Services.Domain.Models;
+﻿using Body4uHUB.Services.Domain.Enumerations;
+using Body4uHUB.Services.Domain.Models;
+using Body4uHUB.Shared.Domain.Enumerations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Text.Json;
-
-using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
-using Body4uHUB.Services.Domain.Enumerations;
-using Body4uHUB.Shared.Domain.Enumerations;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
 {
@@ -51,7 +51,10 @@ namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
                     v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions)null) ?? new List<string>())
-                .HasColumnType("nvarchar(max)");
+                .Metadata.SetValueComparer(new ValueComparer<List<string>>(
+                    (c1, c2) => c1.SequenceEqual(c2),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList()));
 
             // Certifications - stored as JSON
             builder.Property<List<string>>("_certifications")
@@ -59,7 +62,10 @@ namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
                     v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions)null) ?? new List<string>())
-                .HasColumnType("nvarchar(max)");
+                .Metadata.SetValueComparer(new ValueComparer<List<string>>(
+                    (c1, c2) => c1.SequenceEqual(c2),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList()));
 
             builder.OwnsMany(tp => tp.Services, serviceBuilder =>
             {

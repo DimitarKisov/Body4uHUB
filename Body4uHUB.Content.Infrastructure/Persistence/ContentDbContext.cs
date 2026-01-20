@@ -26,18 +26,19 @@
             base.OnModelCreating(modelBuilder);
         }
 
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            configurationBuilder
-                .Properties<ArticleId>()
-                .HaveConversion<ArticleIdConverter>();
+        //THOSE THINGS ARE NOT USED ANYMORE. IN THIS PROJECT WE USE VALUE OBJECTS WITHOUT CONVERTERS. KEEPING THIS CODE COMMENTED FOR FUTURE CHANGES IF NEEDED.
+        //protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        //{
+        //    configurationBuilder
+        //        .Properties<ArticleId>()
+        //        .HaveConversion<ArticleIdConverter>();
 
-            configurationBuilder
-                .Properties<CommentId>()
-                .HaveConversion<CommentIdConverter>();
+        //    configurationBuilder
+        //        .Properties<CommentId>()
+        //        .HaveConversion<CommentIdConverter>();
 
-            base.ConfigureConventions(configurationBuilder);
-        }
+        //    base.ConfigureConventions(configurationBuilder);
+        //}
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {

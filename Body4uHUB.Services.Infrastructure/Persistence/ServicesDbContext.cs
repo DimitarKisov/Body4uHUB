@@ -20,13 +20,13 @@ namespace Body4uHUB.Services.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ServicesDbContext).Assembly);
 
             modelBuilder.AddInboxStateEntity();
             modelBuilder.AddOutboxStateEntity();
             modelBuilder.AddOutboxMessageEntity();
+
+            base.OnModelCreating(modelBuilder);
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
