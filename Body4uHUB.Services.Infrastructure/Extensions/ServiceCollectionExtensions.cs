@@ -40,14 +40,17 @@ namespace Body4uHUB.Services.Infrastructure.Extensions
 
         private static IServiceCollection AddMassTransitWithRabbitMq(this IServiceCollection services, IConfiguration configuration)
         {
-            var host = configuration.GetSection("MassTransit")["Host"];
-            var virtualHost = configuration.GetSection("MassTransit")["VirtualHost"];
-            var username = configuration.GetSection("MassTransit")["Username"];
-            var password = configuration.GetSection("MassTransit")["Password"];
-            var retryCount = int.Parse(configuration.GetSection("MassTransit")["RetryCount"]);
-            var retryIntervalSeconds = int.Parse(configuration.GetSection("MassTransit")["RetryIntervalSeconds"]);
-            var outboxQueryMessageLimit = int.Parse(configuration.GetSection("MassTransit")["OutboxQueryMessageLimit"]);
-            var outboxQueryDelaySeconds = int.Parse(configuration.GetSection("MassTransit")["OutboxQueryDelaySeconds"]);
+            var massTransitSection = configuration.GetSection("MassTransit");
+
+            var host = massTransitSection["Host"] ?? throw new InvalidOperationException("MassTransit:Host is required");
+            var virtualHost = massTransitSection["VirtualHost"] ?? "/";
+            var username = massTransitSection["Username"] ?? throw new InvalidOperationException("MassTransit:Username is required");
+            var password = massTransitSection["Password"] ?? throw new InvalidOperationException("MassTransit:Password is required");
+
+            var retryCount = int.Parse(massTransitSection["RetryCount"] ?? "5");
+            var retryIntervalSeconds = int.Parse(massTransitSection["RetryIntervalSeconds"] ?? "5");
+            var outboxQueryMessageLimit = int.Parse(massTransitSection["OutboxQueryMessageLimit"] ?? "100");
+            var outboxQueryDelaySeconds = int.Parse(massTransitSection["OutboxQueryDelaySeconds"] ?? "1");
 
             services.AddMassTransit(x =>
             {
