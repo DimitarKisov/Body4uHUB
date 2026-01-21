@@ -44,7 +44,7 @@ services:
             - ./Body4uHUB.Identity.Api/identity.env
         restart: on-failure
         volumes:
-            - data-protection:/root/.aspnet/DataProtection-Keys
+            - data-protection:/home/app/.aspnet/DataProtection-Keys
         networks:
             - body4uhub-network
         depends_on:
@@ -63,7 +63,7 @@ services:
             - ./Body4uHUB.Content.Api/content.env
         restart: on-failure
         volumes:
-            - data-protection:/root/.aspnet/DataProtection-Keys
+            - data-protection:/home/app/.aspnet/DataProtection-Keys
         networks:
             - body4uhub-network
         depends_on:
@@ -81,7 +81,7 @@ services:
             - ./Body4uHUB.Services.Api/service.env
         restart: on-failure
         volumes:
-            - data-protection:/root/.aspnet/DataProtection-Keys
+            - data-protection:/home/app/.aspnet/DataProtection-Keys
         networks:
             - body4uhub-network
         depends_on:

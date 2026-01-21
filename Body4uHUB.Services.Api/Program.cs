@@ -3,9 +3,18 @@ using Body4uHUB.Services.Api.Middleware;
 using Body4uHUB.Services.Application.Extensions;
 using Body4uHUB.Services.Infrastructure.Extensions;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+#if DEBUG
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/home/app/.aspnet/DataProtection-Keys"))
+    .SetApplicationName("Body4uHUB");
+#else
+// THIS WILL BE FOR PRODUCTION
+#endif
 
 // Configure Serilog
 builder.ConfigureSerilog();

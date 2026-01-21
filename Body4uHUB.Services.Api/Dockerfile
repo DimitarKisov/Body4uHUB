@@ -2,10 +2,17 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
+
+# Create DataProtection directory with correct permissions BEFORE switching to non-root user
+RUN mkdir -p /home/app/.aspnet/DataProtection-Keys && \
+    chown -R app:app /home/app/.aspnet && \
+    chmod -R 755 /home/app/.aspnet
+
+# Switch to non-root user AFTER setting permissions
+USER $APP_UID
 
 
 # This stage is used to build the service project
