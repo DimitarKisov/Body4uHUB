@@ -33,7 +33,8 @@ services
     .AddApplication(configuration)
     .AddInfrastructure(configuration)
     .AddAuthorizationPolicies()
-    .ConfigureSwagger();
+    .ConfigureSwagger()
+    .AddHealthChecks();
 
 var app = builder.Build();
 
@@ -50,6 +51,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 using var scope = app.Services.CreateScope();
 var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
