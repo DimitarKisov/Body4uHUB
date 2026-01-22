@@ -6,8 +6,8 @@ services:
             - "1433:1433"
         environment:
             - ACCEPT_EULA=Y
-            - SA_PASSWORD=myStrongPassword12#$
-        restart: on-failure
+            - SA_PASSWORD=YOUR_SQL_PASSWORD_HERE
+        restart: unless-stopped
         volumes:
             - sqldata:/var/opt/mssql
         networks:
