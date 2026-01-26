@@ -18,6 +18,14 @@ services:
             timeout: 10s
             retries: 5
             start_period: 60s
+        deploy:
+            resources:
+                limits:
+                    cpus: '2.0'
+                    memory: 4G
+                reservations:
+                    cpus: '1.0'
+                    memory: 2G
             
     message:
         container_name: rabbitmq
@@ -39,6 +47,14 @@ services:
             timeout: 10s
             retries: 5
             start_period: 30s
+        deploy:
+            resources:
+                limits:
+                    cpus: '1.0'
+                    memory: 1G
+                reservations:
+                    cpus: '0.5'
+                    memory: 512M
             
     identity:
         container_name: identity
@@ -66,6 +82,14 @@ services:
             timeout: 10s
             retries: 3
             start_period: 60s
+        deploy:
+            resources:
+                limits:
+                    cpus: '1.0'
+                    memory: 1G
+                reservations:
+                    cpus: '0.25'
+                    memory: 256M
             
     content:
         container_name: content
@@ -91,6 +115,14 @@ services:
             timeout: 10s
             retries: 3
             start_period: 60s
+        deploy:
+            resources:
+                limits:
+                    cpus: '1.0'
+                    memory: 1G
+                reservations:
+                    cpus: '0.25'
+                    memory: 256M
             
     marketplace:
         container_name: marketplace
@@ -118,6 +150,14 @@ services:
             timeout: 10s
             retries: 3
             start_period: 60s
+        deploy:
+            resources:
+                limits:
+                    cpus: '1.0'
+                    memory: 1G
+                reservations:
+                    cpus: '0.25'
+                    memory: 256M
             
 networks:
     body4uhub-network:
