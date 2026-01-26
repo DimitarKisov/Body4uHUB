@@ -36,6 +36,10 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
             builder.Property(x => x.IsEmailConfirmed)
                 .IsRequired();
 
+            builder.Property(x => x.EmailConfirmationToken)
+                .IsRequired(false)
+                .HasMaxLength(36);
+
             // Complex Type за ContactInfo
             builder.OwnsOne(x => x.ContactInfo, contact =>
             {

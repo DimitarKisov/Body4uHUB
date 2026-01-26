@@ -74,6 +74,7 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
                 adminFirstName,
                 adminLastName,
                 adminEmail,
+                null,
                 null);
 
             adminUser.ConfirmEmail();

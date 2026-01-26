@@ -7,6 +7,7 @@ using Body4uHUB.Identity.Infrastructure.Repositories;
 using Body4uHUB.Identity.Infrastructure.Services;
 using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Infrastructure.Extensions;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,8 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IDbInitializer, DbInitializer>()
                 .AddScoped<IEventBus, EventBus>();
+
+            services.AddEmailService();
 
             services
                 .AddSingleton<IJwtTokenService, JwtTokenService>()

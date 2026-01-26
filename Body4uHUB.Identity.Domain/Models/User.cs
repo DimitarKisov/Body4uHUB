@@ -17,27 +17,31 @@ namespace Body4uHUB.Identity.Domain.Models
         public ContactInfo ContactInfo { get; private set; }
         public DateTime? LastLoginAt { get; private set; }
         public bool IsEmailConfirmed { get; private set; }
+        public string EmailConfirmationToken { get; private set; }
+        public DateTime? EmailConfirmationTokenExpiry { get; private set; }
         public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
 
         //За EF Core
         private User() : base(Guid.NewGuid()) { }
 
-        internal User(Guid id, string passwordHash, string firstName, string lastName, ContactInfo contactInfo)
+        internal User(Guid id, string passwordHash, string firstName, string lastName, ContactInfo contactInfo, string confirmationToken)
             : base(id)
         {
             PasswordHash = passwordHash;
             FirstName = firstName;
             LastName = lastName;
             ContactInfo = contactInfo;
+            EmailConfirmationToken = confirmationToken;
+            EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(24);
         }
 
-        public static User Create(string passwordHash, string firstName, string lastName, string email, string phoneNumber)
+        public static User Create(string passwordHash, string firstName, string lastName, string email, string phoneNumber, string confirmationToken)
         {
             Validate(passwordHash, firstName, lastName);
 
             var contactInfo = ContactInfo.Create(email, phoneNumber);
 
-            return new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo);
+            return new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo, confirmationToken);
         }
 
         public void AddRole(Role role)

@@ -25,6 +25,7 @@ var configuration = builder.Configuration;
 // Add services
 services
     .AddApiServices(configuration)
+    .AddHttpContextAccessor()
     .AddApplication(configuration)
     .AddInfrastructure(configuration)
     .AddHealthChecks();

@@ -5,6 +5,8 @@ using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
@@ -24,17 +26,26 @@ namespace Body4uHUB.Identity.Application.Commands.Register
             private readonly IPasswordHasherService _passwordHasherService;
             private readonly IJwtTokenService _jwtTokenService;
             private readonly IUnitOfWork _unitOfWork;
+            private readonly IEmailService _emailService;
+            private readonly IHttpContextAccessor _httpContextAccessor;
+            private readonly ILogger<RegisterCommandHandler> _logger;
 
             public RegisterCommandHandler(
                 IUserRepository userRepository,
                 IPasswordHasherService passwordHasherService,
                 IJwtTokenService jwtTokenService,
-                IUnitOfWork unitOfWork)
+                IUnitOfWork unitOfWork,
+                IEmailService emailService,
+                IHttpContextAccessor httpContextAccessor,
+                ILogger<RegisterCommandHandler> logger)
             {
                 _userRepository = userRepository;
                 _passwordHasherService = passwordHasherService;
                 _jwtTokenService = jwtTokenService;
                 _unitOfWork = unitOfWork;
+                _emailService = emailService;
+                _httpContextAccessor = httpContextAccessor;
+                _logger = logger;
             }
 
             public async Task<Result<AuthResponseDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -51,22 +62,44 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                     return Result.ResourceNotFound<AuthResponseDto>(PasswordInvalid);
                 }
 
+                var emailConfirmationToken = Guid.NewGuid().ToString();
+
                 var user = User.Create(
                     passwordHash,
                     request.FirstName,
                     request.LastName,
                     request.Email,
-                    request.PhoneNumber);
+                    request.PhoneNumber,
+                    emailConfirmationToken);
 
                 _userRepository.Add(user);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                var token = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, null);
+                try
+                {
+                    var httpcContextRequest = _httpContextAccessor.HttpContext?.Request;
+                    var baseUrl = $"{httpcContextRequest?.Scheme}://{httpcContextRequest?.Host}";
+                    var confirmationLink = $"{baseUrl}/Auth/ConfirmEmail?token={emailConfirmationToken}&email={Uri.EscapeDataString(request.Email)}";
+
+                    _ = Task.Run(async () =>
+                    {
+                        await _emailService.SendEmailConfirmation(
+                                request.Email,
+                                request.FirstName + " " + request.LastName,
+                                confirmationLink);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send email confirmation to {Email}", request.Email);
+                }
+
+                var jwtToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, null);
 
                 var response = new AuthResponseDto
                 {
-                    AccessToken = token,
+                    AccessToken = jwtToken,
                     User = new UserDto
                     {
                         Id = user.Id,
