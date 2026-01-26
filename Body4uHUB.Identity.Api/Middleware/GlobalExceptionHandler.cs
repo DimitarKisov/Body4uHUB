@@ -9,13 +9,16 @@ namespace Body4uHUB.Identity.Api.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<GlobalExceptionHandler> _logger;
+        private readonly IWebHostEnvironment _env;
 
         public GlobalExceptionHandler(
             RequestDelegate next,
-            ILogger<GlobalExceptionHandler> logger)
+            ILogger<GlobalExceptionHandler> logger,
+            IWebHostEnvironment env)
         {
             _next = next;
             _logger = logger;
+            _env = env;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -34,7 +37,7 @@ namespace Body4uHUB.Identity.Api.Middleware
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
 
@@ -86,11 +89,19 @@ namespace Body4uHUB.Identity.Api.Middleware
 
                 default:
                     statusCode = (int)HttpStatusCode.InternalServerError;
-                    response = new
-                    {
-                        statusCode,
-                        message = "An internal server error occurred. Please try again later."
-                    };
+                    response = _env.IsDevelopment()
+                        ? new
+                        {
+                            statusCode,
+                            message = exception.Message,
+                            stackTrace = exception.StackTrace,
+                            environment = _env.EnvironmentName
+                        }
+                        : new
+                        {
+                            statusCode,
+                            message = "An internal server error occurred. Please try again later."
+                        };
                     break;
             }
 

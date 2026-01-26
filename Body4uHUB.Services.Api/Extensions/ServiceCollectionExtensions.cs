@@ -9,6 +9,7 @@ namespace Body4uHUB.Services.Api.Extensions
         public static IServiceCollection AddApiServices(this IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSecurityServices();
             services.AddEndpointsApiExplorer();
 
             return services;
@@ -24,6 +25,31 @@ namespace Body4uHUB.Services.Api.Extensions
                     policy.RequireRole("Administrator"));
             });
 
+            return services;
+        }
+
+        public static IServiceCollection AddSecurityServices(this IServiceCollection services)
+        {
+#if DEBUG
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                options.HttpsPort = 7003;
+            });
+#else
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(1); //Later change to 60 days
+            });
+
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+                options.HttpsPort = 443;
+            });
+#endif
             return services;
         }
 

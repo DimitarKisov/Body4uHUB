@@ -10,6 +10,14 @@
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7003;http://localhost:5003"
     },
+    "Body4uHUB.Services.Api (Production)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7033;http://localhost:5033"
+    },
     "Container (Dockerfile)": {
       "commandName": "Docker",
       "launchBrowser": true,

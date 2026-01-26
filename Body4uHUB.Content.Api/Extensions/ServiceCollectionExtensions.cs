@@ -1,6 +1,7 @@
 ﻿namespace Body4uHUB.Content.Api.Extensions
 {
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.OpenApi.Models;
     using Serilog;
@@ -13,6 +14,7 @@
         public static IServiceCollection AddApiServices(this IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSecurityServices();
             services.AddEndpointsApiExplorer();
 
             return services;
@@ -28,6 +30,31 @@
                     policy.RequireRole("Administrator"));
             });
 
+            return services;
+        }
+
+        public static IServiceCollection AddSecurityServices(this IServiceCollection services)
+        {
+#if DEBUG
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                options.HttpsPort = 7002;
+            });
+#else
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(1); //Later change to 60 days
+            });
+
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+                options.HttpsPort = 443;
+            });
+#endif
             return services;
         }
 
