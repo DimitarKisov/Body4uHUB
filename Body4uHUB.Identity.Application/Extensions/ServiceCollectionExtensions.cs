@@ -18,12 +18,24 @@ namespace Body4uHUB.Identity.Application.Extensions
                 .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>))
                 .AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
-                .AddJwtAuthentication(configuration);
+                .AddJwtAuthentication(configuration)
+                .AddAuthorizationPolicies();
 
             return services;
         }
 
-        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy =>
+                    policy.RequireRole("Administrator", "Admin"));
+            });
+
+            return services;
+        }
+
+        private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtIssuer = configuration["JwtSettings:Issuer"];
             var jwtAudience = configuration["JwtSettings:Audience"];

@@ -6,27 +6,52 @@ namespace Body4uHUB.Identity.Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddApiServices(this IServiceCollection services)
+        public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers();
-            services.AddSecurityServices();
             services.AddEndpointsApiExplorer();
+            services.AddCorsPolicy(configuration);
+            services.AddHttpsConfiguration();
+            services.ConfigureSwagger();
 
             return services;
         }
 
-        public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
+        private static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAuthorization(options =>
+            var allowedOrigins = configuration
+                .GetSection("Cors:AllowedOrigins")
+                .Get<string[]>();
+
+            if (allowedOrigins == null || allowedOrigins.Length == 0)
             {
-                options.AddPolicy("AdminOnly", policy =>
-                    policy.RequireRole("Administrator", "Admin"));
+                throw new InvalidOperationException("Cors:AllowedOrigins must be configured in appsettings.json");
+            }
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+#if DEBUG
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+#else
+                    policy.WithOrigins(allowedOrigins)
+                          .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                          .WithHeaders("Authorization", "Content-Type", "Accept")
+                          .AllowCredentials()
+                          .SetPreflightMaxAge(TimeSpan.FromHours(1));
+
+#endif
+                });
             });
 
             return services;
         }
 
-        public static IServiceCollection AddSecurityServices(this IServiceCollection services)
+        private static IServiceCollection AddHttpsConfiguration(this IServiceCollection services)
         {
 #if DEBUG
             services.AddHttpsRedirection(options =>
@@ -51,7 +76,7 @@ namespace Body4uHUB.Identity.Api.Extensions
             return services;
         }
 
-        public static IServiceCollection ConfigureSwagger(this IServiceCollection services)
+        private static IServiceCollection ConfigureSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(config =>
             {

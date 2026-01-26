@@ -24,11 +24,9 @@ var configuration = builder.Configuration;
 
 // Add services
 services
-    .AddApiServices()
+    .AddApiServices(configuration)
     .AddApplication(configuration)
     .AddInfrastructure(configuration)
-    .AddAuthorizationPolicies()
-    .ConfigureSwagger()
     .AddHealthChecks();
 
 var app = builder.Build();
@@ -46,6 +44,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -1,15 +1,15 @@
-﻿namespace Body4uHUB.Content.Application.Extensions
-{
-    using Body4uHUB.Shared.Application.Behaviours;
-    using FluentValidation;
-    using MediatR;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.IdentityModel.Tokens;
-    using System.Reflection;
-    using System.Text;
+﻿using Body4uHUB.Shared.Application.Behaviours;
+using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
+using System.Text;
 
+namespace Body4uHUB.Content.Application.Extensions
+{
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
@@ -18,12 +18,26 @@
                 .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>))
                 .AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()))
-                .AddJwtAuthentication(configuration);
+                .AddJwtAuthentication(configuration)
+                .AddAuthorizationPolicies();
 
             return services;
         }
 
-        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TrainerOrAdmin", policy =>
+                    policy.RequireRole("Trainer", "Administrator"));
+                options.AddPolicy("AdminOnly", policy =>
+                    policy.RequireRole("Administrator"));
+            });
+
+            return services;
+        }
+
+        private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtIssuer = configuration["JwtSettings:Issuer"];
             var jwtAudience = configuration["JwtSettings:Audience"];
