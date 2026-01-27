@@ -1,0 +1,101 @@
+# Кога да се изпълни pipeline-а - при всеки commit в main branch
+trigger:
+- main
+
+# На какъв agent да се изпълни (Ubuntu Linux машина 'ubuntu-latest') или в нашия случай със Self-Hosted Agent ('Default')
+pool:
+  # vmImage: 'ubuntu-latest'
+  name: 'Default'
+
+# Променливи които ще използваме в целия pipeline
+variables:
+  dockerHubUsername: 'dkisov'  # Твоят Docker Hub username
+  imageName: 'body4uhub'        # Префикс за имената на image-те
+
+# Етапи на pipeline-а
+stages:
+- stage: Build  # Име на етапа
+  displayName: 'Build and Push Docker Images'  # Това се показва в UI-а
+  jobs:
+  - job: BuildAndPush  # Име на job-а
+    displayName: 'Build Docker Images'  # Това се показва в UI-а
+    steps:  # Стъпките които ще се изпълнят
+    
+    # Стъпка 1: Login в Docker Hub
+    - task: Docker@2
+      displayName: 'Login to Docker Hub'  # Име на стъпката в UI-а
+      inputs:
+        command: 'login'  # Команда login
+        containerRegistry: 'DockerHubConnection'  # Име на connection-а (ще го създадем)
+    
+    # Стъпка 2: Build на Identity Service
+    - task: Docker@2
+      displayName: 'Build Identity Service'
+      inputs:
+        command: 'build'  # Команда build
+        containerRegistry: 'DockerHubConnection'
+        repository: '$(dockerHubUsername)/$(imageName)-identity'
+        Dockerfile: 'Body4uHUB.Identity.Api/Dockerfile'  # Път до Dockerfile
+        buildContext: '.'  # Build context е root папката
+        tags: |  # Тагове за образа
+          $(Build.BuildId)
+          latest
+    
+    # Стъпка 3: Push на Identity Service в Docker Hub
+    - task: Docker@2
+      displayName: 'Push Identity Service'
+      inputs:
+        command: 'push'  # Команда push
+        containerRegistry: 'DockerHubConnection'
+        repository: '$(dockerHubUsername)/$(imageName)-identity'  # Име на repo в Docker Hub
+        tags: |  # Кои тагове да push-нем
+          $(Build.BuildId)
+          latest
+    
+    # Стъпка 4: Build на Content Service
+    - task: Docker@2
+      displayName: 'Build Content Service'
+      inputs:
+        command: 'build'
+        containerRegistry: 'DockerHubConnection'
+        repository: '$(dockerHubUsername)/$(imageName)-content'
+        Dockerfile: 'Body4uHUB.Content.API/Dockerfile'
+        buildContext: '.'
+        tags: |
+          $(Build.BuildId)
+          latest
+    
+    # Стъпка 5: Push на Content Service
+    - task: Docker@2
+      displayName: 'Push Content Service'
+      inputs:
+        command: 'push'
+        containerRegistry: 'DockerHubConnection'
+        repository: '$(dockerHubUsername)/$(imageName)-content'
+        tags: |
+          $(Build.BuildId)
+          latest
+    
+    # Стъпка 6: Build на Services Marketplace
+    - task: Docker@2
+      displayName: 'Build Services Marketplace'
+      inputs:
+        command: 'build'
+        containerRegistry: 'DockerHubConnection'
+        repository: '$(dockerHubUsername)/$(imageName)-services'
+        Dockerfile: 'Body4uHUB.Services.API/Dockerfile'
+        buildContext: '.'
+        tags: |
+          $(Build.BuildId)
+          latest
+    
+    # Стъпка 7: Push на Services Marketplace
+    - task: Docker@2
+      displayName: 'Push Services Marketplace'
+      inputs:
+        command: 'push'
+        containerRegistry: 'DockerHubConnection'
+        repository: '$(dockerHubUsername)/$(imageName)-services'
+        tags: |
+          $(Build.BuildId)
+          latest
