@@ -1,0 +1,74 @@
+trigger:
+- main
+
+pool:
+  name: 'Default'
+
+variables:
+- group: Body4uHUB-Production-Secrets
+- name: dockerHubUsername
+  value: 'dkisov'
+- name: imageName
+  value: 'body4uhub'
+
+stages:
+- stage: BuildAndPush
+  displayName: 'Build and Push Docker Images'
+  jobs:
+  - job: DockerCompose
+    displayName: 'Docker Compose Build & Push'
+    steps:
+    
+    # Стъпка 1: Login в Docker Hub
+    - task: Docker@2
+      displayName: 'Login to Docker Hub'
+      inputs:
+        command: 'login'
+        containerRegistry: 'DockerHubConnection'
+    
+    # Стъпка 2: Build всички services с docker-compose
+    - task: PowerShell@2
+      displayName: 'Build all services with docker-compose'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $env:SQL_PASSWORD = "$(SQL_PASSWORD)"
+          $env:RABBITMQ_USER = "$(RABBITMQ_USER)"
+          $env:RABBITMQ_PASS = "$(RABBITMQ_PASS)"
+          docker-compose -f docker-compose.yml -f docker-compose.azuredevops.yml build
+    
+    # Стъпка 3: Push всички images към Docker Hub
+    - task: PowerShell@2
+      displayName: 'Push all images to Docker Hub'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $env:SQL_PASSWORD = "$(SQL_PASSWORD)"
+          $env:RABBITMQ_USER = "$(RABBITMQ_USER)"
+          $env:RABBITMQ_PASS = "$(RABBITMQ_PASS)"
+          docker-compose -f docker-compose.yml -f docker-compose.azuredevops.yml push
+    
+    # Стъпка 4: Tag images с build number и push
+    - task: PowerShell@2
+      displayName: 'Tag and push images with build number'
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Tag с build number
+          docker tag $(dockerHubUsername)/$(imageName)-identity:latest $(dockerHubUsername)/$(imageName)-identity:$(Build.BuildId)
+          docker tag $(dockerHubUsername)/$(imageName)-content:latest $(dockerHubUsername)/$(imageName)-content:$(Build.BuildId)
+          docker tag $(dockerHubUsername)/$(imageName)-services:latest $(dockerHubUsername)/$(imageName)-services:$(Build.BuildId)
+          
+          # Push build number tags
+          docker push $(dockerHubUsername)/$(imageName)-identity:$(Build.BuildId)
+          docker push $(dockerHubUsername)/$(imageName)-content:$(Build.BuildId)
+          docker push $(dockerHubUsername)/$(imageName)-services:$(Build.BuildId)
+    
+    # Стъпка 5: Cleanup локални images
+    - task: PowerShell@2
+      displayName: 'Cleanup local images'
+      condition: always()
+      inputs:
+        targetType: 'inline'
+        script: |
+          docker image prune -f
