@@ -1,0 +1,80 @@
+trigger:
+- main
+
+pool:
+  name: Default
+
+variables:
+- group: Body4uHUB-Production-Secrets
+- name: buildConfiguration
+  value: 'Release'
+- name: dotnetVersion
+  value: '8.x'
+
+stages:
+ - stage: Build
+   displayName: 'Build and Publish .NET Projects'
+   jobs:
+    - job: BuildProjects
+      displayName: 'Build All Microservices'
+      steps:
+
+      # 1. Install .NET SDK
+       - task: UseDotNet@2
+         displayName: Install .NET 8 SDK
+         inputs:
+            packageType: sdk
+            version: $(dotnetVersion)
+            
+      # 2. Restore NuGet packages за всички проекти
+       - task: DotNetCoreCLI@2
+         displayName: Resotore NuGet Packages
+         inputs:
+            command: restore
+            projects: '**/*.csproj'
+
+      # Стъпка 3: Build всички проекти
+       - task: DotNetCoreCLI@2
+         displayName: 'Build All Projects'
+         inputs:
+          command: 'build'
+          projects: '**/*.csproj'
+          arguments: '--configuration $(buildConfiguration) --no-restore'
+
+      # Стъпка 4: Publish Identity Service
+       - task: DotNetCoreCLI@2
+         displayName: 'Publish Identity Service'
+         inputs:
+          command: 'publish'
+          projects: 'Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj'
+          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Identity'
+          publishWebProjects: false
+          zipAfterPublish: true
+
+      # Стъпка 5: Publish Content Service
+       - task: DotNetCoreCLI@2
+         displayName: 'Publish Content Service'
+         inputs:
+          command: 'publish'
+          projects: 'Body4uHUB.Content.Api/Body4uHUB.Content.Api.csproj'
+          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Content'
+          publishWebProjects: false
+          zipAfterPublish: true
+    
+    # Стъпка 6: Publish Services Marketplace
+       - task: DotNetCoreCLI@2
+         displayName: 'Publish Services Marketplace'
+         inputs:
+          command: 'publish'
+          projects: 'Body4uHUB.Services.Api/Body4uHUB.Services.Api.csproj'
+          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Services'
+          publishWebProjects: false
+          zipAfterPublish: true
+    
+    # Стъпка 7: Publish Build Artifacts
+       - task: PublishBuildArtifacts@1
+         displayName: 'Publish Artifacts'
+         inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'drop'
+          publishLocation: 'Container'
