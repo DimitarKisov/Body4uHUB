@@ -34,7 +34,7 @@ var app = builder.Build();
 // Middleware pipeline
 app.UseMiddleware<GlobalExceptionHandler>();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
