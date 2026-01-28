@@ -1,0 +1,450 @@
+parameters:
+- name: environmentName
+  type: string
+- name: variableGroup
+  type: string
+- name: iisRootPath
+  type: string
+- name: requiresApproval
+  type: boolean
+  default: false
+
+jobs:
+ - deployment: DeployIIS
+   displayName: 'Deploy to IIS Server (${{ parameters.environmentName }})'
+   ${{ if eq(parameters.requiresApproval, true) }}:
+     environment: 'Production'
+   variables:
+   - group: ${{ parameters.variableGroup }}
+   - name: iisRootPath
+     value: ${{ parameters.iisRootPath }}
+   strategy:
+     runOnce:
+       deploy:
+         steps:
+         # 1. DOWNLOAD BUILD ARTIFACTS =====
+         # Изтегля compiled файловете от Build stage-а
+          - task: DownloadBuildArtifacts@1
+            displayName: 'Download Build Artifacts'
+            inputs:
+              buildType: 'current' # От текущия build
+              downloadType: 'single' # Един конкретен artifact
+              artifactName: 'drop' # Artifact-ът, който upload-нахме в Build stage
+              downloadPath: '$(System.ArtifactsDirectory)' # Къде да го сложи на agent-а
+
+        # 2. SETUP IIS - IDENTITY SERVICE
+          - task: PowerShell@2
+            displayName: 'Setup IIS - Identity Service'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                
+                $appPoolName = "Body4uHUB-Identity-${{ parameters.environmentName }}"
+                $siteName = "Body4uHUB-Identity-${{ parameters.environmentName }}"
+                $physicalPath = "$(iisRootPath)\Identity"
+                $port = 5001
+                
+                # Създава App Pool ако не съществува
+                if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+                    Write-Host "Creating App Pool: $appPoolName"
+                    New-WebAppPool -Name $appPoolName
+                    
+                    # Конфигурира App Pool (.NET Core изисква "No Managed Code")
+                    Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name managedRuntimeVersion -Value ""
+                    Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name managedPipelineMode -Value "Integrated"
+                    
+                    Write-Host "App Pool created: $appPoolName"
+                } else {
+                    Write-Host "App Pool already exists: $appPoolName"
+                }
+                
+                # Създава физическата папка ако не съществува
+                if (-not (Test-Path $physicalPath)) {
+                    New-Item -Path $physicalPath -ItemType Directory -Force
+                    Write-Host "Created directory: $physicalPath"
+                }
+                
+                # Създава Website ако не съществува
+                if (-not (Get-Website -Name $siteName -ErrorAction SilentlyContinue)) {
+                    Write-Host "Creating Website: $siteName"
+                    New-Website -Name $siteName `
+                                -PhysicalPath $physicalPath `
+                                -ApplicationPool $appPoolName `
+                                -Port $port
+                    
+                    Write-Host "Website created: $siteName"
+                } else {
+                    Write-Host "Website already exists: $siteName"
+                }
+                
+        # 3. SETUP IIS - CONTENT SERVICE
+          - task: PowerShell@2
+            displayName: 'Setup IIS - Content Service'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                
+                $appPoolName = "Body4uHUB-Content-${{ parameters.environmentName }}"
+                $siteName = "Body4uHUB-Content-${{ parameters.environmentName }}"
+                $physicalPath = "$(iisRootPath)\Content"
+                $port = 5002
+                
+                if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+                    Write-Host "Creating App Pool: $appPoolName"
+                    New-WebAppPool -Name $appPoolName
+                    Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name managedRuntimeVersion -Value ""
+                    Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name managedPipelineMode -Value "Integrated"
+                    Write-Host "App Pool created: $appPoolName"
+                } else {
+                    Write-Host "App Pool already exists: $appPoolName"
+                }
+                
+                if (-not (Test-Path $physicalPath)) {
+                    New-Item -Path $physicalPath -ItemType Directory -Force
+                    Write-Host "Created directory: $physicalPath"
+                }
+                
+                if (-not (Get-Website -Name $siteName -ErrorAction SilentlyContinue)) {
+                    Write-Host "Creating Website: $siteName"
+                    New-Website -Name $siteName `
+                                -PhysicalPath $physicalPath `
+                                -ApplicationPool $appPoolName `
+                                -Port $port
+                    Write-Host "Website created: $siteName"
+                } else {
+                    Write-Host "Website already exists: $siteName"
+                }
+                
+        # 4. SETUP IIS - SERVICES MARKETPLACE
+          - task: PowerShell@2
+            displayName: 'Setup IIS - Services Marketplace'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                
+                $appPoolName = "Body4uHUB-Services-${{ parameters.environmentName }}"
+                $siteName = "Body4uHUB-Services-${{ parameters.environmentName }}"
+                $physicalPath = "$(iisRootPath)\Services"
+                $port = 5003
+                
+                if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+                    Write-Host "Creating App Pool: $appPoolName"
+                    New-WebAppPool -Name $appPoolName
+                    Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name managedRuntimeVersion -Value ""
+                    Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name managedPipelineMode -Value "Integrated"
+                    Write-Host "App Pool created: $appPoolName"
+                } else {
+                    Write-Host "App Pool already exists: $appPoolName"
+                }
+                
+                if (-not (Test-Path $physicalPath)) {
+                    New-Item -Path $physicalPath -ItemType Directory -Force
+                    Write-Host "Created directory: $physicalPath"
+                }
+                
+                if (-not (Get-Website -Name $siteName -ErrorAction SilentlyContinue)) {
+                    Write-Host "Creating Website: $siteName"
+                    New-Website -Name $siteName `
+                                -PhysicalPath $physicalPath `
+                                -ApplicationPool $appPoolName `
+                                -Port $port
+                    Write-Host "Website created: $siteName"
+                } else {
+                    Write-Host "Website already exists: $siteName"
+                }
+
+        # 5. STOP IDENTITY SERVICE APP POOL
+          - task: PowerShell@2
+            displayName: 'Stop Identity Service App Pool'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                $appPoolName = "Body4uHUB-Identity-${{ parameters.environmentName }}"
+                if (Test-Path "IIS:\AppPools\$appPoolName") {
+                    Write-Host "Stopping App Pool: $appPoolName"
+                    Stop-WebAppPool -Name $appPoolName
+                    Start-Sleep -Seconds 3
+                } else {
+                    Write-Host "App Pool does not exist: $appPoolName"
+                }
+
+        # 6. DEPLOY IDENTITY FILES
+          - task: PowerShell@2
+            displayName: 'Deploy Identity Service Files'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $source = "$(System.ArtifactsDirectory)\drop\Identity"
+                $destination = "$(iisRootPath)\Identity"
+                
+                Write-Host "Deploying from: $source"
+                Write-Host "Deploying to: $destination"
+                
+                if (-not (Test-Path $destination)) {
+                    New-Item -Path $destination -ItemType Directory -Force
+                    Write-Host "Created directory: $destination"
+                }
+                
+                Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                Write-Host "Files deployed successfully!"
+
+        # 7. REPLACE TOKENS IN APPSETTINGS.JSON
+          - task: PowerShell@2
+            displayName: 'Replace Tokens in appsettings.json - Identity'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $appsettingsPath = "$(iisRootPath)\Identity\appsettings.json"
+                
+                if (Test-Path $appsettingsPath) {
+                    $content = Get-Content $appsettingsPath -Raw
+                    
+                    $content = $content -replace '#{IdentityDb-ConnectionString}#', $env:IDENTITYDB_CONNECTIONSTRING
+                    $content = $content -replace '#{JwtSettings-SecretKey}#', $env:JWTSETTINGS_SECRETKEY
+                    $content = $content -replace '#{SeedData-AdminUserEmail}', $env:SEEDDATA_ADMINUSEREMAIL
+                    $content = $content -replace '#{SeedData-AdminUserPassword}', $env:SEEDDATA_ADMINUSERPASSWORD
+                    $content = $content -replace '#{Cors-AllowedOrigins}', $env:CORS_ALLOWEDORIGINS
+                    $content = $content -replace '#{RabbitMQ-HostName}#', $env:RABBITMQ_HOSTNAME
+                    $content = $content -replace '#{RabbitMQ-UserName}#', $env:RABBITMQ_USERNAME
+                    $content = $content -replace '#{RabbitMQ-Password}#', $env:RABBITMQ_PASSWORD
+                    $content = $content -replace '#{EmailSettings-SmtpServer}#', $env:EMAILSETTINGS_SMTPSERVER
+                    $content = $content -replace '#{EmailSettings-FromEmail}#', $env:EMAILSETTINGS_FROMEMAIL
+                    $content = $content -replace '#{EmailSettings-Username}#', $env:EMAILSETTINGS_USERNAME
+                    $content = $content -replace '#{EmailSettings-Password}#', $env:EMAILSETTINGS_PASSWORD
+                    
+                    Set-Content -Path $appsettingsPath -Value $content
+                    Write-Host "Tokens replaced in appsettings.json"
+                } else {
+                    Write-Error "appsettings.json not found at: $appsettingsPath"
+                    exit 1
+                }
+            env:
+              IDENTITYDB_CONNECTIONSTRING: $(IdentityDb-ConnectionString)
+              JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
+              SEEDDATA_ADMINUSEREMAIL: $(SeedData-AdminUserEmail)
+              SEEDDATA_ADMINUSERPASSWORD: $(SeedData-AdminUserPassword)
+              CORS_ALLOWEDORIGINS: $(Cors-AllowedOrigins)
+              RABBITMQ_HOSTNAME: $(RabbitMQ-HostName)
+              RABBITMQ_USERNAME: $(RabbitMQ-UserName)
+              RABBITMQ_PASSWORD: $(RabbitMQ-Password)
+              EMAILSETTINGS_SMTPSERVER: $(EmailSettings-SmtpServer)
+              EMAILSETTINGS_FROMEMAIL: $(EmailSettings-FromEmail)
+              EMAILSETTINGS_USERNAME: $(EmailSettings-Username)
+              EMAILSETTINGS_PASSWORD: $(EmailSettings-Password)
+
+        # 8. START IDENTITY SERVICE APP POOL
+          - task: PowerShell@2
+            displayName: 'Start Identity Service App Pool'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                $appPoolName = "Body4uHUB-Identity-${{ parameters.environmentName }}"
+                if (Test-Path "IIS:\AppPools\$appPoolName") {
+                    Write-Host "Starting App Pool: $appPoolName"
+                    Start-WebAppPool -Name $appPoolName
+                } else {
+                    Write-Host "App Pool does not exist: $appPoolName"
+                }
+
+        # 9. STOP CONTENT SERVICE APP POOL
+          - task: PowerShell@2
+            displayName: 'Stop Content Service App Pool'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                $appPoolName = "Body4uHUB-Content-${{ parameters.environmentName }}"
+                if (Test-Path "IIS:\AppPools\$appPoolName") {
+                    Write-Host "Stopping App Pool: $appPoolName"
+                    Stop-WebAppPool -Name $appPoolName
+                    Start-Sleep -Seconds 3
+                } else {
+                    Write-Host "App Pool does not exist: $appPoolName"
+                }
+        
+        # 10. DEPLOY CONTENT FILES
+          - task: PowerShell@2
+            displayName: 'Deploy Content Service Files'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $source = "$(System.ArtifactsDirectory)\drop\Content"
+                $destination = "$(iisRootPath)\Content"
+                
+                Write-Host "Deploying from: $source"
+                Write-Host "Deploying to: $destination"
+                
+                if (-not (Test-Path $destination)) {
+                    New-Item -Path $destination -ItemType Directory -Force
+                    Write-Host "Created directory: $destination"
+                }
+                
+                Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                Write-Host "Files deployed successfully!"
+
+        # 11. REPLACE TOKENS IN APPSETTINGS.JSON
+          - task: PowerShell@2
+            displayName: 'Replace Tokens in appsettings.json - Content'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $appsettingsPath = "$(iisRootPath)\Content\appsettings.json"
+                
+                if (Test-Path $appsettingsPath) {
+                    $content = Get-Content $appsettingsPath -Raw
+                    
+                    # Content Service има по-малко placeholders
+                    $content = $content -replace '#{ContentDb-ConnectionString}#', $env:CONTENTDB_CONNECTIONSTRING
+                    $content = $content -replace '#{JwtSettings-SecretKey}#', $env:JWTSETTINGS_SECRETKEY
+                    $content = $content -replace '#{Cors-AllowedOrigins}', $env:CORS_ALLOWEDORIGINS
+                    $content = $content -replace '#{RabbitMQ-HostName}#', $env:RABBITMQ_HOSTNAME
+                    $content = $content -replace '#{RabbitMQ-UserName}#', $env:RABBITMQ_USERNAME
+                    $content = $content -replace '#{RabbitMQ-Password}#', $env:RABBITMQ_PASSWORD
+                    
+                    Set-Content -Path $appsettingsPath -Value $content
+                    Write-Host "Tokens replaced in appsettings.json"
+                } else {
+                    Write-Error "appsettings.json not found at: $appsettingsPath"
+                    exit 1
+                }
+            env:
+              CONTENTDB_CONNECTIONSTRING: $(ContentDb-ConnectionString)
+              JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
+              CORS_ALLOWEDORIGINS: $(Cors-AllowedOrigins)
+              RABBITMQ_HOSTNAME: $(RabbitMQ-HostName)
+              RABBITMQ_USERNAME: $(RabbitMQ-UserName)
+              RABBITMQ_PASSWORD: $(RabbitMQ-Password)
+
+        # 12. START CONTENT SERVICE APP POOL
+          - task: PowerShell@2
+            displayName: 'Start Content Service App Pool'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                $appPoolName = "Body4uHUB-Content-${{ parameters.environmentName }}"
+                if (Test-Path "IIS:\AppPools\$appPoolName") {
+                    Write-Host "Starting App Pool: $appPoolName"
+                    Start-WebAppPool -Name $appPoolName
+                } else {
+                    Write-Host "App Pool does not exist: $appPoolName"
+                }
+                
+        # 13. STOP SERVICES MARKETPLACE APP POOL
+          - task: PowerShell@2
+            displayName: 'Stop Services Marketplace App Pool'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                $appPoolName = "Body4uHUB-Services-${{ parameters.environmentName }}"
+                if (Test-Path "IIS:\AppPools\$appPoolName") {
+                    Write-Host "Stopping App Pool: $appPoolName"
+                    Stop-WebAppPool -Name $appPoolName
+                    Start-Sleep -Seconds 3
+                } else {
+                    Write-Host "App Pool does not exist: $appPoolName"
+                }
+        
+        # 14. DEPLOY SERVICE MARKETPLACE FILES
+          - task: PowerShell@2
+            displayName: 'Deploy Services Marketplace Files'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $source = "$(System.ArtifactsDirectory)\drop\Services"
+                $destination = "$(iisRootPath)\Services"
+                
+                Write-Host "Deploying from: $source"
+                Write-Host "Deploying to: $destination"
+                
+                if (-not (Test-Path $destination)) {
+                    New-Item -Path $destination -ItemType Directory -Force
+                    Write-Host "Created directory: $destination"
+                }
+                
+                Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                Write-Host "Files deployed successfully!"
+
+        # 15. REPLACE TOKENS IN APPSETINGS.JSON
+          - task: PowerShell@2
+            displayName: 'Replace Tokens in appsettings.json - Services'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $appsettingsPath = "$(iisRootPath)\Services\appsettings.json"
+                
+                if (Test-Path $appsettingsPath) {
+                    $content = Get-Content $appsettingsPath -Raw
+                    
+                    $content = $content -replace '#{ServicesDb-ConnectionString}#', $env:SERVICESDB_CONNECTIONSTRING
+                    $content = $content -replace '#{JwtSettings-SecretKey}#', $env:JWTSETTINGS_SECRETKEY
+                    $content = $content -replace '#{Cors-AllowedOrigins}', $env:CORS_ALLOWEDORIGINS
+                    $content = $content -replace '#{RabbitMQ-HostName}#', $env:RABBITMQ_HOSTNAME
+                    $content = $content -replace '#{RabbitMQ-UserName}#', $env:RABBITMQ_USERNAME
+                    $content = $content -replace '#{RabbitMQ-Password}#', $env:RABBITMQ_PASSWORD
+                    
+                    Set-Content -Path $appsettingsPath -Value $content
+                    Write-Host "Tokens replaced in appsettings.json"
+                } else {
+                    Write-Error "appsettings.json not found at: $appsettingsPath"
+                    exit 1
+                }
+            env:
+              SERVICESDB_CONNECTIONSTRING: $(ServicesDb-ConnectionString)
+              JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
+              CORS_ALLOWEDORIGINS: $(Cors-AllowedOrigins)
+              RABBITMQ_HOSTNAME: $(RabbitMQ-HostName)
+              RABBITMQ_USERNAME: $(RabbitMQ-UserName)
+              RABBITMQ_PASSWORD: $(RabbitMQ-Password)
+
+        # 16. START SERVICES MARKETPLACE APP POOL
+          - task: PowerShell@2
+            displayName: 'Start Services Marketplace App Pool'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Import-Module WebAdministration
+                $appPoolName = "Body4uHUB-Services-${{ parameters.environmentName }}"
+                if (Test-Path "IIS:\AppPools\$appPoolName") {
+                    Write-Host "Starting App Pool: $appPoolName"
+                    Start-WebAppPool -Name $appPoolName
+                } else {
+                    Write-Host "App Pool does not exist: $appPoolName"
+                }
+        
+        # 17. HEALTH CHECK
+        # Проверява дали всички микросървиси са живи след deployment
+          - task: PowerShell@2
+            displayName: 'Health Check All Services'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Write-Host "Performing health checks..."
+                
+                # Списък с всички сървиси и техните health endpoints
+                $services = @(
+                    @{Name="Identity"; Url="https://localhost:5001/health"},
+                    @{Name="Content"; Url="https://localhost:5002/health"},
+                    @{Name="Services"; Url="https://localhost:5003/health"}
+                )
+                
+                # Проверява всеки сървис
+                foreach ($service in $services) {
+                    try {
+                        $response = Invoke-WebRequest -Uri $service.Url -UseBasicParsing -TimeoutSec 10
+                        if ($response.StatusCode -eq 200) {
+                            Write-Host " $($service.Name) Service is healthy"
+                        } else {
+                            Write-Warning " $($service.Name) Service returned status code: $($response.StatusCode)"
+                        }
+                    } catch {
+                        Write-Warning " $($service.Name) Service health check failed: $_"
+                    }
+                }
+              continueOnError: true # Не спира pipeline-а ако health check-ът се провали

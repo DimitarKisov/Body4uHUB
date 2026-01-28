@@ -5,13 +5,13 @@ pool:
   name: Default
 
 variables:
-- group: Body4uHUB-Production-Secrets
 - name: buildConfiguration
   value: 'Release'
 - name: dotnetVersion
   value: '8.x'
 
 stages:
+# ==================== STAGE 1: BUILD ====================
  - stage: Build
    displayName: 'Build and Publish .NET Projects'
    jobs:
@@ -33,7 +33,7 @@ stages:
             command: restore
             projects: '**/*.csproj'
 
-      # Стъпка 3: Build всички проекти
+      # 3. Build всички проекти
        - task: DotNetCoreCLI@2
          displayName: 'Build All Projects'
          inputs:
@@ -41,7 +41,7 @@ stages:
           projects: '**/*.csproj'
           arguments: '--configuration $(buildConfiguration) --no-restore'
 
-      # Стъпка 4: Publish Identity Service
+      # 4. Publish Identity Service
        - task: DotNetCoreCLI@2
          displayName: 'Publish Identity Service'
          inputs:
@@ -49,9 +49,9 @@ stages:
           projects: 'Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj'
           arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Identity'
           publishWebProjects: false
-          zipAfterPublish: true
+          zipAfterPublish: false
 
-      # Стъпка 5: Publish Content Service
+      # 5. Publish Content Service
        - task: DotNetCoreCLI@2
          displayName: 'Publish Content Service'
          inputs:
@@ -59,9 +59,9 @@ stages:
           projects: 'Body4uHUB.Content.Api/Body4uHUB.Content.Api.csproj'
           arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Content'
           publishWebProjects: false
-          zipAfterPublish: true
+          zipAfterPublish: false
     
-    # Стъпка 6: Publish Services Marketplace
+    # 6. Publish Services Marketplace
        - task: DotNetCoreCLI@2
          displayName: 'Publish Services Marketplace'
          inputs:
@@ -69,12 +69,50 @@ stages:
           projects: 'Body4uHUB.Services.Api/Body4uHUB.Services.Api.csproj'
           arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Services'
           publishWebProjects: false
-          zipAfterPublish: true
+          zipAfterPublish: false
     
-    # Стъпка 7: Publish Build Artifacts
+    # 7. Publish Build Artifacts
+    # Качва compiled файловете в Azure DevOps, за да ги използваме в Deploy stage-а
        - task: PublishBuildArtifacts@1
          displayName: 'Publish Artifacts'
          inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-          ArtifactName: 'drop'
-          publishLocation: 'Container'
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)' # Папката с всички published files
+          ArtifactName: 'drop' # Име на artifact-а (standard convention)
+          publishLocation: 'Container' # Качва в Azure DevOps (не на file share)
+
+# ==================== STAGE 2: DEPLOY TO DEVELOPMENT ====================
+ - stage: Deploy_Development
+   displayName: 'Deploy to Development'
+   dependsOn: Build
+   condition: succeeded()
+   jobs:
+    - template: templates/deploy-to-iis.yml
+      parameters:
+        environmentName: 'Development'
+        variableGroup: 'Body4uHUB-Development-Secrets'
+        iisRootPath: 'C:\inetpub\Body4uHUB-Dev'
+
+# ==================== STAGE 3: DEPLOY TO TEST ====================
+ - stage: Deploy_Test
+   displayName: 'Deploy to Test'
+   dependsOn: Deploy_Development # Можем да го диплойнем само ако DEVELOPMENT е минал
+   condition: false # Не искаме да се пуска автоматично, а ръчно от нас. Ако искаме трябва да използваме succeeded()
+   jobs:
+    - template: templates/deploy-to-iis.yml
+      parameters:
+        environmentName: 'Test'
+        variableGroup: 'Body4uHUB-Test-Secrets'
+        iisRootPath: 'C:\inetpub\Body4uHUB-Test'
+
+# ==================== STAGE 4: DEPLOY TO PRODUCTION ====================
+ - stage: Deploy_Production
+   displayName: 'Deploy to Production'
+   dependsOn: Deploy_Test # Можем да го диплойнем само ако TEST е минал
+   condition: false # Не искаме да се пуска автоматично, а ръчно от нас. Ако искаме трябва да използваме succeeded()
+   jobs:
+    - template: templates/deploy-to-iis.yml
+      parameters:
+        environmentName: 'Production'
+        variableGroup: 'Body4uHUB-Production-Secrets'
+        iisRootPath: 'C:\inetpub\Body4uHUB'
+        requiresApproval: true # Искаме да прати нужда от потвърждение към някого
