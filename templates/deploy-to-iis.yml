@@ -185,10 +185,16 @@ jobs:
                 
                 if (-not (Test-Path $destination)) {
                     New-Item -Path $destination -ItemType Directory -Force
-                    Write-Host "Created directory: $destination"
                 }
                 
-                Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                $nestedFolder = Get-ChildItem -Path $source -Directory | Select-Object -First 1
+                if ($nestedFolder) {
+                    Write-Host "Found nested folder, copying from: $($nestedFolder.FullName)"
+                    Copy-Item -Path "$($nestedFolder.FullName)\*" -Destination $destination -Recurse -Force
+                } else {
+                    Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                }
+                
                 Write-Host "Files deployed successfully!"
 
         # 7. REPLACE TOKENS IN APPSETTINGS.JSON
@@ -280,10 +286,16 @@ jobs:
                 
                 if (-not (Test-Path $destination)) {
                     New-Item -Path $destination -ItemType Directory -Force
-                    Write-Host "Created directory: $destination"
                 }
                 
-                Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                $nestedFolder = Get-ChildItem -Path $source -Directory | Select-Object -First 1
+                if ($nestedFolder) {
+                    Write-Host "Found nested folder, copying from: $($nestedFolder.FullName)"
+                    Copy-Item -Path "$($nestedFolder.FullName)\*" -Destination $destination -Recurse -Force
+                } else {
+                    Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                }
+                
                 Write-Host "Files deployed successfully!"
 
         # 11. REPLACE TOKENS IN APPSETTINGS.JSON
@@ -364,10 +376,16 @@ jobs:
                 
                 if (-not (Test-Path $destination)) {
                     New-Item -Path $destination -ItemType Directory -Force
-                    Write-Host "Created directory: $destination"
                 }
                 
-                Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                $nestedFolder = Get-ChildItem -Path $source -Directory | Select-Object -First 1
+                if ($nestedFolder) {
+                    Write-Host "Found nested folder, copying from: $($nestedFolder.FullName)"
+                    Copy-Item -Path "$($nestedFolder.FullName)\*" -Destination $destination -Recurse -Force
+                } else {
+                    Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                }
+                
                 Write-Host "Files deployed successfully!"
 
         # 15. REPLACE TOKENS IN APPSETINGS.JSON
