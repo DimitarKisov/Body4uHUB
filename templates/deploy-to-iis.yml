@@ -206,51 +206,40 @@ jobs:
                 $appsettingsPath = "$(iisRootPath)\Identity\appsettings.json"
                 
                 if (Test-Path $appsettingsPath) {
-                  $content = Get-Content $appsettingsPath -Raw
-                  
-                  Write-Host "========================================="
-                  Write-Host "BEFORE REPLACEMENT:"
-                  Write-Host "========================================="
-                  Write-Host $content
-                  Write-Host $env:IDENTITYDB_CONNECTIONSTRING
-                  
-                  $content = $content -replace '#\{IdentityDb-ConnectionString\}#', $env:IDENTITYDB_CONNECTIONSTRING
-                  $content = $content -replace '#\{JwtSettings-SecretKey\}#', $env:JWTSETTINGS_SECRETKEY
-                  $content = $content -replace '#\{SeedData-AdminUserEmail\}#', $env:SEEDDATA_ADMINUSEREMAIL
-                  $content = $content -replace '#\{SeedData-AdminUserPassword\}#', $env:SEEDDATA_ADMINUSERPASSWORD
-                  $content = $content -replace '#\{Cors-AllowedOrigins\}#', $env:CORS_ALLOWEDORIGINS
-                  $content = $content -replace '#\{RabbitMQ-HostName\}#', $env:RABBITMQ_HOSTNAME
-                  $content = $content -replace '#\{RabbitMQ-UserName\}#', $env:RABBITMQ_USERNAME
-                  $content = $content -replace '#\{RabbitMQ-Password\}#', $env:RABBITMQ_PASSWORD
-                  $content = $content -replace '#\{EmailSettings-SmtpServer\}#', $env:EMAILSETTINGS_SMTPSERVER
-                  $content = $content -replace '#\{EmailSettings-FromEmail\}#', $env:EMAILSETTINGS_FROMEMAIL
-                  $content = $content -replace '#\{EmailSettings-Username\}#', $env:EMAILSETTINGS_USERNAME
-                  $content = $content -replace '#\{EmailSettings-Password\}#', $env:EMAILSETTINGS_PASSWORD
-                  
-                  Write-Host "========================================="
-                  Write-Host "AFTER REPLACEMENT:"
-                  Write-Host "========================================="
-                  Write-Host $content
-                  
-                  Set-Content -Path $appsettingsPath -Value $content
-                  Write-Host "Tokens replaced successfully!"
+                    $content = Get-Content $appsettingsPath -Raw
+                    
+                    $content = $content -replace '\$\(IdentityDb-ConnectionString\)', $env:IDENTITYDB_CONNECTIONSTRING
+                    $content = $content -replace '\$\(JwtSettings-SecretKey\)', $env:JWTSETTINGS_SECRETKEY
+                    $content = $content -replace '\$\(SeedData-AdminUserEmail\)', $env:SEEDDATA_ADMINUSEREMAIL
+                    $content = $content -replace '\$\(SeedData-AdminUserPassword\)', $env:SEEDDATA_ADMINUSERPASSWORD
+                    $content = $content -replace '\$\(Cors-AllowedOrigins\)', $env:CORS_ALLOWEDORIGINS
+                    $content = $content -replace '\$\(RabbitMQ-HostName\)', $env:RABBITMQ_HOSTNAME
+                    $content = $content -replace '\$\(RabbitMQ-UserName\)', $env:RABBITMQ_USERNAME
+                    $content = $content -replace '\$\(RabbitMQ-Password\)', $env:RABBITMQ_PASSWORD
+                    $content = $content -replace '\$\(EmailSettings-SmtpServer\)', $env:EMAILSETTINGS_SMTPSERVER
+                    $content = $content -replace '\$\(EmailSettings-FromEmail\)', $env:EMAILSETTINGS_FROMEMAIL
+                    $content = $content -replace '\$\(EmailSettings-Username\)', $env:EMAILSETTINGS_USERNAME
+                    $content = $content -replace '\$\(EmailSettings-Password\)', $env:EMAILSETTINGS_PASSWORD
+                    
+                    Set-Content -Path $appsettingsPath -Value $content
+                    Write-Host "Tokens replaced in appsettings.json"
                 } else {
                     Write-Error "appsettings.json not found at: $appsettingsPath"
                     exit 1
                 }
             env:
-                IDENTITYDB_CONNECTIONSTRING: $(IdentityDb-ConnectionString)
-                JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
-                SEEDDATA_ADMINUSEREMAIL: $(SeedData-AdminUserEmail)
-                SEEDDATA_ADMINUSERPASSWORD: $(SeedData-AdminUserPassword)
-                CORS_ALLOWEDORIGINS: $(Cors-AllowedOrigins)
-                RABBITMQ_HOSTNAME: $(RabbitMQ-HostName)
-                RABBITMQ_USERNAME: $(RabbitMQ-UserName)
-                RABBITMQ_PASSWORD: $(RabbitMQ-Password)
-                EMAILSETTINGS_SMTPSERVER: $(EmailSettings-SmtpServer)
-                EMAILSETTINGS_FROMEMAIL: $(EmailSettings-FromEmail)
-                EMAILSETTINGS_USERNAME: $(EmailSettings-Username)
-                EMAILSETTINGS_PASSWORD: $(EmailSettings-Password)
+              IDENTITYDB_CONNECTIONSTRING: $(IDENTITYDB_CONNECTIONSTRING)
+              JWTSETTINGS_SECRETKEY: $(JWTSETTINGS_SECRETKEY)
+              SEEDDATA_ADMINUSEREMAIL: $(SEEDDATA_ADMINUSEREMAIL)
+              SEEDDATA_ADMINUSERPASSWORD: $(SEEDDATA_ADMINUSERPASSWORD)
+              CORS_ALLOWEDORIGINS: $(CORS_ALLOWEDORIGINS)
+              RABBITMQ_HOSTNAME: $(RABBITMQ_HOSTNAME)
+              RABBITMQ_USERNAME: $(RABBITMQ_USERNAME)
+              RABBITMQ_PASSWORD: $(RABBITMQ_PASSWORD)
+              EMAILSETTINGS_SMTPSERVER: $(EMAILSETTINGS_SMTPSERVER)
+              EMAILSETTINGS_FROMEMAIL: $(EMAILSETTINGS_FROMEMAIL)
+              EMAILSETTINGS_USERNAME: $(EMAILSETTINGS_USERNAME)
+              EMAILSETTINGS_PASSWORD: $(EMAILSETTINGS_PASSWORD)
 
         # 8. START IDENTITY SERVICE APP POOL
           - task: PowerShell@2
@@ -320,9 +309,9 @@ jobs:
                 if (Test-Path $appsettingsPath) {
                     $content = Get-Content $appsettingsPath -Raw
                     
-                    $content = $content -replace '#\{ContentDb-ConnectionString\}#', $env:CONTENTDB_CONNECTIONSTRING
-                    $content = $content -replace '#\{JwtSettings-SecretKey\}#', $env:JWTSETTINGS_SECRETKEY
-                    $content = $content -replace '#\{Cors-AllowedOrigins\}#', $env:CORS_ALLOWEDORIGINS
+                    $content = $content -replace '\$\(ContentDb-ConnectionString\)', $env:CONTENTDB_CONNECTIONSTRING
+                    $content = $content -replace '\$\(JwtSettings-SecretKey\)', $env:JWTSETTINGS_SECRETKEY
+                    $content = $content -replace '\$\(Cors-AllowedOrigins\)', $env:CORS_ALLOWEDORIGINS
                     
                     Set-Content -Path $appsettingsPath -Value $content
                     Write-Host "Tokens replaced in appsettings.json"
@@ -331,9 +320,9 @@ jobs:
                     exit 1
                 }
             env:
-              CONTENTDB_CONNECTIONSTRING: $(ContentDb-ConnectionString)
-              JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
-              CORS_ALLOWEDORIGINS: $(Cors-AllowedOrigins)
+              CONTENTDB_CONNECTIONSTRING: $(CONTENTDB_CONNECTIONSTRING)
+              JWTSETTINGS_SECRETKEY: $(JWTSETTINGS_SECRETKEY)
+              CORS_ALLOWEDORIGINS: $(CORS_ALLOWEDORIGINS)
 
         # 12. START CONTENT SERVICE APP POOL
           - task: PowerShell@2
@@ -403,12 +392,12 @@ jobs:
                 if (Test-Path $appsettingsPath) {
                     $content = Get-Content $appsettingsPath -Raw
                     
-                    $content = $content -replace '#\{Marketplace-ConnectionString\}#', $env:SERVICESDB_CONNECTIONSTRING
-                    $content = $content -replace '#\{JwtSettings-SecretKey\}#', $env:JWTSETTINGS_SECRETKEY
-                    $content = $content -replace '#\{Cors-AllowedOrigins\}#', $env:CORS_ALLOWEDORIGINS
-                    $content = $content -replace '#\{RabbitMQ-HostName\}#', $env:RABBITMQ_HOSTNAME
-                    $content = $content -replace '#\{RabbitMQ-UserName\}#', $env:RABBITMQ_USERNAME
-                    $content = $content -replace '#\{RabbitMQ-Password\}#', $env:RABBITMQ_PASSWORD
+                    $content = $content -replace '\$\(Marketplace-ConnectionString\)', $env:SERVICESDB_CONNECTIONSTRING
+                    $content = $content -replace '\$\(JwtSettings-SecretKey\)', $env:JWTSETTINGS_SECRETKEY
+                    $content = $content -replace '\$\(Cors-AllowedOrigins\)', $env:CORS_ALLOWEDORIGINS
+                    $content = $content -replace '\$\(RabbitMQ-HostName\)', $env:RABBITMQ_HOSTNAME
+                    $content = $content -replace '\$\(RabbitMQ-UserName\)', $env:RABBITMQ_USERNAME
+                    $content = $content -replace '\$\(RabbitMQ-Password\)', $env:RABBITMQ_PASSWORD
                     
                     Set-Content -Path $appsettingsPath -Value $content
                     Write-Host "Tokens replaced in appsettings.json"
@@ -417,12 +406,12 @@ jobs:
                     exit 1
                 }
             env:
-              SERVICESDB_CONNECTIONSTRING: $(ServicesDb-ConnectionString)
-              JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
-              CORS_ALLOWEDORIGINS: $(Cors-AllowedOrigins)
-              RABBITMQ_HOSTNAME: $(RabbitMQ-HostName)
-              RABBITMQ_USERNAME: $(RabbitMQ-UserName)
-              RABBITMQ_PASSWORD: $(RabbitMQ-Password)
+              SERVICESDB_CONNECTIONSTRING: $(SERVICESDB_CONNECTIONSTRING)
+              JWTSETTINGS_SECRETKEY: $(JWTSETTINGS_SECRETKEY)
+              CORS_ALLOWEDORIGINS: $(CORS_ALLOWEDORIGINS)
+              RABBITMQ_HOSTNAME: $(RABBITMQ_HOSTNAME)
+              RABBITMQ_USERNAME: $(RABBITMQ_USERNAME)
+              RABBITMQ_PASSWORD: $(RABBITMQ_PASSWORD)
 
         # 16. START SERVICES MARKETPLACE APP POOL
           - task: PowerShell@2
