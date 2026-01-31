@@ -212,6 +212,7 @@ jobs:
                   Write-Host "BEFORE REPLACEMENT:"
                   Write-Host "========================================="
                   Write-Host $content
+                  Write-Host $env:IDENTITYDB_CONNECTIONSTRING
                   
                   $content = $content -replace '#\{IdentityDb-ConnectionString\}#', $env:IDENTITYDB_CONNECTIONSTRING
                   $content = $content -replace '#\{JwtSettings-SecretKey\}#', $env:JWTSETTINGS_SECRETKEY
