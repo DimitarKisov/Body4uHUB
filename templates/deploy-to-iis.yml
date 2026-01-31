@@ -208,7 +208,7 @@ jobs:
                 if (Test-Path $appsettingsPath) {
                     $content = Get-Content $appsettingsPath -Raw
                     
-                    $content = $content -replace '#\{IdentityDb-ConnectionString\}#', $env:IDENTITYDB_CONNECTIONSTRING
+                    $content = $content -replace '\$\(IdentityDb-ConnectionString\)', $env:IDENTITYDB_CONNECTIONSTRING
                     $content = $content -replace '#\{JwtSettings-SecretKey\}#', $env:JWTSETTINGS_SECRETKEY
                     $content = $content -replace '#\{SeedData-AdminUserEmail\}#', $env:SEEDDATA_ADMINUSEREMAIL
                     $content = $content -replace '#\{SeedData-AdminUserPassword\}#', $env:SEEDDATA_ADMINUSERPASSWORD
