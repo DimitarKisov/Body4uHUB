@@ -201,69 +201,55 @@ jobs:
           - task: PowerShell@2
             displayName: 'Replace Tokens in appsettings.json - Identity'
             inputs:
-              targetType: 'inline'
-              script: |
+                targetType: 'inline'
+                script: |
                 $appsettingsPath = "$(iisRootPath)\Identity\appsettings.json"
                 
                 if (Test-Path $appsettingsPath) {
                     $content = Get-Content $appsettingsPath -Raw
                     
-                    # ===== DEBUG: ПРЕДИ replacement =====
                     Write-Host "========================================="
                     Write-Host "BEFORE REPLACEMENT:"
                     Write-Host "========================================="
-                    $content | Select-String -Pattern "ConnectionString|JwtSettings" | Write-Host
+                    Write-Host $content
                     
-                    # Replacements
-                    $content = $content -replace '\$\(IdentityDb-ConnectionString\)', $env:IDENTITYDB_CONNECTIONSTRING
-                    $content = $content -replace '\$\(JwtSettings-SecretKey\)', $env:JWTSETTINGS_SECRETKEY
-                    $content = $content -replace '\$\(SeedData-AdminUserEmail\)', $env:SEEDDATA_ADMINUSEREMAIL
-                    $content = $content -replace '\$\(SeedData-AdminUserPassword\)', $env:SEEDDATA_ADMINUSERPASSWORD
-                    $content = $content -replace '\$\(Cors-AllowedOrigins\)', $env:CORS_ALLOWEDORIGINS
-                    $content = $content -replace '\$\(RabbitMQ-HostName\)', $env:RABBITMQ_HOSTNAME
-                    $content = $content -replace '\$\(RabbitMQ-UserName\)', $env:RABBITMQ_USERNAME
-                    $content = $content -replace '\$\(RabbitMQ-Password\)', $env:RABBITMQ_PASSWORD
-                    $content = $content -replace '\$\(EmailSettings-SmtpServer\)', $env:EMAILSETTINGS_SMTPSERVER
-                    $content = $content -replace '\$\(EmailSettings-FromEmail\)', $env:EMAILSETTINGS_FROMEMAIL
-                    $content = $content -replace '\$\(EmailSettings-Username\)', $env:EMAILSETTINGS_USERNAME
-                    $content = $content -replace '\$\(EmailSettings-Password\)', $env:EMAILSETTINGS_PASSWORD
+                    $content = $content -replace '#\{IdentityDb-ConnectionString\}#', $env:IDENTITYDB_CONNECTIONSTRING
+                    $content = $content -replace '#\{JwtSettings-SecretKey\}#', $env:JWTSETTINGS_SECRETKEY
+                    $content = $content -replace '#\{SeedData-AdminUserEmail\}#', $env:SEEDDATA_ADMINUSEREMAIL
+                    $content = $content -replace '#\{SeedData-AdminUserPassword\}#', $env:SEEDDATA_ADMINUSERPASSWORD
+                    $content = $content -replace '#\{Cors-AllowedOrigins\}#', $env:CORS_ALLOWEDORIGINS
+                    $content = $content -replace '#\{RabbitMQ-HostName\}#', $env:RABBITMQ_HOSTNAME
+                    $content = $content -replace '#\{RabbitMQ-UserName\}#', $env:RABBITMQ_USERNAME
+                    $content = $content -replace '#\{RabbitMQ-Password\}#', $env:RABBITMQ_PASSWORD
+                    $content = $content -replace '#\{EmailSettings-SmtpServer\}#', $env:EMAILSETTINGS_SMTPSERVER
+                    $content = $content -replace '#\{EmailSettings-FromEmail\}#', $env:EMAILSETTINGS_FROMEMAIL
+                    $content = $content -replace '#\{EmailSettings-Username\}#', $env:EMAILSETTINGS_USERNAME
+                    $content = $content -replace '#\{EmailSettings-Password\}#', $env:EMAILSETTINGS_PASSWORD
                     
-                    # ===== DEBUG: СЛЕД replacement =====
                     Write-Host "========================================="
                     Write-Host "AFTER REPLACEMENT:"
                     Write-Host "========================================="
-                    $content | Select-String -Pattern "ConnectionString|JwtSettings" | Write-Host
-          
-                    # ===== DEBUG: Environment variables =====
-                    Write-Host "========================================="
-                    Write-Host "ENVIRONMENT VARIABLES:"
-                    Write-Host "========================================="
-                    Write-Host "IDENTITYDB_CONNECTIONSTRING length: $($env:IDENTITYDB_CONNECTIONSTRING.Length)"
-                    if ($env:IDENTITYDB_CONNECTIONSTRING) {
-                        Write-Host "First 50 chars: $($env:IDENTITYDB_CONNECTIONSTRING.Substring(0, [Math]::Min(50, $env:IDENTITYDB_CONNECTIONSTRING.Length)))"
-                    } else {
-                        Write-Host "⚠️ IDENTITYDB_CONNECTIONSTRING is NULL!"
-                    }
+                    Write-Host $content
                     
                     Set-Content -Path $appsettingsPath -Value $content
-                    Write-Host "Tokens replaced in appsettings.json"
+                    Write-Host "Tokens replaced successfully!"
                 } else {
                     Write-Error "appsettings.json not found at: $appsettingsPath"
                     exit 1
                 }
             env:
-              IDENTITYDB_CONNECTIONSTRING: $(IdentityDb-ConnectionString)
-              JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
-              SEEDDATA_ADMINUSEREMAIL: $(SeedData-AdminUserEmail)
-              SEEDDATA_ADMINUSERPASSWORD: $(SeedData-AdminUserPassword)
-              CORS_ALLOWEDORIGINS: $(Cors-AllowedOrigins)
-              RABBITMQ_HOSTNAME: $(RabbitMQ-HostName)
-              RABBITMQ_USERNAME: $(RabbitMQ-UserName)
-              RABBITMQ_PASSWORD: $(RabbitMQ-Password)
-              EMAILSETTINGS_SMTPSERVER: $(EmailSettings-SmtpServer)
-              EMAILSETTINGS_FROMEMAIL: $(EmailSettings-FromEmail)
-              EMAILSETTINGS_USERNAME: $(EmailSettings-Username)
-              EMAILSETTINGS_PASSWORD: $(EmailSettings-Password)
+                IDENTITYDB_CONNECTIONSTRING: $(IdentityDb-ConnectionString)
+                JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
+                SEEDDATA_ADMINUSEREMAIL: $(SeedData-AdminUserEmail)
+                SEEDDATA_ADMINUSERPASSWORD: $(SeedData-AdminUserPassword)
+                CORS_ALLOWEDORIGINS: $(Cors-AllowedOrigins)
+                RABBITMQ_HOSTNAME: $(RabbitMQ-HostName)
+                RABBITMQ_USERNAME: $(RabbitMQ-UserName)
+                RABBITMQ_PASSWORD: $(RabbitMQ-Password)
+                EMAILSETTINGS_SMTPSERVER: $(EmailSettings-SmtpServer)
+                EMAILSETTINGS_FROMEMAIL: $(EmailSettings-FromEmail)
+                EMAILSETTINGS_USERNAME: $(EmailSettings-Username)
+                EMAILSETTINGS_PASSWORD: $(EmailSettings-Password)
 
         # 8. START IDENTITY SERVICE APP POOL
           - task: PowerShell@2
