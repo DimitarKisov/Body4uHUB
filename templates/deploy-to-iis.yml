@@ -203,9 +203,9 @@ jobs:
             inputs:
               targetType: 'inline'
               script: |
-              $appsettingsPath = "$(iisRootPath)\Identity\appsettings.json"
-              
-              if (Test-Path $appsettingsPath) {
+                $appsettingsPath = "$(iisRootPath)\Identity\appsettings.json"
+                
+                if (Test-Path $appsettingsPath) {
                   $content = Get-Content $appsettingsPath -Raw
                   
                   Write-Host "========================================="
@@ -233,10 +233,10 @@ jobs:
                   
                   Set-Content -Path $appsettingsPath -Value $content
                   Write-Host "Tokens replaced successfully!"
-              } else {
-                  Write-Error "appsettings.json not found at: $appsettingsPath"
-                  exit 1
-              }
+                } else {
+                    Write-Error "appsettings.json not found at: $appsettingsPath"
+                    exit 1
+                }
             env:
                 IDENTITYDB_CONNECTIONSTRING: $(IdentityDb-ConnectionString)
                 JWTSETTINGS_SECRETKEY: $(JwtSettings-SecretKey)
