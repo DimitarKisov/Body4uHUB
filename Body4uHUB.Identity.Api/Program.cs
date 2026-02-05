@@ -42,9 +42,9 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("L
 else
 {
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
