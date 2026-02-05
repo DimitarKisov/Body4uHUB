@@ -2,11 +2,11 @@
 
 A comprehensive fitness and wellness platform built with microservices architecture, enabling trainers to offer services, share expertise, and connect with clients seeking professional guidance.
 
-## 🎯 Overview
+## Overview
 
 Body4uHUB is an enterprise-grade fitness marketplace that connects certified trainers with clients through three core services: secure identity management, rich content & community features, and a full-service marketplace for bookings and payments.
 
-## 🏗️ Architecture
+## Architecture
 
 - **Microservices Architecture** - Three independent services with clear boundaries
 - **Domain-Driven Design (DDD)** - Proper aggregates, value objects, and domain events
@@ -14,7 +14,7 @@ Body4uHUB is an enterprise-grade fitness marketplace that connects certified tra
 - **Event-Driven Communication** - Asynchronous integration via RabbitMQ
 - **Clean Architecture** - Maintainable, testable, and independent layers
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **.NET 8**
 - **Entity Framework Core**
@@ -25,13 +25,13 @@ Body4uHUB is an enterprise-grade fitness marketplace that connects certified tra
 - **FluentValidation**
 - **Docker**
 
-## 🎭 User Roles
+## User Roles
 
 - **Clients** - Browse trainers, book services, read articles, participate in forums
 - **Trainers** - Create profiles, offer services, publish articles, manage bookings
 - **Admins** - Platform management and moderation
 
-## 📦 Microservices
+## Microservices
 
 ### Identity Service
 Authentication, authorization, user management, and JWT token handling
@@ -42,7 +42,7 @@ Articles, forum discussions, comments, bookmarks, and community engagement
 ### Services Marketplace
 Trainer profiles, service offerings, bookings, orders, payments, and reviews
 
-## 🚀 Design Principles
+## Design Principles
 
 - **Separation of Concerns** - Each service owns its data and business logic
 - **Eventual Consistency** - Services communicate asynchronously via events
