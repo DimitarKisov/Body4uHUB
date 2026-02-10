@@ -1,4 +1,29 @@
-# 3. Създаваме stateful set, който ще създаде и управлява pod-ове от тип "identity"
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: identity-database-data # Име на PVC ресурса (в рамките на namespace-а)
+spec:
+  accessModes:
+  - ReadWriteOnce # RWO: може да бъде монтиран за писане от 1 node
+  resources:
+    requests:
+      storage: 10Gi # Заявен размер на диска
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-database
+spec:
+  clusterIP: None
+  ports:
+  - port: 1433                  # PORT НА SERVICE-A (вътрешен за клъстера). Клиентите ще се връзват на identity-database:1433
+    targetPort: 1433            # PORT В КОНТЕЙНЕРА (containerPort). Това е портът, на който SQL Server слуша вътре в pod-а
+  selector:
+    database: identity          # Service-ът избира pod-ове с този label (трябва да съвпада с labels в StatefulSet pod template)
+    
+---
 
 apiVersion: apps/v1                         # Коя версия на Kubernetes API използваме за този ресурс
 kind: StatefulSet                           # Какъв тип Kubernetes обект създаваме

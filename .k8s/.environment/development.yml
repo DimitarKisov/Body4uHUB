@@ -1,4 +1,35 @@
-# 2. Secrets: това ни е файла, в който ще пазим наишите secrets
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: environment-settings
+data:
+  jwt-settings-issuer: Body4uHUB.Identity
+  jwt-settings-audience: Body4uHUB
+  jwt-settings-expirationMinutes: "60"
+  cors-allowedOrigins: "http://localhost"
+  rabbitmq-host: rabbitmq-service
+  rabbitmq-virtualhost: /
+  rabbitmq-default-user: guest
+  rabbitmq-retryCount: "5"
+  rabbitmq-retryIntervalInSeconds: "5"
+  rabbitmq-outboxQueryMessageLimit: "100"
+  rabbitmq-outboxQueryDelaySeconds: "1"
+  
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity-settings
+data:
+  seedData-adminUserFirstName: Body4uHUB
+  seedData-adminUserLastName: Admin
+  seedData-adminRoleName: Administrator
+  seedData-userRoles: User,Trainer
+  emailSettings-fromName: Body4uHUB
+  emailSettings-enableSsl: "True"
+  
+---
 
 apiVersion: v1
 kind: Secret
