@@ -29,7 +29,7 @@ services:
             
     message:
         container_name: rabbitmq
-        image: rabbitmq:management-alpine
+        image: dkisov/rabbitmq:management-alpine
         ports:
             - "5672:5672"
             - "15672:15672"
@@ -58,7 +58,7 @@ services:
             
     identity:
         container_name: identity
-        image: body4u-hub-identity-service
+        image: dkisov/body4u-hub-identity-service
         build:
             context: ./
             dockerfile: ./Body4uHUB.Identity.Api/Dockerfile
@@ -93,7 +93,7 @@ services:
             
     content:
         container_name: content
-        image: body4u-hub-content-service
+        image: dkisov/body4u-hub-content-service
         build:
             context: ./
             dockerfile: ./Body4uHUB.Content.Api/Dockerfile
@@ -126,7 +126,7 @@ services:
             
     marketplace:
         container_name: marketplace
-        image: body4u-hub-marketplace-service
+        image: dkisov/body4u-hub-marketplace-service
         build:
             context: ./
             dockerfile: ./Body4uHUB.Services.Api/Dockerfile

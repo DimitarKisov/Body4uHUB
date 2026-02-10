@@ -1,0 +1,43 @@
+# 3. Създаваме stateful set, който ще създаде и управлява pod-ове от тип "identity"
+
+apiVersion: apps/v1                         # Коя версия на Kubernetes API използваме за този ресурс
+kind: StatefulSet                           # Какъв тип Kubernetes обект създаваме
+metadata:                                   # информация за ресурса, а не самата му конфигурация
+  name: identity-database                   # Името на StatefulSet-а в namespace-а
+spec:                                       # описваме как трябва да изглежда и да се държи StatefulSet-ът
+  serviceName: identity-database            # Името на Service-а, който StatefulSet-ът използва
+  selector:                                 # Правило, с което StatefulSet-ът разпознава кои pod-ове са “негови”
+    matchLabels:                            # Всички pod-ове с тези labels принадлежат към този StatefulSet
+      database: identity                    # Конкретният label, по който става връзката
+  template:                                 # Шаблон за pod-овете, които StatefulSet-ът ще създава
+    metadata:                               # Метаданни за pod-а, не за StatefulSet-а
+      labels:                               # Labels, които ще се сложат на всеки pod, създаден от този StatefulSet
+        database: identity                  # Този label трябва да съвпада със selector.matchLabels
+        system: database                    # Допълнителен label за организация и филтриране
+    spec:
+      terminationGracePeriodSeconds: 60     # Слагаме 60 секунди, за да има достатъчно време базата да спре нормално
+      containers:                           # Започваме да си описваме контейнера
+      - name: identity-database
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        imagePullPolicy: IfNotPresent       # Тъй като image-ът е много голям искаме да избегнем излишни сваляния като кешираме
+        ports:
+        - containerPort: 1433
+        resources:
+          limits:
+            memory: "2Gi"                   # Стойностите, които слагаме тук варират спрямо бизнес изискванията ни
+            cpu: "1000m"
+        env:                                # Environment variables за SQL Server контейнера
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:                        # Няма да пишем паролата директно в YAML-а
+            secretKeyRef:                   # Взимаме стойността от Kubernetes Secret
+              name: environment-secrets     # Име на Secret ресурса
+              key: identity-database-sa-password # Ключът в Secret-а, където е паролата
+        volumeMounts:                       # Казваме "къде в контейнера" да се монтира volume-a
+        - name: identity-database-data      # Името на volume-a, който ще монтираме в конетейнера (трябва да съвпада с volumes[].name)
+          mountPath: /var/opt/mssql         # Път в контейнера, където SQL Server пази data файловете
+      volumes:                              # Дефинираме volume-и на ниво Pod (откъде идват)
+      - name: identity-database-data        # Име на volume-a вътре в Pod-а (същото като във volumeMounts[].name)
+        persistentVolumeClaim:              # Тип volume: от PVC
+          claimName: identity-database-data # Име на PVC ресурса (metadata.name в identity-database.pvc.yml)

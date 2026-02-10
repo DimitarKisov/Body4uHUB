@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-service
+spec:
+  selector:
+    matchLabels:
+      web-service: content
+  template:
+    metadata:
+      labels:
+        web-service: content
+        system: server
+    spec:
+      containers:
+      - name: content-service
+        image: dkisov/body4u-hub-content-service
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: content-service-connection-string
+        - name: JwtSettings__Secret
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: jwt-settings-secret
+        - name: JwtSettings__Issuer
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-issuer
+        - name: JwtSettings__Audience
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-audience
+        - name: JwtSettings__ExpirationMinutes
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-expirationMinutes
+        - name: Cors__AllowedOrigins__0
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: cors-allowedOrigins
+        volumeMounts:
+        - name: content-service-data
+          mountPath: /home/app/.aspnet/DataProtection-Keys
+      volumes:
+      - name: content-service-data
+        persistentVolumeClaim:
+          claimName: content-service-data

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity-settings
+data:
+  seedData-adminUserFirstName: Body4uHUB
+  seedData-adminUserLastName: Admin
+  seedData-adminRoleName: Administrator
+  seedData-userRoles: User,Trainer
+  emailSettings-fromName: Body4uHUB
+  emailSettings-enableSsl: "True"

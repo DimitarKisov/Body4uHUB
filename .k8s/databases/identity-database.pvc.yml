@@ -1,0 +1,12 @@
+# 1. dynamically provisioned volume: ни е нужен, защото не искаме ние да се занимаваме със създаването и управлението на физически storage, а искаме kubernetes да отговаря за това. Pod-овете не са безсмъртни, тоест ако бъде рестартиран, изтрит или пресъздаден данните в контейнера ще бъдат изгубени. Не искаме това да се случва и затова създаваме volume. Ако бяхме избрали static трябваше ние предварително да създадем persistent volume и да окажем къде е диска
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: identity-database-data # Име на PVC ресурса (в рамките на namespace-а)
+spec:
+  accessModes:
+  - ReadWriteOnce # RWO: може да бъде монтиран за писане от 1 node
+  resources:
+    requests:
+      storage: 10Gi # Заявен размер на диска

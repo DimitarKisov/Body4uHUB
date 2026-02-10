@@ -1,0 +1,13 @@
+# 4. Трябва да си създадем service, който да expose-ва базата ни от данни във вътрешната мрежа на клъстъра. Използваме headless service (clusterIP: None), защото имаме StatefulSet с една реплика и не ни е нужен load balancing. Headless service не създава виртуален IP и позволява директен достъп до конкретния pod.
+ 
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-database
+spec:
+  clusterIP: None
+  ports:
+  - port: 1433                  # PORT НА SERVICE-A (вътрешен за клъстера). Клиентите ще се връзват на identity-database:1433
+    targetPort: 1433            # PORT В КОНТЕЙНЕРА (containerPort). Това е портът, на който SQL Server слуша вътре в pod-а
+  selector:
+    database: identity          # Service-ът избира pod-ове с този label (трябва да съвпада с labels в StatefulSet pod template)

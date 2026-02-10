@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq-service
+spec:
+  serviceName: rabbitmq-service
+  selector:
+    matchLabels:
+      message: rabbitmq
+  template:
+    metadata:
+      labels:
+        message: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq-service
+        image: rabbitmq:management-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5672
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        env:
+        - name: RABBITMQ__DEFAULT__USER
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: rabbitmq-default-user
+        - name: RABBITMQ__DEFAULT__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: rabbitmq-default-pass
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq/mnesia
+      volumes:
+      - name: rabbitmq-data
+        persistentVolumeClaim:
+          claimName: rabbitmq-data

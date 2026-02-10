@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketplace-service
+spec:
+  selector:
+    matchLabels:
+      web-service: marketplace
+  template:
+    metadata:
+      labels:
+        web-service: marketplace
+        system: server
+    spec:
+      containers:
+      - name: marketplace-service
+        image: dkisov/body4u-hub-marketplace-service
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5003
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef: 
+              name: environment-secrets
+              key: marketplace-service-connection-string
+        - name: JwtSettings__Secret
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: jwt-settings-secret
+        - name: JwtSettings__Issuer
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-issuer
+        - name: JwtSettings__Audience
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-audience
+        - name: JwtSettings__ExpirationMinutes
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-expirationMinutes
+        - name: Rabbitmq__Host
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: rabbitmq-host
+        - name: Rabbitmq__VirtualHost
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: rabbitmq-virtualhost
+        - name: Rabbitmq__Username
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: rabbitmq-default-user
+        - name: Rabbitmq__Password
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: rabbitmq-default-pass
+        - name: Rabbitmq__RetryCount
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: rabbitmq-retryCount
+        - name: Rabbitmq__RetryIntervalInSeconds
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: rabbitmq-retryIntervalInSeconds
+        - name: Rabbitmq__OutboxQueryMessageLimit
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: rabbitmq-outboxQueryMessageLimit
+        - name: Rabbitmq__OutboxQueryDelaySeconds
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: rabbitmq-outboxQueryDelaySeconds
+        - name: Cors__AllowedOrigins__0
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: cors-allowedOrigins
+        volumeMounts:
+        - name: marketplace-service-data
+          mountPath: /home/app/.aspnet/DataProtection-Keys
+      volumes:
+      - name: marketplace-service-data
+        persistentVolumeClaim:
+          claimName: marketplace-service-data

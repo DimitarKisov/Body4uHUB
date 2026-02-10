@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: content-database
+spec:
+  serviceName: content-database
+  selector:
+    matchLabels:
+      database: content
+  template:
+    metadata:
+      labels:
+        database: content
+        system: database
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: content-database
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 1433
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: content-database-sa-password
+        volumeMounts:
+        - name: content-database-data
+          mountPath: /var/opt/mssql
+      volumes:
+      - name: content-database-data
+        persistentVolumeClaim:
+          claimName: content-database-data
