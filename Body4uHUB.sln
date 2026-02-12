@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Body4uHUB.Services.Infrastr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Body4uHUB.Services.Api", "Body4uHUB.Services.Api\Body4uHUB.Services.Api.csproj", "{99390F6F-464E-439B-A2D9-0D6D07771330}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Body4uHUB.Identity.Domain.UnitTests", "Body4uHUB.Identity.Domain.UnitTests\Body4uHUB.Identity.Domain.UnitTests.csproj", "{CA26A57F-A6A3-4160-AE51-F87208CEB1AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -115,6 +117,10 @@ Global
 		{99390F6F-464E-439B-A2D9-0D6D07771330}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99390F6F-464E-439B-A2D9-0D6D07771330}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99390F6F-464E-439B-A2D9-0D6D07771330}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA26A57F-A6A3-4160-AE51-F87208CEB1AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA26A57F-A6A3-4160-AE51-F87208CEB1AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA26A57F-A6A3-4160-AE51-F87208CEB1AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA26A57F-A6A3-4160-AE51-F87208CEB1AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -139,6 +145,7 @@ Global
 		{360021EE-14A7-4818-9473-80135A12FACC} = {22261BF0-3C8E-4821-8843-C862EAEF10C9}
 		{15ABC18A-DA01-4355-B953-099F9E5F2794} = {22261BF0-3C8E-4821-8843-C862EAEF10C9}
 		{99390F6F-464E-439B-A2D9-0D6D07771330} = {22261BF0-3C8E-4821-8843-C862EAEF10C9}
+		{CA26A57F-A6A3-4160-AE51-F87208CEB1AE} = {9C18B521-2767-4A88-93E1-A71A93D8B42B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {79CB45CA-8A46-4C0E-AEED-1039DF4FDBD0}

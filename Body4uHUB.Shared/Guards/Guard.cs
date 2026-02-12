@@ -29,7 +29,7 @@ namespace Body4uHUB.Shared.Domain.Guards
         public static void AgainstEmptyString<TException>(string value, string name = "Value")
             where TException : BaseDomainException, new()
         {
-            if (!string.IsNullOrEmpty(value))
+            if (!string.IsNullOrWhiteSpace(value))
             {
                 return;
             }
