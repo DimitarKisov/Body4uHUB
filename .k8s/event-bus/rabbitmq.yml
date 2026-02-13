@@ -50,12 +50,12 @@ spec:
             memory: "1Gi"
             cpu: "500m"
         env:
-        - name: RABBITMQ__DEFAULT__USER
+        - name: RABBITMQ_DEFAULT_USER
           valueFrom:
             configMapKeyRef:
               name: environment-settings
               key: rabbitmq-default-user
-        - name: RABBITMQ__DEFAULT__PASSWORD
+        - name: RABBITMQ_DEFAULT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: environment-secrets

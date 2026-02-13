@@ -75,42 +75,42 @@ spec:
             configMapKeyRef:
               name: environment-settings
               key: jwt-settings-expirationMinutes
-        - name: Rabbitmq__Host
+        - name: MassTransit__Host
           valueFrom:
             configMapKeyRef:
               name: environment-settings
               key: rabbitmq-host
-        - name: Rabbitmq__VirtualHost
+        - name: MassTransit__VirtualHost
           valueFrom:
             configMapKeyRef:
               name: environment-settings
               key: rabbitmq-virtualhost
-        - name: Rabbitmq__Username
+        - name: MassTransit__Username
           valueFrom:
             configMapKeyRef:
               name: environment-settings
               key: rabbitmq-default-user
-        - name: Rabbitmq__Password
+        - name: MassTransit__Password
           valueFrom:
             secretKeyRef:
               name: environment-secrets
               key: rabbitmq-default-pass
-        - name: Rabbitmq__RetryCount
+        - name: MassTransit__RetryCount
           valueFrom:
             configMapKeyRef:
               name: environment-settings
               key: rabbitmq-retryCount
-        - name: Rabbitmq__RetryIntervalInSeconds
+        - name: MassTransit__RetryIntervalInSeconds
           valueFrom:
             configMapKeyRef:
               name: environment-settings
               key: rabbitmq-retryIntervalInSeconds
-        - name: Rabbitmq__OutboxQueryMessageLimit
+        - name: MassTransit__OutboxQueryMessageLimit
           valueFrom:
             configMapKeyRef:
               name: environment-settings
               key: rabbitmq-outboxQueryMessageLimit
-        - name: Rabbitmq__OutboxQueryDelaySeconds
+        - name: MassTransit__OutboxQueryDelaySeconds
           valueFrom:
             configMapKeyRef:
               name: environment-settings
