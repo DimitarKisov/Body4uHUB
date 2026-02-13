@@ -4,6 +4,8 @@
     using Body4uHUB.Shared.Domain.Base;
     using Body4uHUB.Shared.Domain.Guards;
 
+    using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
+
     public class ContactInfo : ValueObject
     {
         public string Email { get; private set; }
@@ -31,7 +33,11 @@
         {
             Guard.AgainstEmptyString<InvalidContactInfoException>(email, nameof(email));
             Guard.AgainstNotContainingSpecialChars<InvalidContactInfoException>(email, "Invalid email format", "@");
-            //Guard.AgainstEmptyString<InvalidContactInfoException>(phoneNumber, nameof(phoneNumber));
+
+            if (!string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                Guard.AgainstNotMatchingRegex<InvalidContactInfoException>(phoneNumber, nameof(phoneNumber), PhoneNumberRegex);
+            }
         }
     }
 }

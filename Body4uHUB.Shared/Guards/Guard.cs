@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Shared.Exceptions;
+using System.Text.RegularExpressions;
 
 namespace Body4uHUB.Shared.Domain.Guards
 {
@@ -137,6 +138,17 @@ namespace Body4uHUB.Shared.Domain.Guards
             }
 
             ThrowException<TException>($"{name} must have between {minLength} and {maxLength} symbols.");
+        }
+
+        public static void AgainstNotMatchingRegex<TException>(string value, string name, string pattern)
+            where TException : BaseDomainException, new()
+        {
+            if (Regex.IsMatch(value, pattern))
+            {
+                return;
+            }
+
+            ThrowException<TException>($"{name} is invalid.");
         }
 
         private static void ThrowException<TException>(string message)

@@ -25,8 +25,9 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 .Length(MinNameLength, MaxNameLength).WithMessage(LastNameLength);
 
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty().WithMessage(PhoneNumberRequired)
-                .Matches(PhoneNumberRegex).WithMessage(PhoneNumberInvalid);
+                .Matches(PhoneNumberRegex)
+                .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+                .WithMessage(PhoneNumberInvalid);
         }
     }
 }
