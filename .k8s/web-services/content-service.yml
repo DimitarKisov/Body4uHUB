@@ -80,6 +80,12 @@ spec:
             configMapKeyRef:
               name: environment-settings
               key: cors-allowedOrigins
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: HttpsRedirection__Enabled
+          value: "false"
         volumeMounts:
         - name: content-service-data
           mountPath: /home/app/.aspnet/DataProtection-Keys
