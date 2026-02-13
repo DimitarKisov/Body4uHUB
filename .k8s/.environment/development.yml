@@ -7,13 +7,13 @@ data:
   jwt-settings-audience: Body4uHUB
   jwt-settings-expirationMinutes: "60"
   cors-allowedOrigins: "http://localhost"
-  rabbitmq-host: rabbitmq-service
-  rabbitmq-virtualhost: /
-  rabbitmq-default-user: guest
-  rabbitmq-retryCount: "5"
-  rabbitmq-retryIntervalInSeconds: "5"
-  rabbitmq-outboxQueryMessageLimit: "100"
-  rabbitmq-outboxQueryDelaySeconds: "1"
+  eventBus-host: event-bus
+  eventBus-virtualhost: /
+  eventBus-default-user: rabbitmquser
+  eventBus-retryCount: "5"
+  eventBus-retryIntervalInSeconds: "5"
+  eventBus-outboxQueryMessageLimit: "100"
+  eventBus-outboxQueryDelaySeconds: "1"
   
 ---
 
@@ -39,7 +39,7 @@ data:
 #GENERAL
   jwt-settings-secret: dmVyeSNzdHJvbmcjc3JlbzIzLWZtY3ZqY2pAZTMtM21rbWR3azMtV2Nsa3dX
   cors-allowed-origins: aHR0cDovL2xvY2FsaG9zdDozMDAw
-  rabbitmq-default-pass: Z3Vlc3Q=
+  event-bus-password: cmFiYml0bXFQYXNzd29yZDEyIQ==
   
 #IDENTITY
   identity-database-sa-password: aWRlbnRpdHlEYXRhYmFzZVBhc3N3b3JkMTIhQA==
