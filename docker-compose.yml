@@ -32,7 +32,7 @@ services:
         image: rabbitmq:management-alpine
         ports:
             - "5672:5672"
-            - "15672:15672"
+        hostname: "rabbitmq"
         environment:
             - RABBITMQ_DEFAULT_USER=YourUsername
             - RABBITMQ_DEFAULT_PASS=YourPassword

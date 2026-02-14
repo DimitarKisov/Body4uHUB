@@ -41,7 +41,7 @@ spec:
         system: event-bus
     spec:
       containers:
-      - name: rabbitmq-service
+      - name: event-bus
         image: rabbitmq:management-alpine
         imagePullPolicy: IfNotPresent
         ports:
@@ -55,12 +55,12 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: eventBus-default-user
-        - name: RABBITMQ_DEFAULT_PASSWORD
+              key: event-bus-user
+        - name: RABBITMQ_DEFAULT_PASS
           valueFrom:
             secretKeyRef:
               name: environment-secrets
-              key: eventBus-password
+              key: event-bus-password
         volumeMounts:
         - name: event-bus-data
           mountPath: /var/lib/rabbitmq/mnesia
