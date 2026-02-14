@@ -79,42 +79,42 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-host
+              key: event-bus-host
         - name: MassTransit__VirtualHost
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-virtualhost
+              key: event-bus-virtualhost
         - name: MassTransit__Username
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-default-user
+              key: event-bus-user
         - name: MassTransit__Password
           valueFrom:
             secretKeyRef:
               name: environment-secrets
-              key: rabbitmq-default-pass
+              key: event-bus-password
         - name: MassTransit__RetryCount
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-retryCount
+              key: event-bus-retryCount
         - name: MassTransit__RetryIntervalInSeconds
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-retryIntervalInSeconds
+              key: event-bus-retryIntervalInSeconds
         - name: MassTransit__OutboxQueryMessageLimit
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-outboxQueryMessageLimit
+              key: event-bus-outboxQueryMessageLimit
         - name: MassTransit__OutboxQueryDelaySeconds
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-outboxQueryDelaySeconds
+              key: event-bus-outboxQueryDelaySeconds
         - name: Cors__AllowedOrigins__0
           valueFrom:
             configMapKeyRef:

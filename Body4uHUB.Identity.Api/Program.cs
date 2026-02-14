@@ -32,6 +32,7 @@ services
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionHandler>();
 app.UseForwardedHeaders();
 
 var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
