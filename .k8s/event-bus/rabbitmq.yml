@@ -60,11 +60,11 @@ spec:
           valueFrom:
             secretKeyRef:
               name: environment-secrets
-              key: event-bus-password
+              key: eventBus-password
         volumeMounts:
-        - name: event-bus
+        - name: event-bus-data
           mountPath: /var/lib/rabbitmq/mnesia
       volumes:
-      - name: event-bus
+      - name: event-bus-data
         persistentVolumeClaim:
-          claimName: event-bus
+          claimName: event-bus-data

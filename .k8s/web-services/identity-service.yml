@@ -109,42 +109,42 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-host
+              key: eventBus-host
         - name: MassTransit__VirtualHost
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-virtualhost
+              key: eventBus-virtualhost
         - name: MassTransit__Username
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-default-user
+              key: eventBus-default-user
         - name: MassTransit__Password
           valueFrom:
             secretKeyRef:
               name: environment-secrets
-              key: rabbitmq-default-pass
-        - name: Rabbitmq__RetryCount
+              key: eventBus-password
+        - name: MassTransit__RetryCount
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-retryCount
+              key: eventBus-retryCount
         - name: MassTransit__RetryIntervalInSeconds
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-retryIntervalInSeconds
+              key: eventBus-retryIntervalInSeconds
         - name: MassTransit__OutboxQueryMessageLimit
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-outboxQueryMessageLimit
+              key: eventBus-outboxQueryMessageLimit
         - name: MassTransit__OutboxQueryDelaySeconds
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: rabbitmq-outboxQueryDelaySeconds
+              key: eventBus-outboxQueryDelaySeconds
         - name: Cors__AllowedOrigins__0
           valueFrom:
             configMapKeyRef:
@@ -185,6 +185,12 @@ spec:
             configMapKeyRef:
               name: identity-settings
               key: emailSettings-enableSsl
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: HttpsRedirection__Enabled
+          value: "false"
         volumeMounts:
         - name: identity-service-data
           mountPath: /home/app/.aspnet/DataProtection-Keys

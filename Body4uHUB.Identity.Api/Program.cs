@@ -32,18 +32,31 @@ services
 
 var app = builder.Build();
 
-app.UseMiddleware<GlobalExceptionHandler>();
+app.UseForwardedHeaders();
 
-if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local"))
+var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
+
+if (isLocalLikeEnvironment)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-else
+
+var shouldUseHttpsRedirection = ResolveHttpsRedirectionEnabled(configuration, isLocalLikeEnvironment);
+if (shouldUseHttpsRedirection)
 {
-    app.UseHsts();
+    if (!isLocalLikeEnvironment)
+    {
+        app.UseHsts();
+    }
+
     app.UseHttpsRedirection();
 }
+else
+{
+    Log.Warning("HTTPS redirection is disabled. Configure HttpsRedirection:Enabled=true or set ASPNETCORE_HTTPS_PORTS/HTTPS_PORT/ASPNETCORE_URLS with an https endpoint.");
+}
+
 
 app.UseCors();
 app.UseAuthentication();
@@ -68,4 +81,29 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+static bool ResolveHttpsRedirectionEnabled(IConfiguration configuration, bool isLocalLikeEnvironment)
+{
+    var configuredValue = configuration.GetValue<bool?>("HttpsRedirection:Enabled");
+    if (configuredValue.HasValue)
+    {
+        return configuredValue.Value;
+    }
+
+    if (isLocalLikeEnvironment)
+    {
+        return true;
+    }
+
+    var hasHttpsPorts = !string.IsNullOrWhiteSpace(configuration["ASPNETCORE_HTTPS_PORTS"])
+        || !string.IsNullOrWhiteSpace(configuration["HTTPS_PORT"]);
+
+    var aspNetCoreUrls = configuration["ASPNETCORE_URLS"];
+    var hasHttpsUrls = !string.IsNullOrWhiteSpace(aspNetCoreUrls)
+        && aspNetCoreUrls
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(url => url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+
+    return hasHttpsPorts || hasHttpsUrls;
 }

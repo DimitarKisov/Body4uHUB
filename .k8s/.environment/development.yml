@@ -39,7 +39,7 @@ data:
 #GENERAL
   jwt-settings-secret: dmVyeSNzdHJvbmcjc3JlbzIzLWZtY3ZqY2pAZTMtM21rbWR3azMtV2Nsa3dX
   cors-allowed-origins: aHR0cDovL2xvY2FsaG9zdDozMDAw
-  event-bus-password: cmFiYml0bXFQYXNzd29yZDEyIQ==
+  eventBus-password: cmFiYml0bXFQYXNzd29yZDEyIQ==
   
 #IDENTITY
   identity-database-sa-password: aWRlbnRpdHlEYXRhYmFzZVBhc3N3b3JkMTIhQA==
