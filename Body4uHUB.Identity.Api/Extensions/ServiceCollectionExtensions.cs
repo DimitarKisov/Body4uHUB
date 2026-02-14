@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
 
@@ -11,7 +12,8 @@ namespace Body4uHUB.Identity.Api.Extensions
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddCorsPolicy(configuration);
-            services.AddHttpsConfiguration();
+            services.AddForwardedHeadersConfiguration();
+            services.AddHttpsConfiguration(configuration);
             services.ConfigureSwagger();
 
             return services;
@@ -51,15 +53,20 @@ namespace Body4uHUB.Identity.Api.Extensions
             return services;
         }
 
-        private static IServiceCollection AddHttpsConfiguration(this IServiceCollection services)
+        private static IServiceCollection AddForwardedHeadersConfiguration(this IServiceCollection services)
         {
-#if DEBUG
-            services.AddHttpsRedirection(options =>
+            services.Configure<ForwardedHeadersOptions>(options =>
             {
-                options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                options.HttpsPort = 7001;
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
             });
-#else
+
+            return services;
+        }
+
+        private static IServiceCollection AddHttpsConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
             services.AddHsts(options =>
             {
                 options.Preload = true;
@@ -70,9 +77,16 @@ namespace Body4uHUB.Identity.Api.Extensions
             services.AddHttpsRedirection(options =>
             {
                 options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
-                options.HttpsPort = 443;
+
+                var httpsPortValue = configuration["HTTPS_PORT"]
+                    ?? configuration["ASPNETCORE_HTTPS_PORTS"]?.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+
+                if (int.TryParse(httpsPortValue, out var httpsPort))
+                {
+                    options.HttpsPort = httpsPort;
+                }
             });
-#endif
+
             return services;
         }
 

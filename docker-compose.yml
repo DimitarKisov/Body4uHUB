@@ -29,10 +29,10 @@ services:
             
     message:
         container_name: rabbitmq
-        image: dkisov/rabbitmq:management-alpine
+        image: rabbitmq:management-alpine
         ports:
             - "5672:5672"
-            - "15672:15672"
+        hostname: "rabbitmq"
         environment:
             - RABBITMQ_DEFAULT_USER=YourUsername
             - RABBITMQ_DEFAULT_PASS=YourPassword
