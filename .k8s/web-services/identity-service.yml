@@ -130,11 +130,11 @@ spec:
             configMapKeyRef:
               name: environment-settings
               key: event-bus-retryCount
-        - name: MassTransit__RetryIntervalInSeconds
+        - name: MassTransit__RetryIntervalSeconds
           valueFrom:
             configMapKeyRef:
               name: environment-settings
-              key: event-bus-retryIntervalInSeconds
+              key: event-bus-retryIntervalSeconds
         - name: MassTransit__OutboxQueryMessageLimit
           valueFrom:
             configMapKeyRef:

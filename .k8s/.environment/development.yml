@@ -11,7 +11,7 @@ data:
   event-bus-virtualhost: /
   event-bus-user: rabbitmquser
   event-bus-retryCount: "5"
-  event-bus-retryIntervalInSeconds: "5"
+  event-bus-retryIntervalSeconds: "5"
   event-bus-outboxQueryMessageLimit: "100"
   event-bus-outboxQueryDelaySeconds: "1"
   
