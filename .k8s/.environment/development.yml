@@ -13,7 +13,7 @@ data:
   event-bus-retryCount: "5"
   event-bus-retryIntervalSeconds: "5"
   event-bus-outboxQueryMessageLimit: "100"
-  event-bus-outboxQueryDelaySeconds: "1"
+  event-bus-outboxQueryDelaySeconds: "10"
   
 ---
 
