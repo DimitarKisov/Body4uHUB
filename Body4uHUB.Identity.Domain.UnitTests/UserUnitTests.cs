@@ -78,6 +78,68 @@ namespace Body4uHUB.Identity.Domain.UnitTests
             Assert.That(ex.Error, Is.EqualTo($"{nameof(passwordHash)} cannot be null or empty."));
         }
 
+        [Test]
+        public void AddRole_ShouldAddRole_WhenRoleIsValid()
+        {
+            var role = Role.Create("TestRole");
+
+            _user.AddRole(role);
+
+            Assert.That(_user.Roles, Has.Member(role));
+        }
+
+        [Test]
+        public void AddRole_ShouldThrowInvalidUserException_WhenRoleIsNull()
+        {
+            var ex = Assert.Throws<InvalidUserException>(() => _user.AddRole(null));
+
+            Assert.That(ex.Error, Is.EqualTo($"role cannot be the default value."));
+        }
+
+        [Test]
+        public void AddRole_ShouldNotAddDuplicateRole_WhenRoleAlreadyExists()
+        {
+            var role = Role.Create("TestRole");
+
+            _user.AddRole(role);
+            _user.AddRole(role);
+
+            Assert.That(_user.Roles.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void RemoveRole_ShouldRemoveRole_WhenRoleExists()
+        {
+            var role = Role.Create("TestRole");
+
+            _user.AddRole(role);
+            _user.RemoveRole(role);
+
+            Assert.That(_user.Roles, Has.No.Member(role));
+        }
+
+        [Test]
+        public void RemoveRole_ShouldThrowInvalidaUserException_WhenRoleIsNull()
+        {
+            var ex = Assert.Throws<InvalidUserException>(() => _user.RemoveRole(null));
+
+            Assert.That(ex.Error, Is.EqualTo($"role cannot be the default value."));
+        }
+
+        [Test]
+        public void RemoveRole_ShouldDoNothing_WhenRoleDoesNotExist()
+        {
+            var existingRole = Role.Create("Existing");
+            var missingRole = Role.Create("Missing");
+
+            _user.AddRole(existingRole);
+
+            _user.RemoveRole(missingRole);
+
+            Assert.That(_user.Roles, Has.Member(existingRole));
+            Assert.That(_user.Roles, Has.No.Member(missingRole));
+        }
+
         [TestCase("John")]
         [TestCase("Su")]
         [TestCase("VeryLongLongLongName")]
