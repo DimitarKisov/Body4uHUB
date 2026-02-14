@@ -8,7 +8,7 @@ namespace Body4uHUB.Shared.Domain.Guards
         public static void AgainstDefault<TException, T>(T value, string name = "Value")
             where TException : BaseDomainException, new()
         {
-            if (!EqualityComparer<T>.Default.Equals(value, default!))
+            if (!EqualityComparer<T>.Default.Equals(value, default))
             {
                 return;
             }

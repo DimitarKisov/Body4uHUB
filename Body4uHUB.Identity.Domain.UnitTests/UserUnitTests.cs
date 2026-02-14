@@ -22,6 +22,77 @@ namespace Body4uHUB.Identity.Domain.UnitTests
                 "testToken");
         }
 
+        [TestCase("AQAAAAEAACcQAAAAEDummyHashValue==", "Test", "User", "test@mail.com", "0884787878", "someRandomConfirmationToken")]
+        [TestCase("AQAAAAEAACcQAAAAEDummyHashValue==", "Test", "User", "test@mail.com", "+359884787878", "someRandomConfirmationToken")]
+        public void Create_ShouldCreateUser_WhenAllParametersAreValid(string passwordHash, string firstName, string lastName, string email, string phoneNumber, string confirmationToken)
+        {
+            var result = User.Create(
+                passwordHash,
+                firstName,
+                lastName,
+                email,
+                phoneNumber,
+                confirmationToken);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.PasswordHash, Is.EqualTo(passwordHash));
+            Assert.That(result.FirstName, Is.EqualTo(firstName));
+            Assert.That(result.LastName, Is.EqualTo(lastName));
+            Assert.That(result.ContactInfo.Email, Is.EqualTo(email));
+            Assert.That(result.ContactInfo.PhoneNumber, Is.EqualTo(phoneNumber));
+            Assert.That(result.EmailConfirmationToken, Is.EqualTo(confirmationToken));
+        }
+
+        [Test]
+        public void Create_ShouldThrowInvalidUserExceptionAndMessageAgainstEmptyString_WhenPasswordHashIsNullOrWhiteSpace()
+        {
+            var result = Assert.Throws<InvalidUserException>(() => 
+                User.Create(
+                    null,
+                    "Test",
+                    "User",
+                    "test@mail.com",
+                    "0884787878",
+                    "testToken")
+                );
+
+            Assert.That(result.Error, Is.EqualTo($"passwordHash cannot be null or empty."));
+        }
+
+        [Test]
+        public void Create_ShouldThrowInvalidUserExceptionAndMessageAgainstEmptyString_WhenFirstNameIsNullOrWhiteSpace()
+        {
+            var result = Assert.Throws<InvalidUserException>(() =>
+                User.Create(
+                    "AQAAAAEAACcQAAAAEDummyHashValue==",
+                    null,
+                    "User",
+                    "test@mail.com",
+                    "0884787878",
+                    "testToken")
+                );
+
+            Assert.That(result.Error, Is.EqualTo($"firstName cannot be null or empty."));
+        }
+
+        [TestCase("AQAAAAEAACcQAAAAEDummyHashValue==", "A", "User", "test@mail.com", "0884787878", "someRandomConfirmationToken")]
+        [TestCase("AQAAAAEAACcQAAAAEDummyHashValue==", "ThisIsVeryLongFirstNa", "User", "test@mail.com", "0884787878", "someRandomConfirmationToken")]
+        public void Create_ShouldThrowInvalidUserExceptionAndMessageForStringLength_WhenFirstNameIsInvalid(string passwordHash, string firstName, string lastName, string email, string phoneNumber, string confirmationToken)
+        {
+            var result = Assert.Throws<InvalidUserException>(() =>
+               User.Create(
+                   passwordHash,
+                   firstName,
+                   lastName,
+                   email,
+                   phoneNumber,
+                   confirmationToken)
+               );
+
+            Assert.That(result.Error, Is.EqualTo($"firstName must have between {MinNameLength} and {MaxNameLength} symbols."));
+        }
+               
+
         [TestCase("John")]
         [TestCase("Su")]
         [TestCase("VeryLongLongLongName")]
@@ -44,7 +115,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests
 
         [TestCase("A")]
         [TestCase("ThisIsVeryLongFirstNa")]
-        public void UpdateFirstName_ShouldThrowInvalidUserExceptionAndMessageAgainstStringLength_FirstNameIsValid(string firstName)
+        public void UpdateFirstName_ShouldThrowInvalidUserExceptionAndMessageAgainstStringLength_FirstNameIsInvalid(string firstName)
         {
             var result = Assert.Throws<InvalidUserException>(() => _user.UpdateFirstName(firstName));
 
@@ -73,7 +144,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests
 
         [TestCase("A")]
         [TestCase("ThisIsVeryLongLastName")]
-        public void UpdateLastName_ShouldThrowInvalidUserExceptionAndMessageAgainstStringLength_LastNameIsValid(string lastName)
+        public void UpdateLastName_ShouldThrowInvalidUserExceptionAndMessageAgainstStringLength_LastNameIsInvalid(string lastName)
         {
             var result = Assert.Throws<InvalidUserException>(() => _user.UpdateLastName(lastName));
 
@@ -136,7 +207,11 @@ namespace Body4uHUB.Identity.Domain.UnitTests
 
         public void ConfirmEmail_ShouldSetIsEmailConfirmedToTrue_WhenCalled()
         {
-            _user.ConfirmEmail(); Assert.That(_user.IsEmailConfirmed, Is.True);
+            Assert.That(_user.IsEmailConfirmed, Is.False);
+
+            _user.ConfirmEmail();
+
+            Assert.That(_user.IsEmailConfirmed, Is.True);
         }
     }
 }
