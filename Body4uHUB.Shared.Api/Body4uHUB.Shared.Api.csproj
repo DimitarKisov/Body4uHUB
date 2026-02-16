@@ -9,10 +9,12 @@
 	<ItemGroup>
 		<PackageReference Include="MediatR" Version="13.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Body4uHUB.Shared.Application\Body4uHUB.Shared.Application.csproj" />
+	  <ProjectReference Include="..\Body4uHUB.Shared.Infrastructure\Body4uHUB.Shared.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>
