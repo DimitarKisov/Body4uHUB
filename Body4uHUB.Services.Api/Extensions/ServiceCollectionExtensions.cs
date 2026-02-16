@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
+﻿using Body4uHUB.Shared.Api.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
@@ -145,6 +147,17 @@ namespace Body4uHUB.Services.Api.Extensions
             builder.Host.UseSerilog();
 
             return builder;
+        }
+
+        public static IServiceCollection AddCustomHealthChecks(this IServiceCollection services)
+        {
+            services.AddHealthChecks()
+                .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["liveness"])
+                .AddCheck<StartupHealthCheck>("startup", tags: ["startup"])
+                .AddCheck<DatabaseReadinessHealthCheck>("sql-server", tags: ["readiness"])
+                .AddCheck<RabbitMqReadinessHealthCheck>("rabbitmq", tags: ["readiness"]);
+
+            return services;
         }
     }
 }

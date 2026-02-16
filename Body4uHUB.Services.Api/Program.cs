@@ -2,8 +2,10 @@ using Body4uHUB.Services.Api.Extensions;
 using Body4uHUB.Services.Api.Middleware;
 using Body4uHUB.Services.Application.Extensions;
 using Body4uHUB.Services.Infrastructure.Extensions;
+using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,8 +28,11 @@ var configuration = builder.Configuration;
 services
     .AddApiServices(configuration)
     .AddApplication(configuration)
-    .AddInfrastructure(configuration)
-    .AddHealthChecks();
+    .AddInfrastructure(configuration);
+
+services.AddSingleton<StartupHealthCheck>();
+
+services.AddCustomHealthChecks();
 
 var app = builder.Build();
 
@@ -63,11 +68,28 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
+
+app.MapHealthChecks("/health/startup", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("startup")
+});
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("liveness")
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("readiness")
+});
 
 using var scope = app.Services.CreateScope();
 var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
 await dbInitializer.InitializeAsync();
+
+var startupHealthCheck = app.Services.GetRequiredService<StartupHealthCheck>();
+startupHealthCheck.MarkStartupCompleted();
 
 try
 {
