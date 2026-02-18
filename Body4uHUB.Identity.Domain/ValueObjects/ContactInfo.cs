@@ -32,7 +32,7 @@
         private static void Validate(string email, string phoneNumber)
         {
             Guard.AgainstEmptyString<InvalidContactInfoException>(email, nameof(email));
-            Guard.AgainstNotContainingSpecialChars<InvalidContactInfoException>(email, "Invalid email format", "@");
+            Guard.AgainstWrongEmailFormat<InvalidContactInfoException>(email);
 
             if (!string.IsNullOrWhiteSpace(phoneNumber))
             {

@@ -2,7 +2,7 @@
 using Body4uHUB.Identity.Domain.Models;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
-namespace Body4uHUB.Identity.Domain.UnitTests
+namespace Body4uHUB.Identity.Domain.UnitTests.Models
 {
     [TestFixture]
     public class UserUnitTests

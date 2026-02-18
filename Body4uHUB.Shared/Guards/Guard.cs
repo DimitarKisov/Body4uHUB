@@ -151,6 +151,19 @@ namespace Body4uHUB.Shared.Domain.Guards
             ThrowException<TException>($"{name} is invalid.");
         }
 
+        public static void AgainstWrongEmailFormat<TException>(string email)
+            where TException : BaseDomainException, new()
+        {
+            var emailPattern = @"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
+
+            if (Regex.IsMatch(email, emailPattern))
+            {
+                return;
+            }
+
+            ThrowException<TException>($"{nameof(email)} is not in a valid email format.");
+        }
+
         private static void ThrowException<TException>(string message)
             where TException : BaseDomainException, new()
         {

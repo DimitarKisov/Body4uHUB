@@ -19,7 +19,7 @@
             public const string PasswordRegex = @"^(?=.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).*$";
             public const string PasswordInvalid = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character";
             public const string PhoneNumberRequired = "Phone number is required";
-            public const string PhoneNumberRegex = @"^\+?[0-9]{10,15}$";
+            public const string PhoneNumberRegex = @"^(?:\+359|0)8[7-9]\d{7}$";
             public const string PhoneNumberInvalid = "Invalid phone number format";
 
             public const string EmailNotConfirmed = "Email is not confirmed.";
