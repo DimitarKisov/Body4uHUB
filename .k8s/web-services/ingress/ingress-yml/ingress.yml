@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: body4uhub-api
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2     # NGINX-specific настройка.
+                                                        # Казва: след като match-нем regex-а в path,
+                                                        # изпрати към backend само втората capture група ($2).
+                                                        # Това реално маха /identity от URL-а преди да стигне до API-то.
+spec:
+  ingressClassName: nginx                               # Казваме кой ingress controller да обработи този Ingress.
+  rules:
+  - host: api.local                                     # Този rule важи само ако HTTP Host header е "api.local".
+                                                        # Тоест заявката трябва да е към http://api.local/...
+    http:
+      paths:
+      - path: /identity(/|$)(.*)                        # Regex път.
+                                                        # /identity          -> ще match-не
+                                                        # /identity/         -> ще match-не
+                                                        # /identity/api/auth -> ще match-не
+                                                        #
+                                                        # (/|$)  = или / след identity, или край на URL
+                                                        # (.*)   = всичко след това (capture group 2)
+        pathType: ImplementationSpecific                # Казваме на nginx да третира path-а като regex.
+                                                        # Prefix няма да работи за този тип pattern.
+        backend:
+          service:
+            name: identity-service                      # Името на Kubernetes Service-а, към който ще се праща трафикът.
+            port:
+              number: 80                                # Портът на Service-а. Ingress ще праща към identity-service:80. Service после ще препрати към containerPort (примерно 8080)

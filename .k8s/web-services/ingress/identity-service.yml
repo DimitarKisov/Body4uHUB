@@ -1,0 +1,200 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: identity-service-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+      
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    web-service: identity
+  
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-service
+spec:
+  selector:
+    matchLabels:
+      web-service: identity
+  template:
+    metadata:
+      labels:
+        web-service: identity
+        system: server
+    spec:
+      containers:
+      - name: identity-service
+        image: dkisov/body4u-hub-identity-service
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: identity-database-connection-string
+        - name: JwtSettings__Secret
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: jwt-settings-secret
+        - name: JwtSettings__Issuer
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-issuer
+        - name: JwtSettings__Audience
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-audience
+        - name: JwtSettings__ExpirationMinutes
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-expirationMinutes
+        - name: SeedData__AdminUserEmail
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: seedData-adminUserEmail
+        - name: SeedData__AdminUserPassword
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: seedData-adminUserPassword
+        - name: SeedData__AdminUserFirstName
+          valueFrom:
+            configMapKeyRef:
+              name: identity-settings
+              key: seedData-adminUserFirstName
+        - name: SeedData__AdminUserLastName
+          valueFrom:
+            configMapKeyRef:
+              name: identity-settings
+              key: seedData-adminUserLastName
+        - name: SeedData__AdminUserRoleName
+          valueFrom:
+            configMapKeyRef:
+              name: identity-settings
+              key: seedData-adminRoleName
+        - name: SeedData__UserRoles
+          valueFrom:
+            configMapKeyRef:
+              name: identity-settings
+              key: seedData-userRoles
+        - name: MassTransit__Host
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-host
+        - name: MassTransit__VirtualHost
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-virtualhost
+        - name: MassTransit__Username
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-user
+        - name: MassTransit__Password
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: event-bus-password
+        - name: MassTransit__RetryCount
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-retryCount
+        - name: MassTransit__RetryIntervalSeconds
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-retryIntervalSeconds
+        - name: MassTransit__OutboxQueryMessageLimit
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-outboxQueryMessageLimit
+        - name: MassTransit__OutboxQueryDelaySeconds
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-outboxQueryDelaySeconds
+        - name: Cors__AllowedOrigins__0
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: cors-allowedOrigins
+        - name: EmailSettings__SmtpServer
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: emailSettings-smtpServer
+        - name: EmailSettings__SmtpPort
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: emailSettings-smtpPort
+        - name: EmailSettings__FromEmail
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: emailSettings-fromEmail
+        - name: EmailSettings__FromName
+          valueFrom:
+            configMapKeyRef:
+              name: identity-settings
+              key: emailSettings-fromName
+        - name: EmailSettings__Username
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: emailSettings-username
+        - name: EmailSettings__Password
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: emailSettings-password
+        - name: EmailSettings__EnableSsl
+          valueFrom:
+            configMapKeyRef:
+              name: identity-settings
+              key: emailSettings-enableSsl
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: HttpsRedirection__Enabled
+          value: "false"
+        volumeMounts:
+        - name: identity-service-data
+          mountPath: /home/app/.aspnet/DataProtection-Keys
+      volumes:
+      - name: identity-service-data
+        persistentVolumeClaim:
+          claimName: identity-service-data
