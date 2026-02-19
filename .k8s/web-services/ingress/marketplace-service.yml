@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: marketplace-service-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketplace-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    web-service: marketplace
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketplace-service
+spec:
+  selector:
+    matchLabels:
+      web-service: marketplace
+  template:
+    metadata:
+      labels:
+        web-service: marketplace
+        system: server
+    spec:
+      containers:
+      - name: marketplace-service
+        image: dkisov/body4u-hub-marketplace-service
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5003
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef: 
+              name: environment-secrets
+              key: marketplace-service-connection-string
+        - name: JwtSettings__Secret
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: jwt-settings-secret
+        - name: JwtSettings__Issuer
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-issuer
+        - name: JwtSettings__Audience
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-audience
+        - name: JwtSettings__ExpirationMinutes
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: jwt-settings-expirationMinutes
+        - name: MassTransit__Host
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-host
+        - name: MassTransit__VirtualHost
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-virtualhost
+        - name: MassTransit__Username
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-user
+        - name: MassTransit__Password
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: event-bus-password
+        - name: MassTransit__RetryCount
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-retryCount
+        - name: MassTransit__RetryIntervalSeconds
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-retryIntervalSeconds
+        - name: MassTransit__OutboxQueryMessageLimit
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-outboxQueryMessageLimit
+        - name: MassTransit__OutboxQueryDelaySeconds
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: event-bus-outboxQueryDelaySeconds
+        - name: Cors__AllowedOrigins__0
+          valueFrom:
+            configMapKeyRef:
+              name: environment-settings
+              key: cors-allowedOrigins
+        volumeMounts:
+        - name: marketplace-service-data
+          mountPath: /home/app/.aspnet/DataProtection-Keys
+      volumes:
+      - name: marketplace-service-data
+        persistentVolumeClaim:
+          claimName: marketplace-service-data

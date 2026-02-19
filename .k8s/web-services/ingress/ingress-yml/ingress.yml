@@ -28,3 +28,17 @@ spec:
             name: identity-service                      # Името на Kubernetes Service-а, към който ще се праща трафикът.
             port:
               number: 80                                # Портът на Service-а. Ingress ще праща към identity-service:80. Service после ще препрати към containerPort (примерно 8080)
+      - path: /content(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: content-service
+            port:
+              number: 80
+      - path:
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: marketplace-service
+            port:
+              number: 80
