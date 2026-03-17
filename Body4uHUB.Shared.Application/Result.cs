@@ -10,7 +10,8 @@
         Forbidden,              // 403 Forbidden - валидна автентикация, но няма права
         ResourceNotFound,       // 422 Unprocessable Entity - ресурс не съществува в базата
         Conflict,               // 409 Conflict - конфликт с existing data (email already exists)
-        BusinessRule            // 422 Unprocessable Entity - нарушено бизнес правило (domain logic)
+        BusinessRule,           // 422 Unprocessable Entity - нарушено бизнес правило (domain logic)
+        InternalServerError     // 500 Internal Server Error - неочаквана грешка на сървъра
     }
 
     /// <summary>
@@ -58,6 +59,9 @@
         public static Result BusinessRuleViolation(string error)
             => new Result(false, error, ErrorType.BusinessRule);
 
+        public static Result InternalServerError(string error)
+            => new Result(false, error, ErrorType.InternalServerError);
+
         // Generic methods
         public static Result<T> Success<T>(T value)
             => new Result<T>(value, true, string.Empty, ErrorType.None);
@@ -76,6 +80,9 @@
 
         public static Result<T> BusinessRuleViolation<T>(string error)
             => new Result<T>(default, false, error, ErrorType.BusinessRule);
+
+        public static Result<T> InternalServerError<T>(string error)
+            => new Result<T>(default, false, error, ErrorType.InternalServerError);
     }
 
     /// <summary>

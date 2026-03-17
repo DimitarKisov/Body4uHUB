@@ -11,11 +11,6 @@ namespace Body4uHUB.Identity.Infrastructure.Services
 
         public string HashPassword(string password)
         {
-            if (string.IsNullOrWhiteSpace(password))
-            {
-                return string.Empty;
-            }
-
             return BCrypt.Net.BCrypt.HashPassword(password, WorkFactor);
         }
 

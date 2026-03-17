@@ -2,6 +2,11 @@
 {
     public class ModelConstants
     {
+        public class Common
+        {
+            public const string SomethingWentWrong = "Something went wrong. Please try again later.";
+        }
+
         public class TrainerProfileConstants
         {
             public const int BioMinLength = 50;

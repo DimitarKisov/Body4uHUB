@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
+using static Body4uHUB.Shared.Domain.Constants.ModelConstants.Common;
 
 namespace Body4uHUB.Identity.Application.Commands.Register
 {
@@ -56,10 +57,15 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                     return Result.Conflict<AuthResponseDto>(UserEmailExists);
                 }
 
-                var passwordHash = _passwordHasherService.HashPassword(request.Password);
-                if (string.IsNullOrWhiteSpace(passwordHash))
+                var passwordHash = string.Empty;
+                try
                 {
-                    return Result.ResourceNotFound<AuthResponseDto>(PasswordInvalid);
+                    passwordHash= _passwordHasherService.HashPassword(request.Password);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Password hashing failed for email {Email}", request.Email);
+                    return Result.InternalServerError<AuthResponseDto>(SomethingWentWrong);
                 }
 
                 var emailConfirmationToken = Guid.NewGuid().ToString();
