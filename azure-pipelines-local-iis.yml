@@ -47,8 +47,8 @@ stages:
          inputs:
            command: 'test'
            projects: |
-             Identity.Application.UnitTests/*.csproj
-             Identity.Domain.UnitTests/*.csproj
+             Body4uHUB.Identity.Application.Tests/*.csproj
+             Body4uHUB.Identity.Domain.UnitTests/*.csproj
            arguments: '--configuration $(buildConfiguration) --no-build'
 
       # 5. Publish Identity Service
