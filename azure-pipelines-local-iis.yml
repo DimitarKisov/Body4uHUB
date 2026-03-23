@@ -106,7 +106,7 @@ stages:
  - stage: Deploy_Test
    displayName: 'Deploy to Test'
    dependsOn: Deploy_Development # Можем да го диплойнем само ако DEVELOPMENT е минал
-   condition: false # Не искаме да се пуска автоматично, а ръчно от нас. Ако искаме трябва да използваме succeeded()
+   condition: succeeded()
    jobs:
     - template: templates/deploy-to-iis.yml
       parameters:
