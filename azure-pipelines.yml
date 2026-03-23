@@ -40,8 +40,18 @@ stages:
           command: 'build'
           projects: '**/*.csproj'
           arguments: '--configuration $(buildConfiguration) --no-restore'
+          
+       # 4. Run Unit Tests
+       - task: DotNetCoreCLI@2
+        displayName: 'Run Unit Tests'
+        inputs:
+          command: 'test'
+          projects: |
+          Identity.Application.UnitTests/*.csproj
+          Identity.Domain.UnitTests/*.csproj
+          arguments: '--configuration $(buildConfiguration) --no-build'
 
-      # 4. Publish Identity Service
+      # 5. Publish Identity Service
        - task: DotNetCoreCLI@2
          displayName: 'Publish Identity Service'
          inputs:
@@ -51,7 +61,7 @@ stages:
           publishWebProjects: false
           zipAfterPublish: false
 
-      # 5. Publish Content Service
+      # 6. Publish Content Service
        - task: DotNetCoreCLI@2
          displayName: 'Publish Content Service'
          inputs:
@@ -61,7 +71,7 @@ stages:
           publishWebProjects: false
           zipAfterPublish: false
     
-    # 6. Publish Services Marketplace
+    # 7. Publish Services Marketplace
        - task: DotNetCoreCLI@2
          displayName: 'Publish Services Marketplace'
          inputs:
@@ -71,7 +81,7 @@ stages:
           publishWebProjects: false
           zipAfterPublish: false
     
-    # 7. Publish Build Artifacts
+    # 8. Publish Build Artifacts
     # Качва compiled файловете в Azure DevOps, за да ги използваме в Deploy stage-а
        - task: PublishBuildArtifacts@1
          displayName: 'Publish Artifacts'
