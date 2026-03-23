@@ -43,13 +43,13 @@ stages:
           
        # 4. Run Unit Tests
        - task: DotNetCoreCLI@2
-        displayName: 'Run Unit Tests'
-        inputs:
-          command: 'test'
-          projects: |
-            Identity.Application.UnitTests/*.csproj
-            Identity.Domain.UnitTests/*.csproj
-          arguments: '--configuration $(buildConfiguration) --no-build'
+         displayName: 'Run Unit Tests'
+         inputs:
+           command: 'test'
+           projects: |
+             Identity.Application.UnitTests/*.csproj
+             Identity.Domain.UnitTests/*.csproj
+           arguments: '--configuration $(buildConfiguration) --no-build'
 
       # 5. Publish Identity Service
        - task: DotNetCoreCLI@2
