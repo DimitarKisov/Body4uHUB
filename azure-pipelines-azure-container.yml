@@ -1,0 +1,285 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  acrLoginServer: 'body4uhubacr.azurecr.io'
+  acrConnection: 'body4uhub-acr-connection'
+  azureConnection: 'body4uhub-azure-connection'
+  resourceGroup: 'rg-body4uhub'
+  containerAppsEnvironment: 'body4uhub-env'
+  keyVaultName: 'body4uhub-kv'
+  location: 'westeurope'
+  imageTag: '$(Build.BuildId)'
+
+stages:
+
+# ─────────────────────────────────────────
+# STAGE 1: Build & Push Images
+# ─────────────────────────────────────────
+- stage: Build
+  displayName: 'Build and Push Images'
+  jobs:
+  - job: BuildAndPush
+    displayName: 'Docker Build & Push'
+    pool:
+      name: Default
+
+    steps:
+
+    - task: Docker@2
+      displayName: 'Build Identity API'
+      inputs:
+        containerRegistry: '$(acrConnection)'
+        repository: 'identity-api'
+        command: 'build'
+        Dockerfile: 'Body4uHUB.Identity.Api/Dockerfile'
+        buildContext: '$(Build.SourcesDirectory)'
+        tags: |
+          $(imageTag)
+          latest
+
+    - task: Docker@2
+      displayName: 'Push Identity API'
+      inputs:
+        containerRegistry: '$(acrConnection)'
+        repository: 'identity-api'
+        command: 'push'
+        tags: |
+          $(imageTag)
+          latest
+
+    - task: Docker@2
+      displayName: 'Build Content API'
+      inputs:
+        containerRegistry: '$(acrConnection)'
+        repository: 'content-api'
+        command: 'build'
+        Dockerfile: 'Body4uHUB.Content.Api/Dockerfile'
+        buildContext: '$(Build.SourcesDirectory)'
+        tags: |
+          $(imageTag)
+          latest
+
+    - task: Docker@2
+      displayName: 'Push Content API'
+      inputs:
+        containerRegistry: '$(acrConnection)'
+        repository: 'content-api'
+        command: 'push'
+        tags: |
+          $(imageTag)
+          latest
+
+    - task: Docker@2
+      displayName: 'Build Marketplace API'
+      inputs:
+        containerRegistry: '$(acrConnection)'
+        repository: 'marketplace-api'
+        command: 'build'
+        Dockerfile: 'Body4uHUB.Services.Api/Dockerfile'
+        buildContext: '$(Build.SourcesDirectory)'
+        tags: |
+          $(imageTag)
+          latest
+
+    - task: Docker@2
+      displayName: 'Push Marketplace API'
+      inputs:
+        containerRegistry: '$(acrConnection)'
+        repository: 'marketplace-api'
+        command: 'push'
+        tags: |
+          $(imageTag)
+          latest
+
+# ─────────────────────────────────────────
+# STAGE 2: Deploy to Azure Container Apps
+# ─────────────────────────────────────────
+- stage: Deploy
+  displayName: 'Deploy to Container Apps'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy All Container Apps'
+    pool:
+      name: Default
+
+    steps:
+
+    - task: AzureCLI@2
+      displayName: 'Install Container Apps Extension'
+      inputs:
+        azureSubscription: '$(azureConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az extension add --name containerapp --upgrade -y
+
+    # Вземи secrets от Key Vault
+    - task: AzureCLI@2
+      displayName: 'Get Secrets from Key Vault'
+      inputs:
+        azureSubscription: '$(azureConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          SA_PASSWORD=$(az keyvault secret show --vault-name $(keyVaultName) --name "SA--Password" --query value -o tsv)
+          RABBITMQ_USER=$(az keyvault secret show --vault-name $(keyVaultName) --name "RabbitMQ--Default--Username" --query value -o tsv)
+          RABBITMQ_PASS=$(az keyvault secret show --vault-name $(keyVaultName) --name "RabbitMQ--Default--Password" --query value -o tsv)
+          echo "##vso[task.setvariable variable=SA_PASSWORD;issecret=true]$SA_PASSWORD"
+          echo "##vso[task.setvariable variable=RABBITMQ_USER;issecret=true]$RABBITMQ_USER"
+          echo "##vso[task.setvariable variable=RABBITMQ_PASS;issecret=true]$RABBITMQ_PASS"
+
+    # Създай Environment ако не съществува
+    - task: AzureCLI@2
+      displayName: 'Create Container Apps Environment'
+      inputs:
+        azureSubscription: '$(azureConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp env create \
+            --name $(containerAppsEnvironment) \
+            --resource-group $(resourceGroup) \
+            --location $(location) \
+            2>/dev/null || echo "Environment already exists"
+
+    # Deploy SQL Server
+    - task: AzureCLI@2
+      displayName: 'Deploy SQL Server'
+      inputs:
+        azureSubscription: '$(azureConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp create \
+            --name body4uhub-sqlserver \
+            --resource-group $(resourceGroup) \
+            --environment $(containerAppsEnvironment) \
+            --image mcr.microsoft.com/mssql/server:2019-latest \
+            --target-port 1433 \
+            --ingress internal \
+            --min-replicas 1 \
+            --max-replicas 1 \
+            --env-vars \
+              ACCEPT_EULA=Y \
+              "SA_PASSWORD=$(SA_PASSWORD)" \
+            2>/dev/null || echo "SQL Server already exists"
+
+    # Deploy RabbitMQ
+    - task: AzureCLI@2
+      displayName: 'Deploy RabbitMQ'
+      inputs:
+        azureSubscription: '$(azureConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp create \
+            --name body4uhub-rabbitmq \
+            --resource-group $(resourceGroup) \
+            --environment $(containerAppsEnvironment) \
+            --image rabbitmq:management-alpine \
+            --target-port 5672 \
+            --ingress internal \
+            --min-replicas 1 \
+            --max-replicas 1 \
+            --env-vars \
+              "RABBITMQ_DEFAULT_USER=$(RABBITMQ_USER)" \
+              "RABBITMQ_DEFAULT_PASS=$(RABBITMQ_PASS)" \
+            2>/dev/null || echo "RabbitMQ already exists"
+
+    # Deploy Identity API
+    - task: AzureCLI@2
+      displayName: 'Deploy Identity API'
+      inputs:
+        azureSubscription: '$(azureConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp create \
+            --name body4uhub-identity-api \
+            --resource-group $(resourceGroup) \
+            --environment $(containerAppsEnvironment) \
+            --image $(acrLoginServer)/identity-api:$(imageTag) \
+            --registry-server $(acrLoginServer) \
+            --registry-identity system \
+            --target-port 8080 \
+            --ingress external \
+            --min-replicas 1 \
+            --max-replicas 3 \
+            --env-vars \
+              ASPNETCORE_ENVIRONMENT=Production \
+              "ConnectionStrings__DefaultConnection=secretref:identity-connstring" \
+              "JwtSettings__Secret=secretref:jwt-secret" \
+              MassTransit__Host=body4uhub-rabbitmq \
+              "MassTransit__Username=secretref:masstransit-username" \
+              "MassTransit__Password=secretref:masstransit-password" \
+            2>/dev/null || \
+          az containerapp update \
+            --name body4uhub-identity-api \
+            --resource-group $(resourceGroup) \
+            --image $(acrLoginServer)/identity-api:$(imageTag)
+
+    # Deploy Content API
+    - task: AzureCLI@2
+      displayName: 'Deploy Content API'
+      inputs:
+        azureSubscription: '$(azureConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp create \
+            --name body4uhub-content-api \
+            --resource-group $(resourceGroup) \
+            --environment $(containerAppsEnvironment) \
+            --image $(acrLoginServer)/content-api:$(imageTag) \
+            --registry-server $(acrLoginServer) \
+            --registry-identity system \
+            --target-port 8080 \
+            --ingress external \
+            --min-replicas 1 \
+            --max-replicas 3 \
+            --env-vars \
+              ASPNETCORE_ENVIRONMENT=Production \
+              "ConnectionStrings__DefaultConnection=secretref:content-connstring" \
+              "JwtSettings__Secret=secretref:jwt-secret" \
+            2>/dev/null || \
+          az containerapp update \
+            --name body4uhub-content-api \
+            --resource-group $(resourceGroup) \
+            --image $(acrLoginServer)/content-api:$(imageTag)
+
+    # Deploy Marketplace API
+    - task: AzureCLI@2
+      displayName: 'Deploy Marketplace API'
+      inputs:
+        azureSubscription: '$(azureConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp create \
+            --name body4uhub-marketplace-api \
+            --resource-group $(resourceGroup) \
+            --environment $(containerAppsEnvironment) \
+            --image $(acrLoginServer)/marketplace-api:$(imageTag) \
+            --registry-server $(acrLoginServer) \
+            --registry-identity system \
+            --target-port 8080 \
+            --ingress external \
+            --min-replicas 1 \
+            --max-replicas 3 \
+            --env-vars \
+              ASPNETCORE_ENVIRONMENT=Production \
+              "ConnectionStrings__DefaultConnection=secretref:services-connstring" \
+              "JwtSettings__Secret=secretref:jwt-secret" \
+              MassTransit__Host=body4uhub-rabbitmq \
+              "MassTransit__Username=secretref:masstransit-username" \
+              "MassTransit__Password=secretref:masstransit-password" \
+            2>/dev/null || \
+          az containerapp update \
+            --name body4uhub-marketplace-api \
+            --resource-group $(resourceGroup) \
+            --image $(acrLoginServer)/marketplace-api:$(imageTag)
