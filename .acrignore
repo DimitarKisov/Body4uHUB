@@ -1,0 +1,58 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Visual Studio
+.vs
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+**/bin
+**/obj
+
+# NuGet
+*.nupkg
+**/packages
+!**/packages/build/
+**/.nuget/packages/*
+!**/.nuget/packages/build/
+
+# Test results
+**/TestResults
+**/_ReSharper*
+*.DotSettings.user
+
+# Docker
+**/Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# IDE
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+*.logs
+
+# Environment files
+*.env
+.env*
+
+# Azure DevOps
+azure-pipelines*.yml
+
+# Temp
+**/temp
+**/tmp
+**/.tmp
