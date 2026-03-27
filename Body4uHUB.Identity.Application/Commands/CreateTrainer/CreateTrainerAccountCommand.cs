@@ -26,6 +26,7 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
                 IRoleRepository roleRepository,
                 IEventBus eventBus)
             {
+                _userRepository = userRepository;
                 _roleRepository = roleRepository;
                 _eventBus = eventBus;
             }

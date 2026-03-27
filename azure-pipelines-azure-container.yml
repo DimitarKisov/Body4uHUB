@@ -117,8 +117,12 @@ stages:
         scriptType: 'ps'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          $exists = az containerapp env show --name $(containerAppsEnvironment) --resource-group $(resourceGroup) 2>$null
-          if (-not $exists) {
+          $exists = az containerapp env show `
+            --name $(containerAppsEnvironment) `
+            --resource-group $(resourceGroup) `
+            2>$null
+
+          if ($LASTEXITCODE -ne 0) {
             az containerapp env create `
               --name $(containerAppsEnvironment) `
               --resource-group $(resourceGroup) `

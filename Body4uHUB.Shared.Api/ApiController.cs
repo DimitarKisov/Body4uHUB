@@ -13,7 +13,7 @@ namespace Body4uHUB.Shared.Api
     [ApiController]
     public abstract class ApiController : ControllerBase
     {
-        private ISender? _mediator;
+        private ISender _mediator;
         protected ISender Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<ISender>();
 
         /// <summary>
