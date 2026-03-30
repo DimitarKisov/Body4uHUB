@@ -1,0 +1,127 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - Body4uHUB.Services.Api/**
+      - Body4uHUB.Services.Application/**
+      - Body4uHUB.Services.Domain/**
+      - Body4uHUB.Services.Infrastructure/**
+
+pool:
+  name: Default
+
+variables:
+  - name: buildConfiguration
+    value: 'Release'
+  - name: dotnetVersion
+    value: '8.x'
+  - name: serviceName
+    value: 'Services'
+
+stages:
+# ==================== STAGE 1: BUILD SERVICES MARKETPLACE ====================
+  - stage: Build
+    displayName: 'Build Services Marketplace'
+    jobs:
+      - job: BuildServices
+        displayName: 'Build and Test Services Marketplace'
+        steps:
+
+          # 1. Install .NET SDK
+          - task: UseDotNet@2
+            displayName: 'Install .NET 8 SDK'
+            inputs:
+              packageType: sdk
+              version: $(dotnetVersion)
+
+          # 2. Restore NuGet packages
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet Packages'
+            inputs:
+              command: restore
+              projects: 'Body4uHUB.Services.Api/Body4uHUB.Services.Api.csproj'
+
+          # 3. Build Services Marketplace
+          - task: DotNetCoreCLI@2
+            displayName: 'Build Services Marketplace'
+            inputs:
+              command: 'build'
+              projects: 'Body4uHUB.Services.Api/Body4uHUB.Services.Api.csproj'
+              arguments: '--configuration $(buildConfiguration) --no-restore'
+
+          # 4. Run Unit Tests (ако имаш)
+          # - task: DotNetCoreCLI@2
+          #   displayName: 'Run Unit Tests'
+          #   inputs:
+          #     command: 'test'
+          #     projects: 'Body4uHUB.Services.*.Tests/*.csproj'
+          #     arguments: '--configuration $(buildConfiguration) --no-build'
+
+          # 5. Publish Services Marketplace
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish Services Marketplace'
+            inputs:
+              command: 'publish'
+              projects: 'Body4uHUB.Services.Api/Body4uHUB.Services.Api.csproj'
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Services'
+              publishWebProjects: false
+              zipAfterPublish: false
+
+          # 6. Publish Build Artifacts
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Artifacts'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/Services'
+              ArtifactName: 'services-drop'
+              publishLocation: 'Container'
+
+# ==================== STAGE 2: DEPLOY TO DEVELOPMENT ====================
+  - stage: Deploy_Development
+    displayName: 'Deploy Services to Development'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - template: templates/deploy-single-service-to-iis.yml
+        parameters:
+          serviceName: 'Services'
+          artifactName: 'services-drop'
+          environmentName: 'Development'
+          variableGroup: 'Body4uHUB-Development-Secrets'
+          iisPath: 'C:\inetpub\Body4uHUB-Dev\Services'
+          iisAppPoolName: 'Body4uHUB-Services-Dev'
+          iisSiteName: 'Body4uHUB-Services-Dev'
+
+# ==================== STAGE 3: DEPLOY TO TEST ====================
+  - stage: Deploy_Test
+    displayName: 'Deploy Services to Test'
+    dependsOn: Deploy_Development
+    condition: succeeded()
+    jobs:
+      - template: templates/deploy-single-service-to-iis.yml
+        parameters:
+          serviceName: 'Services'
+          artifactName: 'services-drop'
+          environmentName: 'Test'
+          variableGroup: 'Body4uHUB-Test-Secrets'
+          iisPath: 'C:\inetpub\Body4uHUB-Test\Services'
+          iisAppPoolName: 'Body4uHUB-Services-Test'
+          iisSiteName: 'Body4uHUB-Services-Test'
+
+# ==================== STAGE 4: DEPLOY TO PRODUCTION ====================
+  - stage: Deploy_Production
+    displayName: 'Deploy Services to Production'
+    dependsOn: Deploy_Test
+    condition: false # Manual trigger only
+    jobs:
+      - template: templates/deploy-single-service-to-iis.yml
+        parameters:
+          serviceName: 'Services'
+          artifactName: 'services-drop'
+          environmentName: 'Production'
+          variableGroup: 'Body4uHUB-Production-Secrets'
+          iisPath: 'C:\inetpub\Body4uHUB\Services'
+          iisAppPoolName: 'Body4uHUB-Services'
+          iisSiteName: 'Body4uHUB-Services'
+          requiresApproval: true

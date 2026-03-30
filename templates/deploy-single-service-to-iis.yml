@@ -1,0 +1,102 @@
+parameters:
+  - name: serviceName
+    type: string
+  - name: artifactName
+    type: string
+  - name: environmentName
+    type: string
+  - name: variableGroup
+    type: string
+  - name: iisPath
+    type: string
+  - name: iisAppPoolName
+    type: string
+  - name: iisSiteName
+    type: string
+  - name: requiresApproval
+    type: boolean
+    default: false
+
+jobs:
+  - deployment: Deploy${{ parameters.serviceName }}
+    displayName: 'Deploy ${{ parameters.serviceName }} to ${{ parameters.environmentName }}'
+    environment: ${{ parameters.environmentName }}
+    variables:
+      - group: ${{ parameters.variableGroup }}
+    
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # 1. Download the artifact from Build stage
+            - download: current
+              artifact: ${{ parameters.artifactName }}
+              displayName: 'Download ${{ parameters.serviceName }} Artifacts'
+
+            # 2. Stop IIS Application Pool
+            - task: IISWebAppManagementOnMachineGroup@0
+              displayName: 'Stop IIS App Pool: ${{ parameters.iisAppPoolName }}'
+              inputs:
+                IISDeploymentType: 'IISWebsite'
+                ActionIISWebsite: 'StopAppPool'
+                AppPoolName: '${{ parameters.iisAppPoolName }}'
+              continueOnError: true # Ако pool-а не съществува, да не спира deploy-a
+
+            # 3. Backup current deployment (optional but recommended)
+            - task: PowerShell@2
+              displayName: 'Backup Current Deployment'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  $iisPath = "${{ parameters.iisPath }}"
+                  $backupPath = "${{ parameters.iisPath }}_backup_$(Build.BuildId)"
+                  
+                  if (Test-Path $iisPath) {
+                    Write-Host "Creating backup at $backupPath"
+                    Copy-Item -Path $iisPath -Destination $backupPath -Recurse -Force
+                  } else {
+                    Write-Host "No existing deployment to backup"
+                  }
+              continueOnError: true
+
+            # 4. Deploy files to IIS directory
+            - task: CopyFiles@2
+              displayName: 'Copy Files to IIS Directory'
+              inputs:
+                SourceFolder: '$(Pipeline.Workspace)/${{ parameters.artifactName }}'
+                Contents: '**'
+                TargetFolder: '${{ parameters.iisPath }}'
+                CleanTargetFolder: true
+                OverWrite: true
+
+            # 5. Transform appsettings.json (ако използваш variable substitution)
+            - task: FileTransform@1
+              displayName: 'Transform appsettings.json'
+              inputs:
+                folderPath: '${{ parameters.iisPath }}'
+                fileType: 'json'
+                targetFiles: 'appsettings.json'
+
+            # 6. Set proper permissions for IIS
+            - task: PowerShell@2
+              displayName: 'Set IIS Permissions'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  $iisPath = "${{ parameters.iisPath }}"
+                  $appPoolIdentity = "IIS AppPool\${{ parameters.iisAppPoolName }}"
+                  
+                  Write-Host "Setting permissions for $appPoolIdentity on $iisPath"
+                  
+                  # Give read/execute permissions to the app pool identity
+                  icacls $iisPath /grant "${appPoolIdentity}:(OI)(CI)RX" /T
+                  
+                  Write-Host "Permissions set successfully"
+
+            # 7. Start IIS Application Pool
+            - task: IISWebAppManagementOnMachineGroup@0
+              displayName: 'Start IIS App Pool: ${{ parameters.iisAppPoolName }}'
+              inputs:
+                IISDeploymentType: 'IISWebsite'
+                ActionIISWebsite: 'StartAppPool'
+                AppPoolName: '${{ parameters.iisAppPoolName }}'
