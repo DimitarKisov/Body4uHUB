@@ -9,7 +9,7 @@ variables:
   azureConnection: 'body4uhub-azure-connection'
   resourceGroup: 'rg-body4uhub'
   containerAppsEnvironment: 'body4uhub-env'
-  keyVaultName: 'body4uhub-kv'
+  keyVaultName: 'body4uhub-kvault'
   location: 'westeurope'
   imageTag: '$(Build.BuildId)'
 
