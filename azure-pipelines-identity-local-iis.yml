@@ -38,25 +38,18 @@ stages:
               packageType: sdk
               version: $(dotnetVersion)
 
-          # 2. Restore NuGet packages
+          # 2. Build Identity Service and Tests
           - task: DotNetCoreCLI@2
-            displayName: 'Restore NuGet Packages'
-            inputs:
-              command: restore
-              projects: 'Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj'
-
-          # 3. Build Identity Service
-          - task: DotNetCoreCLI@2
-            displayName: 'Build Identity Service'
+            displayName: 'Build Identity Service and Tests'
             inputs:
               command: 'build'
               projects: |
                 Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj
                 Body4uHUB.Identity.Application.Tests/Body4uHUB.Identity.Application.Tests.csproj
                 Body4uHUB.Identity.Domain.UnitTests/Body4uHUB.Identity.Domain.UnitTests.csproj
-              arguments: '--configuration $(buildConfiguration) --no-restore'
+              arguments: '--configuration $(buildConfiguration)'
 
-          # 4. Run Unit Tests
+          # 3. Run Unit Tests
           - task: DotNetCoreCLI@2
             displayName: 'Run Unit Tests'
             inputs:
@@ -65,8 +58,9 @@ stages:
                 Body4uHUB.Identity.Application.Tests/Body4uHUB.Identity.Application.Tests.csproj
                 Body4uHUB.Identity.Domain.UnitTests/Body4uHUB.Identity.Domain.UnitTests.csproj
               arguments: '--configuration $(buildConfiguration) --no-build'
+              publishTestResults: true
 
-          # 5. Publish Identity Service
+          # 4. Publish Identity Service
           - task: DotNetCoreCLI@2
             displayName: 'Publish Identity Service'
             inputs:
@@ -76,7 +70,7 @@ stages:
               publishWebProjects: false
               zipAfterPublish: false
 
-          # 6. Publish Build Artifacts
+          # 5. Publish Build Artifacts
           - task: PublishBuildArtifacts@1
             displayName: 'Publish Artifacts'
             inputs:
