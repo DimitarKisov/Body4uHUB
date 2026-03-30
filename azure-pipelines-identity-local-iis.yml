@@ -50,7 +50,10 @@ stages:
             displayName: 'Build Identity Service'
             inputs:
               command: 'build'
-              projects: 'Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj'
+              projects: |
+                Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj
+                Body4uHUB.Identity.Application.Tests/*.csproj
+                Body4uHUB.Identity.Domain.UnitTests/*.csproj
               arguments: '--configuration $(buildConfiguration) --no-restore'
 
           # 4. Run Unit Tests
