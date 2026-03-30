@@ -207,7 +207,8 @@ stages:
               --environment $(containerAppsEnvironment) `
               --image $(acrLoginServer)/identity-api:$(imageTag) `
               --registry-server $(acrLoginServer) `
-              --registry-identity system `
+              --registry-identity /subscriptions/c6045f36-0e25-48e4-8109-3570d2b79748/resourceGroups/rg-body4uhub/providers/Microsoft.ManagedIdentity/userAssignedIdentities/body4uhub-managed-identity `
+              --user-assigned /subscriptions/c6045f36-0e25-48e4-8109-3570d2b79748/resourceGroups/rg-body4uhub/providers/Microsoft.ManagedIdentity/userAssignedIdentities/body4uhub-managed-identity `
               --target-port 8080 `
               --ingress external `
               --min-replicas 1 `
@@ -241,7 +242,8 @@ stages:
               --environment $(containerAppsEnvironment) `
               --image $(acrLoginServer)/content-api:$(imageTag) `
               --registry-server $(acrLoginServer) `
-              --registry-identity system `
+              --registry-identity /subscriptions/c6045f36-0e25-48e4-8109-3570d2b79748/resourceGroups/rg-body4uhub/providers/Microsoft.ManagedIdentity/userAssignedIdentities/body4uhub-managed-identity `
+              --user-assigned /subscriptions/c6045f36-0e25-48e4-8109-3570d2b79748/resourceGroups/rg-body4uhub/providers/Microsoft.ManagedIdentity/userAssignedIdentities/body4uhub-managed-identity ` `
               --target-port 8080 `
               --ingress external `
               --min-replicas 1 `
@@ -275,7 +277,8 @@ stages:
               --environment $(containerAppsEnvironment) `
               --image $(acrLoginServer)/marketplace-api:$(imageTag) `
               --registry-server $(acrLoginServer) `
-              --registry-identity system `
+              --registry-identity /subscriptions/c6045f36-0e25-48e4-8109-3570d2b79748/resourceGroups/rg-body4uhub/providers/Microsoft.ManagedIdentity/userAssignedIdentities/body4uhub-managed-identity `
+              --user-assigned /subscriptions/c6045f36-0e25-48e4-8109-3570d2b79748/resourceGroups/rg-body4uhub/providers/Microsoft.ManagedIdentity/userAssignedIdentities/body4uhub-managed-identity `
               --target-port 8080 `
               --ingress external `
               --min-replicas 1 `
