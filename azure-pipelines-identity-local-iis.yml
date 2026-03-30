@@ -52,8 +52,8 @@ stages:
               command: 'build'
               projects: |
                 Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj
-                Body4uHUB.Identity.Application.Tests/*.csproj
-                Body4uHUB.Identity.Domain.UnitTests/*.csproj
+                Body4uHUB.Identity.Application.Tests/Body4uHUB.Identity.Application.Tests.csproj
+                Body4uHUB.Identity.Domain.UnitTests/Body4uHUB.Identity.Domain.UnitTests.csproj
               arguments: '--configuration $(buildConfiguration) --no-restore'
 
           # 4. Run Unit Tests
@@ -62,8 +62,8 @@ stages:
             inputs:
               command: 'test'
               projects: |
-                Body4uHUB.Identity.Application.Tests/*.csproj
-                Body4uHUB.Identity.Domain.UnitTests/*.csproj
+                Body4uHUB.Identity.Application.Tests/Body4uHUB.Identity.Application.Tests.csproj
+                Body4uHUB.Identity.Domain.UnitTests/Body4uHUB.Identity.Domain.UnitTests.csproj
               arguments: '--configuration $(buildConfiguration) --no-build'
 
           # 5. Publish Identity Service
