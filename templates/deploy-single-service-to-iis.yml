@@ -34,13 +34,38 @@ jobs:
               displayName: 'Download ${{ parameters.serviceName }} Artifacts'
 
             # 2. Stop IIS Application Pool
-            - task: IISWebAppManagementOnMachineGroup@0
+            - task: PowerShell@2
               displayName: 'Stop IIS App Pool: ${{ parameters.iisAppPoolName }}'
               inputs:
-                IISDeploymentType: 'IISWebsite'
-                ActionIISWebsite: 'StopAppPool'
-                AppPoolName: '${{ parameters.iisAppPoolName }}'
-              continueOnError: true # Ако pool-а не съществува, да не спира deploy-a
+                targetType: 'inline'
+                script: |
+                  Import-Module WebAdministration
+                  
+                  $appPoolName = "${{ parameters.iisAppPoolName }}"
+                  
+                  if (Test-Path "IIS:\AppPools\$appPoolName") {
+                    $state = (Get-WebAppPoolState -Name $appPoolName).Value
+                    
+                    if ($state -eq "Started") {
+                      Write-Host "Stopping App Pool: $appPoolName"
+                      Stop-WebAppPool -Name $appPoolName
+                      
+                      # Изчакай да спре напълно
+                      $timeout = 30
+                      $elapsed = 0
+                      while ((Get-WebAppPoolState -Name $appPoolName).Value -ne "Stopped" -and $elapsed -lt $timeout) {
+                        Start-Sleep -Seconds 1
+                        $elapsed++
+                      }
+                      
+                      Write-Host "App Pool stopped successfully"
+                    } else {
+                      Write-Host "App Pool already stopped"
+                    }
+                  } else {
+                    Write-Host "App Pool does not exist yet (first deployment)"
+                  }
+              continueOnError: true
 
             # 3. Backup current deployment (optional but recommended)
             - task: PowerShell@2
@@ -55,7 +80,8 @@ jobs:
                     Write-Host "Creating backup at $backupPath"
                     Copy-Item -Path $iisPath -Destination $backupPath -Recurse -Force
                   } else {
-                    Write-Host "No existing deployment to backup"
+                    Write-Host "No existing deployment to backup (first deployment)"
+                    New-Item -Path $iisPath -ItemType Directory -Force | Out-Null
                   }
               continueOnError: true
 
@@ -69,15 +95,73 @@ jobs:
                 CleanTargetFolder: true
                 OverWrite: true
 
-            # 5. Transform appsettings.json (ако използваш variable substitution)
+            # 5. Transform appsettings.json
             - task: FileTransform@1
               displayName: 'Transform appsettings.json'
               inputs:
                 folderPath: '${{ parameters.iisPath }}'
                 fileType: 'json'
                 targetFiles: 'appsettings.json'
+              continueOnError: true
 
-            # 6. Set proper permissions for IIS
+            # 6. Create or Update IIS App Pool
+            - task: PowerShell@2
+              displayName: 'Create/Update IIS App Pool'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Import-Module WebAdministration
+                  
+                  $appPoolName = "${{ parameters.iisAppPoolName }}"
+                  
+                  if (!(Test-Path "IIS:\AppPools\$appPoolName")) {
+                    Write-Host "Creating App Pool: $appPoolName"
+                    New-WebAppPool -Name $appPoolName
+                  } else {
+                    Write-Host "App Pool already exists: $appPoolName"
+                  }
+                  
+                  # Configure App Pool settings
+                  Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name "managedRuntimeVersion" -Value ""
+                  Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name "startMode" -Value "AlwaysRunning"
+                  
+                  Write-Host "App Pool configured"
+
+            # 7. Create or Update IIS Website
+            - task: PowerShell@2
+              displayName: 'Create/Update IIS Website'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Import-Module WebAdministration
+                  
+                  $siteName = "${{ parameters.iisSiteName }}"
+                  $appPoolName = "${{ parameters.iisAppPoolName }}"
+                  $physicalPath = "${{ parameters.iisPath }}"
+                  
+                  if (!(Test-Path "IIS:\Sites\$siteName")) {
+                    Write-Host "Creating Website: $siteName"
+                    
+                    # Find available port (starting from 5000)
+                    $port = 5000
+                    $existingBindings = Get-WebBinding
+                    while ($existingBindings | Where-Object { $_.bindingInformation -like "*:$port:*" }) {
+                      $port++
+                    }
+                    
+                    New-Website -Name $siteName `
+                                -PhysicalPath $physicalPath `
+                                -ApplicationPool $appPoolName `
+                                -Port $port
+                    
+                    Write-Host "Website created on port $port"
+                  } else {
+                    Write-Host "Website already exists: $siteName"
+                    Set-ItemProperty "IIS:\Sites\$siteName" -Name "physicalPath" -Value $physicalPath
+                    Set-ItemProperty "IIS:\Sites\$siteName" -Name "applicationPool" -Value $appPoolName
+                  }
+
+            # 8. Set proper permissions for IIS
             - task: PowerShell@2
               displayName: 'Set IIS Permissions'
               inputs:
@@ -93,10 +177,31 @@ jobs:
                   
                   Write-Host "Permissions set successfully"
 
-            # 7. Start IIS Application Pool
-            - task: IISWebAppManagementOnMachineGroup@0
+            # 9. Start IIS Application Pool
+            - task: PowerShell@2
               displayName: 'Start IIS App Pool: ${{ parameters.iisAppPoolName }}'
               inputs:
-                IISDeploymentType: 'IISWebsite'
-                ActionIISWebsite: 'StartAppPool'
-                AppPoolName: '${{ parameters.iisAppPoolName }}'
+                targetType: 'inline'
+                script: |
+                  Import-Module WebAdministration
+                  
+                  $appPoolName = "${{ parameters.iisAppPoolName }}"
+                  
+                  Write-Host "Starting App Pool: $appPoolName"
+                  Start-WebAppPool -Name $appPoolName
+                  
+                  # Изчакай да стартира
+                  $timeout = 30
+                  $elapsed = 0
+                  while ((Get-WebAppPoolState -Name $appPoolName).Value -ne "Started" -and $elapsed -lt $timeout) {
+                    Start-Sleep -Seconds 1
+                    $elapsed++
+                  }
+                  
+                  $state = (Get-WebAppPoolState -Name $appPoolName).Value
+                  if ($state -eq "Started") {
+                    Write-Host "✓ App Pool started successfully"
+                  } else {
+                    Write-Error "✗ App Pool failed to start. State: $state"
+                    exit 1
+                  }
