@@ -110,7 +110,7 @@ stages:
           iisPath: 'C:\inetpub\Body4uHUB-Test\Identity'
           iisAppPoolName: 'Body4uHUB-Identity-Test'
           iisSiteName: 'Body4uHUB-Identity-Test'
-          servicePort: 5001
+          servicePort: 6001
 
 # ==================== STAGE 4: DEPLOY TO PRODUCTION ====================
   - stage: Deploy_Production
@@ -127,5 +127,5 @@ stages:
           iisPath: 'C:\inetpub\Body4uHUB\Identity'
           iisAppPoolName: 'Body4uHUB-Identity'
           iisSiteName: 'Body4uHUB-Identity'
-          servicePort: 5001
+          servicePort: 7001
           requiresApproval: true
