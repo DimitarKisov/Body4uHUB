@@ -13,6 +13,9 @@ parameters:
     type: string
   - name: iisSiteName
     type: string
+  - name: servicePort
+    type: number
+    default: 5000
   - name: requiresApproval
     type: boolean
     default: false
@@ -23,185 +26,207 @@ jobs:
     environment: ${{ parameters.environmentName }}
     variables:
       - group: ${{ parameters.variableGroup }}
-    
+      - name: iisPath
+        value: ${{ parameters.iisPath }}
+
     strategy:
       runOnce:
         deploy:
           steps:
-            # 1. Download the artifact from Build stage
-            - download: current
-              artifact: ${{ parameters.artifactName }}
+            # 1. Download Build Artifacts
+            - task: DownloadBuildArtifacts@1
               displayName: 'Download ${{ parameters.serviceName }} Artifacts'
+              inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: ${{ parameters.artifactName }}
+                downloadPath: '$(System.ArtifactsDirectory)'
 
-            # 2. Stop IIS Application Pool
+            # 2. Setup IIS - App Pool & Website (create if not exists)
             - task: PowerShell@2
-              displayName: 'Stop IIS App Pool: ${{ parameters.iisAppPoolName }}'
+              displayName: 'Setup IIS - ${{ parameters.serviceName }}'
               inputs:
                 targetType: 'inline'
                 script: |
                   Import-Module WebAdministration
-                  
+
                   $appPoolName = "${{ parameters.iisAppPoolName }}"
-                  
-                  if (Test-Path "IIS:\AppPools\$appPoolName") {
-                    $state = (Get-WebAppPoolState -Name $appPoolName).Value
-                    
-                    if ($state -eq "Started") {
-                      Write-Host "Stopping App Pool: $appPoolName"
-                      Stop-WebAppPool -Name $appPoolName
-                      
-                      # Изчакай да спре напълно
-                      $timeout = 30
-                      $elapsed = 0
-                      while ((Get-WebAppPoolState -Name $appPoolName).Value -ne "Stopped" -and $elapsed -lt $timeout) {
-                        Start-Sleep -Seconds 1
-                        $elapsed++
-                      }
-                      
-                      Write-Host "App Pool stopped successfully"
-                    } else {
-                      Write-Host "App Pool already stopped"
-                    }
-                  } else {
-                    Write-Host "App Pool does not exist yet (first deployment)"
-                  }
-              continueOnError: true
-
-            # 3. Backup current deployment (optional but recommended)
-            - task: PowerShell@2
-              displayName: 'Backup Current Deployment'
-              inputs:
-                targetType: 'inline'
-                script: |
-                  $iisPath = "${{ parameters.iisPath }}"
-                  $backupPath = "${{ parameters.iisPath }}_backup_$(Build.BuildId)"
-                  
-                  if (Test-Path $iisPath) {
-                    Write-Host "Creating backup at $backupPath"
-                    Copy-Item -Path $iisPath -Destination $backupPath -Recurse -Force
-                  } else {
-                    Write-Host "No existing deployment to backup (first deployment)"
-                    New-Item -Path $iisPath -ItemType Directory -Force | Out-Null
-                  }
-              continueOnError: true
-
-            # 4. Deploy files to IIS directory
-            - task: CopyFiles@2
-              displayName: 'Copy Files to IIS Directory'
-              inputs:
-                SourceFolder: '$(Pipeline.Workspace)/${{ parameters.artifactName }}'
-                Contents: '**'
-                TargetFolder: '${{ parameters.iisPath }}'
-                CleanTargetFolder: true
-                OverWrite: true
-
-            # 5. Transform appsettings.json
-            - task: FileTransform@1
-              displayName: 'Transform appsettings.json'
-              inputs:
-                folderPath: '${{ parameters.iisPath }}'
-                fileType: 'json'
-                targetFiles: 'appsettings.json'
-              continueOnError: true
-
-            # 6. Create or Update IIS App Pool
-            - task: PowerShell@2
-              displayName: 'Create/Update IIS App Pool'
-              inputs:
-                targetType: 'inline'
-                script: |
-                  Import-Module WebAdministration
-                  
-                  $appPoolName = "${{ parameters.iisAppPoolName }}"
-                  
-                  if (!(Test-Path "IIS:\AppPools\$appPoolName")) {
-                    Write-Host "Creating App Pool: $appPoolName"
-                    New-WebAppPool -Name $appPoolName
-                  } else {
-                    Write-Host "App Pool already exists: $appPoolName"
-                  }
-                  
-                  # Configure App Pool settings
-                  Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name "managedRuntimeVersion" -Value ""
-                  Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name "startMode" -Value "AlwaysRunning"
-                  
-                  Write-Host "App Pool configured"
-
-            # 7. Create or Update IIS Website
-            - task: PowerShell@2
-              displayName: 'Create/Update IIS Website'
-              inputs:
-                targetType: 'inline'
-                script: |
-                  Import-Module WebAdministration
-                  
-                  $siteName = "${{ parameters.iisSiteName }}"
-                  $appPoolName = "${{ parameters.iisAppPoolName }}"
+                  $siteName    = "${{ parameters.iisSiteName }}"
                   $physicalPath = "${{ parameters.iisPath }}"
-                  
-                  if (!(Test-Path "IIS:\Sites\$siteName")) {
-                    Write-Host "Creating Website: $siteName"
-                    
-                    # Find available port (starting from 5000)
-                    $port = 5000
-                    $existingBindings = Get-WebBinding
-                    while ($existingBindings | Where-Object { $_.bindingInformation -like "*:$port:*" }) {
-                      $port++
-                    }
-                    
-                    New-Website -Name $siteName `
-                                -PhysicalPath $physicalPath `
-                                -ApplicationPool $appPoolName `
-                                -Port $port
-                    
-                    Write-Host "Website created on port $port"
+                  $port        = ${{ parameters.servicePort }}
+
+                  # Създава App Pool ако не съществува
+                  if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+                      Write-Host "Creating App Pool: $appPoolName"
+                      New-WebAppPool -Name $appPoolName
+                      # .NET Core изисква "No Managed Code"
+                      Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name managedRuntimeVersion -Value ""
+                      Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name managedPipelineMode  -Value "Integrated"
+                      Set-ItemProperty "IIS:\AppPools\$appPoolName" -Name startMode            -Value "AlwaysRunning"
+                      Write-Host "App Pool created: $appPoolName"
                   } else {
-                    Write-Host "Website already exists: $siteName"
-                    Set-ItemProperty "IIS:\Sites\$siteName" -Name "physicalPath" -Value $physicalPath
-                    Set-ItemProperty "IIS:\Sites\$siteName" -Name "applicationPool" -Value $appPoolName
+                      Write-Host "App Pool already exists: $appPoolName"
                   }
 
-            # 8. Set proper permissions for IIS
+                  # Създава физическата папка ако не съществува
+                  if (-not (Test-Path $physicalPath)) {
+                      New-Item -Path $physicalPath -ItemType Directory -Force | Out-Null
+                      Write-Host "Created directory: $physicalPath"
+                  }
+
+                  # Създава Website ако не съществува
+                  if (-not (Get-Website -Name $siteName -ErrorAction SilentlyContinue)) {
+                      Write-Host "Creating Website: $siteName on port $port"
+                      New-Website -Name $siteName `
+                                  -PhysicalPath $physicalPath `
+                                  -ApplicationPool $appPoolName `
+                                  -Port $port
+                      Write-Host "Website created: $siteName"
+                  } else {
+                      Write-Host "Website already exists: $siteName"
+                      Set-ItemProperty "IIS:\Sites\$siteName" -Name physicalPath    -Value $physicalPath
+                      Set-ItemProperty "IIS:\Sites\$siteName" -Name applicationPool -Value $appPoolName
+                  }
+
+            # 3. Stop App Pool преди deploy
+            - task: PowerShell@2
+              displayName: 'Stop App Pool: ${{ parameters.iisAppPoolName }}'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Import-Module WebAdministration
+                  $appPoolName = "${{ parameters.iisAppPoolName }}"
+
+                  if (Test-Path "IIS:\AppPools\$appPoolName") {
+                      $state = (Get-WebAppPoolState -Name $appPoolName).Value
+                      if ($state -eq "Started") {
+                          Write-Host "Stopping App Pool: $appPoolName"
+                          Stop-WebAppPool -Name $appPoolName
+                          Start-Sleep -Seconds 3
+                          Write-Host "App Pool stopped"
+                      } else {
+                          Write-Host "App Pool already stopped"
+                      }
+                  } else {
+                      Write-Host "App Pool does not exist yet (first deployment)"
+                  }
+              continueOnError: true
+
+            # 4. Deploy файловете в IIS директорията
+            - task: PowerShell@2
+              displayName: 'Deploy ${{ parameters.serviceName }} Files'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  $source      = "$(System.ArtifactsDirectory)\${{ parameters.artifactName }}"
+                  $destination = "${{ parameters.iisPath }}"
+
+                  Write-Host "Deploying from: $source"
+                  Write-Host "Deploying to:   $destination"
+
+                  if (-not (Test-Path $destination)) {
+                      New-Item -Path $destination -ItemType Directory -Force | Out-Null
+                  }
+
+                  # Ако publish-ът е сложил файловете в подпапка, копираме от нея
+                  $nestedFolder = Get-ChildItem -Path $source -Directory | Select-Object -First 1
+                  if ($nestedFolder) {
+                      Write-Host "Found nested folder, copying from: $($nestedFolder.FullName)"
+                      Copy-Item -Path "$($nestedFolder.FullName)\*" -Destination $destination -Recurse -Force
+                  } else {
+                      Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+                  }
+
+                  Write-Host "Files deployed successfully!"
+
+            # 5. Replace Tokens в appsettings.json (Identity Service)
+            # Използваме същия pattern от deploy-to-iis.yml
+            - task: PowerShell@2
+              displayName: 'Replace Tokens in appsettings.json - ${{ parameters.serviceName }}'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  $appsettingsPath = "${{ parameters.iisPath }}\appsettings.json"
+
+                  if (Test-Path $appsettingsPath) {
+                      $content = Get-Content $appsettingsPath -Raw
+
+                      # Identity Service tokens
+                      if ($env:IDENTITYDB_CONNECTIONSTRING)   { $content = $content -replace '#\{IdentityDb-ConnectionString\}#',    $env:IDENTITYDB_CONNECTIONSTRING }
+                      if ($env:JWTSETTINGS_SECRETKEY)         { $content = $content -replace '#\{JwtSettings-SecretKey\}#',          $env:JWTSETTINGS_SECRETKEY }
+                      if ($env:SEEDDATA_ADMINUSEREMAIL)        { $content = $content -replace '#\{SeedData-AdminUserEmail\}#',        $env:SEEDDATA_ADMINUSEREMAIL }
+                      if ($env:SEEDDATA_ADMINUSERPASSWORD)     { $content = $content -replace '#\{SeedData-AdminUserPassword\}#',     $env:SEEDDATA_ADMINUSERPASSWORD }
+                      if ($env:CORS_ALLOWEDORIGINS)            { $content = $content -replace '#\{Cors-AllowedOrigins\}#',            $env:CORS_ALLOWEDORIGINS }
+                      if ($env:RABBITMQ_HOSTNAME)              { $content = $content -replace '#\{RabbitMQ-HostName\}#',              $env:RABBITMQ_HOSTNAME }
+                      if ($env:RABBITMQ_USERNAME)              { $content = $content -replace '#\{RabbitMQ-UserName\}#',              $env:RABBITMQ_USERNAME }
+                      if ($env:RABBITMQ_PASSWORD)              { $content = $content -replace '#\{RabbitMQ-Password\}#',              $env:RABBITMQ_PASSWORD }
+                      if ($env:EMAILSETTINGS_SMTPSERVER)       { $content = $content -replace '#\{EmailSettings-SmtpServer\}#',      $env:EMAILSETTINGS_SMTPSERVER }
+                      if ($env:EMAILSETTINGS_FROMEMAIL)        { $content = $content -replace '#\{EmailSettings-FromEmail\}#',       $env:EMAILSETTINGS_FROMEMAIL }
+                      if ($env:EMAILSETTINGS_USERNAME)         { $content = $content -replace '#\{EmailSettings-Username\}#',        $env:EMAILSETTINGS_USERNAME }
+                      if ($env:EMAILSETTINGS_PASSWORD)         { $content = $content -replace '#\{EmailSettings-Password\}#',        $env:EMAILSETTINGS_PASSWORD }
+
+                      Set-Content -Path $appsettingsPath -Value $content
+                      Write-Host "Tokens replaced in appsettings.json"
+                  } else {
+                      Write-Error "appsettings.json not found at: $appsettingsPath"
+                      exit 1
+                  }
+              env:
+                IDENTITYDB_CONNECTIONSTRING:  $(IDENTITYDB_CONNECTIONSTRING)
+                JWTSETTINGS_SECRETKEY:        $(JWTSETTINGS_SECRETKEY)
+                SEEDDATA_ADMINUSEREMAIL:      $(SEEDDATA_ADMINUSEREMAIL)
+                SEEDDATA_ADMINUSERPASSWORD:   $(SEEDDATA_ADMINUSERPASSWORD)
+                CORS_ALLOWEDORIGINS:          $(CORS_ALLOWEDORIGINS)
+                RABBITMQ_HOSTNAME:            $(RABBITMQ_HOSTNAME)
+                RABBITMQ_USERNAME:            $(RABBITMQ_USERNAME)
+                RABBITMQ_PASSWORD:            $(RABBITMQ_PASSWORD)
+                EMAILSETTINGS_SMTPSERVER:     $(EMAILSETTINGS_SMTPSERVER)
+                EMAILSETTINGS_FROMEMAIL:      $(EMAILSETTINGS_FROMEMAIL)
+                EMAILSETTINGS_USERNAME:       $(EMAILSETTINGS_USERNAME)
+                EMAILSETTINGS_PASSWORD:       $(EMAILSETTINGS_PASSWORD)
+
+            # 6. Set IIS Permissions за App Pool identity
             - task: PowerShell@2
               displayName: 'Set IIS Permissions'
               inputs:
                 targetType: 'inline'
                 script: |
-                  $iisPath = "${{ parameters.iisPath }}"
+                  $iisPath         = "${{ parameters.iisPath }}"
                   $appPoolIdentity = "IIS AppPool\${{ parameters.iisAppPoolName }}"
-                  
+
                   Write-Host "Setting permissions for $appPoolIdentity on $iisPath"
-                  
-                  # Give read/execute permissions to the app pool identity
                   icacls $iisPath /grant "${appPoolIdentity}:(OI)(CI)RX" /T
-                  
                   Write-Host "Permissions set successfully"
 
-            # 9. Start IIS Application Pool
+            # 7. Start App Pool след deploy
             - task: PowerShell@2
-              displayName: 'Start IIS App Pool: ${{ parameters.iisAppPoolName }}'
+              displayName: 'Start App Pool: ${{ parameters.iisAppPoolName }}'
               inputs:
                 targetType: 'inline'
                 script: |
                   Import-Module WebAdministration
-                  
                   $appPoolName = "${{ parameters.iisAppPoolName }}"
-                  
-                  Write-Host "Starting App Pool: $appPoolName"
-                  Start-WebAppPool -Name $appPoolName
-                  
-                  # Изчакай да стартира
-                  $timeout = 30
-                  $elapsed = 0
-                  while ((Get-WebAppPoolState -Name $appPoolName).Value -ne "Started" -and $elapsed -lt $timeout) {
-                    Start-Sleep -Seconds 1
-                    $elapsed++
-                  }
-                  
-                  $state = (Get-WebAppPoolState -Name $appPoolName).Value
-                  if ($state -eq "Started") {
-                    Write-Host "✓ App Pool started successfully"
+
+                  if (Test-Path "IIS:\AppPools\$appPoolName") {
+                      Write-Host "Starting App Pool: $appPoolName"
+                      Start-WebAppPool -Name $appPoolName
+
+                      # Изчакай да стартира
+                      $timeout = 30
+                      $elapsed = 0
+                      while ((Get-WebAppPoolState -Name $appPoolName).Value -ne "Started" -and $elapsed -lt $timeout) {
+                          Start-Sleep -Seconds 1
+                          $elapsed++
+                      }
+
+                      $state = (Get-WebAppPoolState -Name $appPoolName).Value
+                      if ($state -eq "Started") {
+                          Write-Host "App Pool started successfully"
+                      } else {
+                          Write-Error "App Pool failed to start. State: $state"
+                          exit 1
+                      }
                   } else {
-                    Write-Error "✗ App Pool failed to start. State: $state"
-                    exit 1
+                      Write-Error "App Pool does not exist: $appPoolName"
+                      exit 1
                   }
