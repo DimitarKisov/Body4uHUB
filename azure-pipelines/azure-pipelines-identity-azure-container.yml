@@ -20,9 +20,6 @@ variables:
   imageTag: '$(Build.BuildId)'
   buildConfiguration: 'Release'
   dotnetVersion: '8.x'
-  storageAccountName: 'body4uhubstorage'
-  fileShareName: 'dataprotection-keys'
-  storageMount: 'dataprotection-keys-mount'
 
 stages:
 
@@ -103,33 +100,6 @@ stages:
         inlineScript: |
           az extension add --name containerapp --upgrade -y
 
-    # Създай Data Protection File Share и го регистрирай в Environment
-    - task: AzureCLI@2
-      displayName: 'Create Data Protection File Share & Register in Environment'
-      inputs:
-        azureSubscription: '$(azureConnection)'
-        scriptType: 'ps'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          $ErrorActionPreference = 'Continue'
-          $key = az storage account keys list `
-            --account-name $(storageAccountName) `
-            --resource-group $(resourceGroup) `
-            --query "[0].value" -o tsv
-
-          az storage share show --name $(fileShareName) --account-name $(storageAccountName) --account-key $key 2>$null | Out-Null
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Creating File Share: $(fileShareName)..."
-            az storage share create --name $(fileShareName) --account-name $(storageAccountName) --account-key $key
-          } else { Write-Host "File Share $(fileShareName) already exists, skipping..." }
-
-          az containerapp env storage set `
-            --name $(containerAppsEnvironment) --resource-group $(resourceGroup) `
-            --storage-name $(storageMount) --azure-file-account-name $(storageAccountName) `
-            --azure-file-account-key $key --azure-file-share-name $(fileShareName) --access-mode ReadWrite
-
-          Write-Host "Data Protection storage registered successfully"
-
     - task: AzureCLI@2
       displayName: 'Deploy Identity API'
       inputs:
@@ -155,10 +125,7 @@ stages:
               --ingress external `
               --min-replicas 1 `
               --max-replicas 1 `
-              --env-vars ASPNETCORE_ENVIRONMENT=Production MassTransit__Host=body4uhub-rabbitmq `
-              --volume name=dataprotection,storage-name=$(storageMount),storage-type=AzureFile `
-              --mount-path /home/app/.aspnet/DataProtection-Keys `
-              --volume-mount-name dataprotection
+              --env-vars ASPNETCORE_ENVIRONMENT=Production MassTransit__Host=body4uhub-rabbitmq
           } else {
             Write-Host "Updating Identity API..."
             az containerapp update `
@@ -166,18 +133,3 @@ stages:
               --resource-group $(resourceGroup) `
               --image $(acrLoginServer)/identity-api:$(imageTag)
           }
-
-    # Mount Data Protection Volume (за вече съществуващ контейнер)
-    - task: AzureCLI@2
-      displayName: 'Mount Data Protection Volume'
-      inputs:
-        azureSubscription: '$(azureConnection)'
-        scriptType: 'ps'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az containerapp update `
-            --name body4uhub-identity-api `
-            --resource-group $(resourceGroup) `
-            --volume name=dataprotection,storage-name=$(storageMount),storage-type=AzureFile `
-            --mount-path /home/app/.aspnet/DataProtection-Keys `
-            --volume-mount-name dataprotection

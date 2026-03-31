@@ -6,11 +6,6 @@ variables:
   containerAppsEnvironment: 'body4uhub-env'
   keyVaultName: 'body4uhubkvault'
   location: 'westeurope'
-  storageAccountName: 'body4uhubstorage'
-  sqlFileShareName: 'sqlserver-data'
-  sqlStorageMount: 'sqlserver-data-mount'
-  rabbitFileShareName: 'rabbitmq-data'
-  rabbitStorageMount: 'rabbitmq-data-mount'
 
 stages:
 
@@ -73,67 +68,6 @@ stages:
             Write-Host "Environment already exists, skipping..."
           }
 
-    # Създай Storage Account ако не съществува
-    - task: AzureCLI@2
-      displayName: 'Create Storage Account'
-      inputs:
-        azureSubscription: '$(azureConnection)'
-        scriptType: 'ps'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          $ErrorActionPreference = 'Continue'
-          az storage account show `
-            --name $(storageAccountName) `
-            --resource-group $(resourceGroup) 2>$null | Out-Null
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Creating Storage Account..."
-            az storage account create `
-              --name $(storageAccountName) `
-              --resource-group $(resourceGroup) `
-              --location $(location) `
-              --sku Standard_LRS
-          } else {
-            Write-Host "Storage Account already exists, skipping..."
-          }
-
-    # Създай File Shares за SQL Server и RabbitMQ и ги регистрирай в Environment
-    - task: AzureCLI@2
-      displayName: 'Create File Shares & Register in Environment'
-      inputs:
-        azureSubscription: '$(azureConnection)'
-        scriptType: 'ps'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          $ErrorActionPreference = 'Continue'
-          $key = az storage account keys list `
-            --account-name $(storageAccountName) `
-            --resource-group $(resourceGroup) `
-            --query "[0].value" -o tsv
-
-          # SQL Server
-          az storage share show --name $(sqlFileShareName) --account-name $(storageAccountName) --account-key $key 2>$null | Out-Null
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Creating File Share: $(sqlFileShareName)..."
-            az storage share create --name $(sqlFileShareName) --account-name $(storageAccountName) --account-key $key
-          } else { Write-Host "File Share $(sqlFileShareName) already exists, skipping..." }
-          az containerapp env storage set `
-            --name $(containerAppsEnvironment) --resource-group $(resourceGroup) `
-            --storage-name $(sqlStorageMount) --azure-file-account-name $(storageAccountName) `
-            --azure-file-account-key $key --azure-file-share-name $(sqlFileShareName) --access-mode ReadWrite
-
-          # RabbitMQ
-          az storage share show --name $(rabbitFileShareName) --account-name $(storageAccountName) --account-key $key 2>$null | Out-Null
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Creating File Share: $(rabbitFileShareName)..."
-            az storage share create --name $(rabbitFileShareName) --account-name $(storageAccountName) --account-key $key
-          } else { Write-Host "File Share $(rabbitFileShareName) already exists, skipping..." }
-          az containerapp env storage set `
-            --name $(containerAppsEnvironment) --resource-group $(resourceGroup) `
-            --storage-name $(rabbitStorageMount) --azure-file-account-name $(storageAccountName) `
-            --azure-file-account-key $key --azure-file-share-name $(rabbitFileShareName) --access-mode ReadWrite
-
-          Write-Host "All storage shares registered successfully"
-
     # Deploy SQL Server
     - task: AzureCLI@2
       displayName: 'Deploy SQL Server'
@@ -157,28 +91,10 @@ stages:
               --ingress internal `
               --min-replicas 1 `
               --max-replicas 1 `
-              --env-vars ACCEPT_EULA=Y "SA_PASSWORD=$(SA_PASSWORD)" `
-              --volume name=sqldata,storage-name=$(sqlStorageMount),storage-type=AzureFile `
-              --mount-path /var/opt/mssql `
-              --volume-mount-name sqldata
+              --env-vars ACCEPT_EULA=Y "SA_PASSWORD=$(SA_PASSWORD)"
           } else {
             Write-Host "SQL Server already exists, skipping..."
           }
-
-    # Mount SQL Server Volume
-    - task: AzureCLI@2
-      displayName: 'Mount SQL Server Volume'
-      inputs:
-        azureSubscription: '$(azureConnection)'
-        scriptType: 'ps'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az containerapp update `
-            --name body4uhub-sqlserver `
-            --resource-group $(resourceGroup) `
-            --volume name=sqldata,storage-name=$(sqlStorageMount),storage-type=AzureFile `
-            --mount-path /var/opt/mssql `
-            --volume-mount-name sqldata
 
     # Deploy RabbitMQ
     - task: AzureCLI@2
@@ -203,25 +119,7 @@ stages:
               --ingress internal `
               --min-replicas 1 `
               --max-replicas 1 `
-              --env-vars "RABBITMQ_DEFAULT_USER=$(RABBITMQ_USER)" "RABBITMQ_DEFAULT_PASS=$(RABBITMQ_PASS)" `
-              --volume name=rabbitdata,storage-name=$(rabbitStorageMount),storage-type=AzureFile `
-              --mount-path /var/lib/rabbitmq `
-              --volume-mount-name rabbitdata
+              --env-vars "RABBITMQ_DEFAULT_USER=$(RABBITMQ_USER)" "RABBITMQ_DEFAULT_PASS=$(RABBITMQ_PASS)"
           } else {
             Write-Host "RabbitMQ already exists, skipping..."
           }
-
-    # Mount RabbitMQ Volume (за вече съществуващ контейнер)
-    - task: AzureCLI@2
-      displayName: 'Mount RabbitMQ Volume'
-      inputs:
-        azureSubscription: '$(azureConnection)'
-        scriptType: 'ps'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az containerapp update `
-            --name body4uhub-rabbitmq `
-            --resource-group $(resourceGroup) `
-            --volume name=rabbitdata,storage-name=$(rabbitStorageMount),storage-type=AzureFile `
-            --mount-path /var/lib/rabbitmq `
-            --volume-mount-name rabbitdata
