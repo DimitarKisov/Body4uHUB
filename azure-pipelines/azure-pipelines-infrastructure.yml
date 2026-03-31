@@ -4,7 +4,7 @@ variables:
   azureConnection: 'body4uhub-azure-connection'
   resourceGroup: 'rg-body4uhub'
   containerAppsEnvironment: 'body4uhub-env'
-  keyVaultName: 'body4uhub-kvault'
+  keyVaultName: 'body4uhubkvault'
   location: 'westeurope'
 
 stages:
