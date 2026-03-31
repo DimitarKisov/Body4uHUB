@@ -33,9 +33,7 @@ stages:
     displayName: 'ACR Build & Push'
     pool:
       name: Default
-
     steps:
-
     - task: UseDotNet@2
       displayName: 'Install .NET 8 SDK'
       inputs:

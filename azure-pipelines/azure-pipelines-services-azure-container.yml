@@ -16,6 +16,8 @@ variables:
   resourceGroup: 'rg-body4uhub'
   containerAppsEnvironment: 'body4uhub-env'
   imageTag: '$(Build.BuildId)'
+  buildConfiguration: 'Release'
+  dotnetVersion: '8.x'
 
 stages:
 
@@ -29,9 +31,20 @@ stages:
     displayName: 'ACR Build & Push'
     pool:
       name: Default
-
     steps:
+    - task: UseDotNet@2
+      displayName: 'Install .NET 8 SDK'
+      inputs:
+        packageType: sdk
+        version: $(dotnetVersion)
 
+    - task: DotNetCoreCLI@2
+      displayName: 'Build Services Marketplace'
+      inputs:
+        command: 'build'
+        projects: 'Body4uHUB.Services.Api/Body4uHUB.Services.Api.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+        
     - task: AzureCLI@2
       displayName: 'Build & Push Marketplace API'
       inputs:
@@ -58,9 +71,7 @@ stages:
     displayName: 'Deploy Marketplace API'
     pool:
       name: Default
-
     steps:
-
     - task: AzureCLI@2
       displayName: 'Install Container Apps Extension'
       inputs:

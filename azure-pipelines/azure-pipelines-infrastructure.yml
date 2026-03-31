@@ -19,9 +19,7 @@ stages:
     displayName: 'Deploy SQL Server & RabbitMQ'
     pool:
       name: Default
-
     steps:
-
     - task: AzureCLI@2
       displayName: 'Install Container Apps Extension'
       inputs:
