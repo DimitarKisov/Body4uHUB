@@ -84,7 +84,7 @@ stages:
     dependsOn: Build
     condition: succeeded()
     jobs:
-      - template: templates/deploy-single-service-to-iis.yml
+      - template: azure-pipelines/templates/deploy-single-service-to-iis.yml
         parameters:
           serviceName: 'Identity'
           artifactName: 'identity-drop'
@@ -101,7 +101,7 @@ stages:
     dependsOn: Deploy_Development
     condition: succeeded()
     jobs:
-      - template: templates/deploy-single-service-to-iis.yml
+      - template: azure-pipelines/templates/deploy-single-service-to-iis.yml
         parameters:
           serviceName: 'Identity'
           artifactName: 'identity-drop'
@@ -118,7 +118,7 @@ stages:
     dependsOn: Deploy_Test
     condition: false # Manual trigger only
     jobs:
-      - template: templates/deploy-single-service-to-iis.yml
+      - template: azure-pipelines/templates/deploy-single-service-to-iis.yml
         parameters:
           serviceName: 'Identity'
           artifactName: 'identity-drop'
