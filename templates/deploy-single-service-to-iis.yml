@@ -139,8 +139,7 @@ jobs:
 
                   Write-Host "Files deployed successfully!"
 
-            # 5. Replace Tokens в appsettings.json (Identity Service)
-            # Използваме същия pattern от deploy-to-iis.yml
+            # 5. Replace Tokens в appsettings.json
             - task: PowerShell@2
               displayName: 'Replace Tokens in appsettings.json - ${{ parameters.serviceName }}'
               inputs:
@@ -153,17 +152,25 @@ jobs:
 
                       # Identity Service tokens
                       if ($env:IDENTITYDB_CONNECTIONSTRING)   { $content = $content -replace '#\{IdentityDb-ConnectionString\}#',    $env:IDENTITYDB_CONNECTIONSTRING }
-                      if ($env:JWTSETTINGS_SECRETKEY)         { $content = $content -replace '#\{JwtSettings-SecretKey\}#',          $env:JWTSETTINGS_SECRETKEY }
                       if ($env:SEEDDATA_ADMINUSEREMAIL)        { $content = $content -replace '#\{SeedData-AdminUserEmail\}#',        $env:SEEDDATA_ADMINUSEREMAIL }
                       if ($env:SEEDDATA_ADMINUSERPASSWORD)     { $content = $content -replace '#\{SeedData-AdminUserPassword\}#',     $env:SEEDDATA_ADMINUSERPASSWORD }
-                      if ($env:CORS_ALLOWEDORIGINS)            { $content = $content -replace '#\{Cors-AllowedOrigins\}#',            $env:CORS_ALLOWEDORIGINS }
-                      if ($env:RABBITMQ_HOSTNAME)              { $content = $content -replace '#\{RabbitMQ-HostName\}#',              $env:RABBITMQ_HOSTNAME }
-                      if ($env:RABBITMQ_USERNAME)              { $content = $content -replace '#\{RabbitMQ-UserName\}#',              $env:RABBITMQ_USERNAME }
-                      if ($env:RABBITMQ_PASSWORD)              { $content = $content -replace '#\{RabbitMQ-Password\}#',              $env:RABBITMQ_PASSWORD }
                       if ($env:EMAILSETTINGS_SMTPSERVER)       { $content = $content -replace '#\{EmailSettings-SmtpServer\}#',      $env:EMAILSETTINGS_SMTPSERVER }
                       if ($env:EMAILSETTINGS_FROMEMAIL)        { $content = $content -replace '#\{EmailSettings-FromEmail\}#',       $env:EMAILSETTINGS_FROMEMAIL }
                       if ($env:EMAILSETTINGS_USERNAME)         { $content = $content -replace '#\{EmailSettings-Username\}#',        $env:EMAILSETTINGS_USERNAME }
                       if ($env:EMAILSETTINGS_PASSWORD)         { $content = $content -replace '#\{EmailSettings-Password\}#',        $env:EMAILSETTINGS_PASSWORD }
+
+                      # Content Service tokens
+                      if ($env:CONTENTDB_CONNECTIONSTRING)     { $content = $content -replace '#\{ContentDb-ConnectionString\}#',    $env:CONTENTDB_CONNECTIONSTRING }
+
+                      # Services Marketplace tokens
+                      if ($env:SERVICESDB_CONNECTIONSTRING)    { $content = $content -replace '#\{Marketplace-ConnectionString\}#',  $env:SERVICESDB_CONNECTIONSTRING }
+
+                      # Shared tokens
+                      if ($env:JWTSETTINGS_SECRETKEY)         { $content = $content -replace '#\{JwtSettings-SecretKey\}#',          $env:JWTSETTINGS_SECRETKEY }
+                      if ($env:CORS_ALLOWEDORIGINS)            { $content = $content -replace '#\{Cors-AllowedOrigins\}#',            $env:CORS_ALLOWEDORIGINS }
+                      if ($env:RABBITMQ_HOSTNAME)              { $content = $content -replace '#\{RabbitMQ-HostName\}#',              $env:RABBITMQ_HOSTNAME }
+                      if ($env:RABBITMQ_USERNAME)              { $content = $content -replace '#\{RabbitMQ-UserName\}#',              $env:RABBITMQ_USERNAME }
+                      if ($env:RABBITMQ_PASSWORD)              { $content = $content -replace '#\{RabbitMQ-Password\}#',              $env:RABBITMQ_PASSWORD }
 
                       Set-Content -Path $appsettingsPath -Value $content
                       Write-Host "Tokens replaced in appsettings.json"
@@ -172,18 +179,24 @@ jobs:
                       exit 1
                   }
               env:
+                # Identity
                 IDENTITYDB_CONNECTIONSTRING:  $(IDENTITYDB_CONNECTIONSTRING)
-                JWTSETTINGS_SECRETKEY:        $(JWTSETTINGS_SECRETKEY)
                 SEEDDATA_ADMINUSEREMAIL:      $(SEEDDATA_ADMINUSEREMAIL)
                 SEEDDATA_ADMINUSERPASSWORD:   $(SEEDDATA_ADMINUSERPASSWORD)
-                CORS_ALLOWEDORIGINS:          $(CORS_ALLOWEDORIGINS)
-                RABBITMQ_HOSTNAME:            $(RABBITMQ_HOSTNAME)
-                RABBITMQ_USERNAME:            $(RABBITMQ_USERNAME)
-                RABBITMQ_PASSWORD:            $(RABBITMQ_PASSWORD)
                 EMAILSETTINGS_SMTPSERVER:     $(EMAILSETTINGS_SMTPSERVER)
                 EMAILSETTINGS_FROMEMAIL:      $(EMAILSETTINGS_FROMEMAIL)
                 EMAILSETTINGS_USERNAME:       $(EMAILSETTINGS_USERNAME)
                 EMAILSETTINGS_PASSWORD:       $(EMAILSETTINGS_PASSWORD)
+                # Content
+                CONTENTDB_CONNECTIONSTRING:   $(CONTENTDB_CONNECTIONSTRING)
+                # Services Marketplace
+                SERVICESDB_CONNECTIONSTRING:  $(SERVICESDB_CONNECTIONSTRING)
+                # Shared
+                JWTSETTINGS_SECRETKEY:        $(JWTSETTINGS_SECRETKEY)
+                CORS_ALLOWEDORIGINS:          $(CORS_ALLOWEDORIGINS)
+                RABBITMQ_HOSTNAME:            $(RABBITMQ_HOSTNAME)
+                RABBITMQ_USERNAME:            $(RABBITMQ_USERNAME)
+                RABBITMQ_PASSWORD:            $(RABBITMQ_PASSWORD)
 
             # 6. Set IIS Permissions за App Pool identity
             - task: PowerShell@2
@@ -221,9 +234,9 @@ jobs:
 
                       $state = (Get-WebAppPoolState -Name $appPoolName).Value
                       if ($state -eq "Started") {
-                          Write-Host "App Pool started successfully"
+                          Write-Host "✓ App Pool started successfully"
                       } else {
-                          Write-Error "App Pool failed to start. State: $state"
+                          Write-Error "✗ App Pool failed to start. State: $state"
                           exit 1
                       }
                   } else {

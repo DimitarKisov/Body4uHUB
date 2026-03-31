@@ -51,14 +51,6 @@ stages:
               projects: 'Body4uHUB.Content.Api/Body4uHUB.Content.Api.csproj'
               arguments: '--configuration $(buildConfiguration) --no-restore'
 
-          # 4. Run Unit Tests (ако имаш)
-          # - task: DotNetCoreCLI@2
-          #   displayName: 'Run Unit Tests'
-          #   inputs:
-          #     command: 'test'
-          #     projects: 'Body4uHUB.Content.*.Tests/*.csproj'
-          #     arguments: '--configuration $(buildConfiguration) --no-build'
-
           # 5. Publish Content Service
           - task: DotNetCoreCLI@2
             displayName: 'Publish Content Service'
@@ -92,6 +84,7 @@ stages:
           iisPath: 'C:\inetpub\Body4uHUB-Dev\Content'
           iisAppPoolName: 'Body4uHUB-Content-Dev'
           iisSiteName: 'Body4uHUB-Content-Dev'
+          servicePort: 5002
 
 # ==================== STAGE 3: DEPLOY TO TEST ====================
   - stage: Deploy_Test
@@ -108,6 +101,7 @@ stages:
           iisPath: 'C:\inetpub\Body4uHUB-Test\Content'
           iisAppPoolName: 'Body4uHUB-Content-Test'
           iisSiteName: 'Body4uHUB-Content-Test'
+          servicePort: 6002
 
 # ==================== STAGE 4: DEPLOY TO PRODUCTION ====================
   - stage: Deploy_Production
@@ -124,4 +118,5 @@ stages:
           iisPath: 'C:\inetpub\Body4uHUB\Content'
           iisAppPoolName: 'Body4uHUB-Content'
           iisSiteName: 'Body4uHUB-Content'
+          servicePort: 7002
           requiresApproval: true
