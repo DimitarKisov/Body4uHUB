@@ -20,6 +20,7 @@ variables:
   imageTag: '$(Build.BuildId)'
   buildConfiguration: 'Release'
   dotnetVersion: '8.x'
+  storageMount: 'dataprotection-keys-mount'
 
 stages:
 
@@ -125,7 +126,10 @@ stages:
               --ingress external `
               --min-replicas 1 `
               --max-replicas 1 `
-              --env-vars ASPNETCORE_ENVIRONMENT=Production MassTransit__Host=body4uhub-rabbitmq
+              --env-vars ASPNETCORE_ENVIRONMENT=Production MassTransit__Host=body4uhub-rabbitmq `
+              --volume name=dataprotection,storage-name=$(storageMount),storage-type=AzureFile `
+              --mount-path /home/app/.aspnet/DataProtection-Keys `
+              --volume-mount-name dataprotection
           } else {
             Write-Host "Updating Identity API..."
             az containerapp update `
