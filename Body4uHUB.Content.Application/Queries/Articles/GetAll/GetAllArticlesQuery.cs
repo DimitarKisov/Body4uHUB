@@ -5,26 +5,23 @@ using MediatR;
 
 namespace Body4uHUB.Content.Application.Queries.Articles.GetAll
 {
-    public class GetAllArticlesQuery : IRequest<Result<IEnumerable<ArticleDto>>>
+    public record GetAllArticlesQuery(int Skip = 0, int Take = 10)
+        : IRequest<Result<IEnumerable<ArticleDto>>>;
+
+    internal class GetAllArticlesQueryHandler : IRequestHandler<GetAllArticlesQuery, Result<IEnumerable<ArticleDto>>>
     {
-        public int Skip { get; set; } = 0;
-        public int Take { get; set; } = 10;
+        private readonly IArticleReadRepository _articleReadRepository;
 
-        internal class GetAllArticlesQueryHandler : IRequestHandler<GetAllArticlesQuery, Result<IEnumerable<ArticleDto>>>
+        public GetAllArticlesQueryHandler(IArticleReadRepository articleReadRepository)
         {
-            private readonly IArticleReadRepository _articleReadRepository;
+            _articleReadRepository = articleReadRepository;
+        }
 
-            public GetAllArticlesQueryHandler(IArticleReadRepository articleReadRepository)
-            {
-                _articleReadRepository = articleReadRepository;
-            }
+        public async Task<Result<IEnumerable<ArticleDto>>> Handle(GetAllArticlesQuery request, CancellationToken cancellationToken)
+        {
+            var articles = await _articleReadRepository.GetAllArticlesAsync(request.Skip, request.Take, cancellationToken);
 
-            public async Task<Result<IEnumerable<ArticleDto>>> Handle(GetAllArticlesQuery request, CancellationToken cancellationToken)
-            {
-                var articles = await _articleReadRepository.GetAllArticlesAsync(request.Skip, request.Take, cancellationToken);
-
-                return Result.Success(articles);
-            }
+            return Result.Success(articles);
         }
     }
 }

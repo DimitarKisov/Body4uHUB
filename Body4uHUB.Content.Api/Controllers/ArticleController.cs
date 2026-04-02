@@ -36,17 +36,11 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> ArchiveArticle(int id)
         {
-            var command = new ArchiveArticleCommand
+            var result = await Mediator.Send(new ArchiveArticleCommand(id)
             {
-                Id = id,
-                AuthContext = new AuthorizationContext
-                {
-                    CurrentUserId = User.GetUserId(),
-                    IsAdmin = User.IsAdmin()
-                }
-            };
+                AuthContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin()),
+            });
 
-            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
 
@@ -61,8 +55,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleCommand command)
         {
-            command.AuthorId = User.GetUserId();
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command with { AuthorId = User.GetUserId() });
 
             return HandleResult(result, id => new { articleId = id });
         }
@@ -79,17 +72,11 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteArticle(int id)
         {
-            var command = new DeleteArticleCommand
+            var result = await Mediator.Send(new DeleteArticleCommand(id)
             {
-                Id = id,
-                AuthContext = new AuthorizationContext
-                {
-                    CurrentUserId = User.GetUserId(),
-                    IsAdmin = User.IsAdmin()
-                }
-            };
+                AuthContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin())
+            });
 
-            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
 
@@ -101,7 +88,8 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<ArticleDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetArticlesByAuthor(Guid authorId)
         {
-            var result = await Mediator.Send(new GetArticlesByAuthorQuery { AuthorId = authorId });
+            var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId));
+
             return HandleResult(result);
         }
 
@@ -113,7 +101,8 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<ArticleDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllArticles([FromQuery] int skip = 0, [FromQuery] int take = 10)
         {
-            var result = await Mediator.Send(new GetAllArticlesQuery { Skip = skip, Take = take });
+            var result = await Mediator.Send(new GetAllArticlesQuery(skip, take));
+
             return HandleResult(result);
         }
 
@@ -126,7 +115,8 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetArticle(int id)
         {
-            var result = await Mediator.Send(new GetArticleByIdQuery { Id = id });
+            var result = await Mediator.Send(new GetArticleByIdQuery(id));
+
             return HandleResult(result);
         }
 
@@ -142,14 +132,12 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> EditArticle(int id, [FromBody] EditArticleCommand command)
         {
-            command.Id = id;
-            command.AuthContext = new AuthorizationContext
+            var result = await Mediator.Send(command with 
             {
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
-            };
+                Id = id,
+                AuthContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin())
+            });
 
-            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
 
@@ -164,16 +152,11 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> PublishArticle(int id)
         {
-            var command = new PublishArticleCommand();
-
-            command.Id = id;
-            command.AuthContext = new AuthorizationContext
+            var result = await Mediator.Send(new PublishArticleCommand(id)
             {
-                CurrentUserId = User.GetUserId(),
-                IsAdmin = User.IsAdmin()
-            };
+                AuthContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin())
+            });
 
-            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
 
@@ -188,10 +171,12 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> AddComment(int articleId, [FromBody] CreateCommentCommand command)
         {
-            command.AuthorId = User.GetUserId();
-            command.ArticleId = articleId;
+            var result = await Mediator.Send(command with
+            {
+                AuthorId = User.GetUserId(),
+                ArticleId = articleId
+            });
 
-            var result = await Mediator.Send(command);
             return HandleResult(result, id => new { commentId = id });
         }
 
@@ -207,18 +192,11 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteComment(int articleId, Guid commentId)
         {
-            var command = new DeleteCommentCommand
+            var result = await Mediator.Send(new DeleteCommentCommand(commentId, articleId)
             {
-                Id = commentId,
-                ArticleId = articleId,
-                AuthContext = new AuthorizationContext
-                {
-                    CurrentUserId = User.GetUserId(),
-                    IsAdmin = User.IsAdmin()
-                }
-            };
+                AuthContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin())
+            });
 
-            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
     }

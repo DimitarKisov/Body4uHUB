@@ -1,17 +1,10 @@
 ﻿namespace Body4uHUB.Shared.Application
 {
-    public class AuthorizationContext
+    public record AuthorizationContext(Guid CurrentUserId, bool IsAdmin)
     {
-        public Guid CurrentUserId { get; init; }
-        public bool IsAdmin { get; init; }
-
         public static AuthorizationContext Create(Guid userId, bool isAdmin)
         {
-            return new AuthorizationContext
-            {
-                CurrentUserId = userId,
-                IsAdmin = isAdmin
-            };
+            return new AuthorizationContext(userId, isAdmin);
         }
     }
 }

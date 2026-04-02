@@ -5,25 +5,23 @@ using MediatR;
 
 namespace Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor
 {
-    public class GetArticlesByAuthorQuery : IRequest<Result<IEnumerable<ArticleDto>>>
+    public record GetArticlesByAuthorQuery(Guid AuthorId)
+        : IRequest<Result<IEnumerable<ArticleDto>>>;
+
+    internal class GetArticlesByAuthorQueryHandler : IRequestHandler<GetArticlesByAuthorQuery, Result<IEnumerable<ArticleDto>>>
     {
-        public Guid AuthorId { get; set; }
+        private readonly IArticleReadRepository _articleReadRepository;
 
-        internal class GetArticlesByAuthorQueryHandler : IRequestHandler<GetArticlesByAuthorQuery, Result<IEnumerable<ArticleDto>>>
+        public GetArticlesByAuthorQueryHandler(IArticleReadRepository articleReadRepository)
         {
-            private readonly IArticleReadRepository _articleReadRepository;
+            _articleReadRepository = articleReadRepository;
+        }
 
-            public GetArticlesByAuthorQueryHandler(IArticleReadRepository articleReadRepository)
-            {
-                _articleReadRepository = articleReadRepository;
-            }
+        public async Task<Result<IEnumerable<ArticleDto>>> Handle(GetArticlesByAuthorQuery request, CancellationToken cancellationToken)
+        {
+            var articles = await _articleReadRepository.GetArticlesByAuthorAsync(request.AuthorId, cancellationToken);
 
-            public async Task<Result<IEnumerable<ArticleDto>>> Handle(GetArticlesByAuthorQuery request, CancellationToken cancellationToken)
-            {
-                var articles = await _articleReadRepository.GetArticlesByAuthorAsync(request.AuthorId, cancellationToken);
-
-                return Result.Success(articles);
-            }
+            return Result.Success(articles);
         }
     }
 }

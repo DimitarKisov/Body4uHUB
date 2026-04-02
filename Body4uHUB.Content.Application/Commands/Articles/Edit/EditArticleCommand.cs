@@ -1,5 +1,4 @@
 ﻿using Body4uHUB.Content.Domain.Repositories;
-using Body4uHUB.Content.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -9,48 +8,45 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Edit
 {
-    public class EditArticleCommand : IRequest<Result>
+    public record EditArticleCommand(int Id, string Title, string Content)
+        : IRequest<Result>
     {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
-
         [JsonIgnore]
         public AuthorizationContext AuthContext { get; set; }
+    }
 
-        internal class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Result>
+    internal class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Result>
+    {
+        private readonly IArticleRepository _articleRepository;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public EditArticleCommandHandler(
+            IArticleRepository articleRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IArticleRepository _articleRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _articleRepository = articleRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public EditArticleCommandHandler(
-                IArticleRepository articleRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(EditArticleCommand request, CancellationToken cancellationToken)
+        {
+            var article = await _articleRepository.GetByNumberAsync(request.Id, cancellationToken);
+            if (article == null)
             {
-                _articleRepository = articleRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            public async Task<Result> Handle(EditArticleCommand request, CancellationToken cancellationToken)
+            if (!request.AuthContext.IsAdmin && article.AuthorId != request.AuthContext.CurrentUserId)
             {
-                var article = await _articleRepository.GetByNumberAsync(request.Id, cancellationToken);
-                if (article == null)
-                {
-                    return Result.ResourceNotFound(ArticleNotFound);
-                }
-
-                if (!request.AuthContext.IsAdmin && article.AuthorId != request.AuthContext.CurrentUserId)
-                {
-                    return Result.Forbidden(ArticleEditForbidden);
-                }
-
-                article.UpdateTitle(request.Title);
-                article.UpdateContent(request.Content);
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
+                return Result.Forbidden(ArticleEditForbidden);
             }
+
+            article.UpdateTitle(request.Title);
+            article.UpdateContent(request.Content);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }
