@@ -2,6 +2,7 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
+using System.Text.Json.Serialization;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
@@ -9,6 +10,7 @@ namespace Body4uHUB.Identity.Application.Commands.EditUser
 {
     public record EditUserCommand(string FirstName, string LastName, string PhoneNumber) : IRequest<Result>
     {
+        [JsonIgnore]
         public Guid Id { get; init; }
     }
     internal class EditUserCommandHandler : IRequestHandler<EditUserCommand, Result>
