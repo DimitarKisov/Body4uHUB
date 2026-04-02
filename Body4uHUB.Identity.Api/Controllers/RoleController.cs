@@ -22,8 +22,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> AddRolesToUser(Guid userId, [FromBody] AddUserRolesCommand command)
         {
-            command.UserId = userId;
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command with { UserId = userId });
             return HandleResult(result);
         }
 

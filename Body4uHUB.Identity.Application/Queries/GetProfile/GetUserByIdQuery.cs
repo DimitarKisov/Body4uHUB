@@ -9,7 +9,7 @@ namespace Body4uHUB.Identity.Application.Queries.GetProfile
 {
     public class GetUserByIdQuery : IRequest<Result<UserDto>>
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
 
         internal class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
         {

@@ -10,7 +10,7 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
 {
     public class DeleteTrainerCommand : IRequest<Result>
     {
-        public Guid UserId { get; set; }
+        public Guid UserId { get; init; }
 
         internal class DeleteTrainerCommandHandler : IRequestHandler<DeleteTrainerCommand, Result>
         {

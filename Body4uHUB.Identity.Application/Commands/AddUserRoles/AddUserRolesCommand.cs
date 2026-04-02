@@ -7,50 +7,50 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
 {
-    public class AddUserRolesCommand : IRequest<Result>
+    public record AddUserRolesCommand(List<Guid> RoleIds)
+        : IRequest<Result>
     {
-        public Guid UserId { get; set; }
-        public List<Guid> RoleIds { get; set; }
+        public Guid UserId{ get; init; }
+    }
 
-        internal class AddUserRolesCommandHandler : IRequestHandler<AddUserRolesCommand, Result>
+    internal class AddUserRolesCommandHandler : IRequestHandler<AddUserRolesCommand, Result>
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public AddUserRolesCommandHandler(
+            IUserRepository userRepository,
+            IRoleRepository roleRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IUserRepository _userRepository;
-            private readonly IRoleRepository _roleRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public AddUserRolesCommandHandler(
-                IUserRepository userRepository,
-                IRoleRepository roleRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(AddUserRolesCommand request, CancellationToken cancellationToken)
+        {
+            var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
+            if (user == null)
             {
-                _userRepository = userRepository;
-                _roleRepository = roleRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(UserNotFound);
             }
 
-            public async Task<Result> Handle(AddUserRolesCommand request, CancellationToken cancellationToken)
+            foreach (var roleId in request.RoleIds)
             {
-                var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
-                if (user == null)
+                var role = await _roleRepository.FindByIdAsync(roleId, cancellationToken);
+                if (role == null)
                 {
-                    return Result.ResourceNotFound(UserNotFound);
+                    return Result.ResourceNotFound($"Role '{roleId}' does not exist.");
                 }
 
-                foreach (var roleId in request.RoleIds)
-                {
-                    var role = await _roleRepository.FindByIdAsync(roleId, cancellationToken);
-                    if (role == null)
-                    {
-                        return Result.ResourceNotFound($"Role '{roleId}' does not exist.");
-                    }
-
-                    user.AddRole(role);
-                }
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
+                user.AddRole(role);
             }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

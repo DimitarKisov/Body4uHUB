@@ -8,53 +8,51 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.ChangePassword
 {
-    public class ChangePasswordCommand : IRequest<Result>
+    public record ChangePasswordCommand(string CurrentPassword, string NewPassword) : IRequest<Result>
     {
-        public Guid UserId { get; set; }
-        public string CurrentPassword { get; set; }
-        public string NewPassword { get; set; }
+        public Guid UserId { get; init; }
+    }
 
-        internal class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result>
+    internal class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result>
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasherService _passwordHasherService;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public ChangePasswordCommandHandler(
+            IUserRepository userRepository,
+            IPasswordHasherService passwordHasherService,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IUserRepository _userRepository;
-            private readonly IPasswordHasherService _passwordHasherService;
-            private readonly IUnitOfWork _unitOfWork;
+            _userRepository = userRepository;
+            _passwordHasherService = passwordHasherService;
+            _unitOfWork = unitOfWork;
+        }
 
-            public ChangePasswordCommandHandler(
-                IUserRepository userRepository,
-                IPasswordHasherService passwordHasherService,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+        {
+            var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
+            if (user == null)
             {
-                _userRepository = userRepository;
-                _passwordHasherService = passwordHasherService;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(UserNotFound);
             }
 
-            public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+            if (!_passwordHasherService.VerifyPassword(request.CurrentPassword, user.PasswordHash))
             {
-                var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
-                if (user == null)
-                {
-                    return Result.ResourceNotFound(UserNotFound);
-                }
-
-                if (!_passwordHasherService.VerifyPassword(request.CurrentPassword, user.PasswordHash))
-                {
-                    return Result.Unauthorized(InvalidCredentials);
-                }
-
-                var newPasswordHash = _passwordHasherService.HashPassword(request.NewPassword);
-                if (string.IsNullOrWhiteSpace(newPasswordHash))
-                {
-                    return Result.ResourceNotFound(PasswordInvalid);
-                }
-
-                user.UpdatePasswordHash(newPasswordHash);
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
+                return Result.Unauthorized(InvalidCredentials);
             }
+
+            var newPasswordHash = _passwordHasherService.HashPassword(request.NewPassword);
+            if (string.IsNullOrWhiteSpace(newPasswordHash))
+            {
+                return Result.ResourceNotFound(PasswordInvalid);
+            }
+
+            user.UpdatePasswordHash(newPasswordHash);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

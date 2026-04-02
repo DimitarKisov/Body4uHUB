@@ -1,6 +1,7 @@
 ﻿using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Identity.Application.Commands.ChangePassword;
 using Body4uHUB.Identity.Application.Commands.CreateTrainer;
+using Body4uHUB.Identity.Application.Commands.DeleteTrainer;
 using Body4uHUB.Identity.Application.Commands.EditUser;
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllUsers;
@@ -24,8 +25,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
         {
-            command.UserId = User.GetUserId();
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command with { UserId = User.GetUserId() });
             return HandleResult(result);
         }
 
@@ -55,12 +55,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteTrainerAccount(Guid userId)
         {
-            var command = new CreateTrainerAccountCommand
-            {
-                UserId = userId
-            };
-
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(new DeleteTrainerCommand { UserId = userId});
             return HandleResult(result);
         }
 
@@ -74,8 +69,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> EditUser(EditUserCommand command)
         {
-            command.Id = User.GetUserId();
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command with { Id = User.GetUserId() });
             return HandleResult(result);
         }
 
@@ -101,8 +95,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetProfile()
         {
-            var userId = User.GetUserId();
-            var result = await Mediator.Send(new GetUserByIdQuery { Id = userId });
+            var result = await Mediator.Send(new GetUserByIdQuery { Id = User.GetUserId() });
             return HandleResult(result);
         }
 

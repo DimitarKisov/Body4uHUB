@@ -15,7 +15,6 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
     [TestFixture]
     public class RegisterCommandHandlerTests
     {
-        private const string ValidPassword = "SomeBas1cPa$$";
         private const string ValidPasswordHash = "AQAAAAEAACcQAAAAEDummyHashValue==";
         private const string ValidFirstName = "Test";
         private const string ValidLastName = "User";
@@ -29,9 +28,9 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         private Mock<IUnitOfWork> _unitOfWork;
         private Mock<IEmailService> _emailService;
         private Mock<IHttpContextAccessor> _httpContextAccessor;
-        private Mock<ILogger<RegisterCommand.RegisterCommandHandler>> _logger;
+        private Mock<ILogger<RegisterCommandHandler>> _logger;
 
-        private RegisterCommand.RegisterCommandHandler _handler;
+        private RegisterCommandHandler _handler;
 
         [SetUp]
         public void Setup()
@@ -42,9 +41,9 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             _unitOfWork = new Mock<IUnitOfWork>();
             _emailService = new Mock<IEmailService>();
             _httpContextAccessor = new Mock<IHttpContextAccessor>();
-            _logger = new Mock<ILogger<RegisterCommand.RegisterCommandHandler>>();
+            _logger = new Mock<ILogger<RegisterCommandHandler>>();
 
-            _handler = new RegisterCommand.RegisterCommandHandler(
+            _handler = new RegisterCommandHandler(
                 _userRepository.Object,
                 _passwordHasherService.Object,
                 _jwtTokenService.Object,
@@ -58,14 +57,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         [Test]
         public async Task Handle_ShouldReturnConflict_WhenEmailAlreadyExists()
         {
-            var command = new RegisterCommand
-            {
-                Email = ValidEmail,
-                Password = ValidPasswordHash,
-                FirstName = ValidFirstName,
-                LastName = ValidLastName,
-                PhoneNumber = ValidPhone
-            };
+            var command = new RegisterCommand(ValidEmail, ValidPasswordHash, ValidFirstName, ValidLastName, ValidPhone);
 
             _userRepository
                 .Setup(x => x.ExistsByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
@@ -80,14 +72,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         [Test]
         public async Task Handle_ShouldReturnInternalServerError_WhenPasswordHashThrowsAnError()
         {
-            var command = new RegisterCommand
-            {
-                Email = ValidEmail,
-                Password = ValidPasswordHash,
-                FirstName = ValidFirstName,
-                LastName = ValidLastName,
-                PhoneNumber = ValidPhone
-            };
+            var command = new RegisterCommand(ValidEmail, ValidPasswordHash, ValidFirstName, ValidLastName, ValidPhone);
 
             _userRepository
                 .Setup(x => x.ExistsByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
@@ -106,14 +91,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         [Test]
         public async Task Handle_ShouldReturnSuccess_WhenEmailServiceThrows()
         {
-            var command = new RegisterCommand
-            {
-                Email = ValidEmail,
-                Password = ValidPasswordHash,
-                FirstName = ValidFirstName,
-                LastName = ValidLastName,
-                PhoneNumber = ValidPhone
-            };
+            var command = new RegisterCommand(ValidEmail, ValidPasswordHash, ValidFirstName, ValidLastName, ValidPhone);
 
             _userRepository
                 .Setup(x => x.ExistsByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
@@ -152,14 +130,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         [Test]
         public async Task Handle_ShouldReturnSuccess_WhenRegistrationIsValid()
         {
-            var command = new RegisterCommand
-            {
-                Email = ValidEmail,
-                Password = ValidPasswordHash,
-                FirstName = ValidFirstName,
-                LastName = ValidLastName,
-                PhoneNumber = ValidPhone
-            };
+            var command = new RegisterCommand(ValidEmail, ValidPasswordHash, ValidFirstName, ValidLastName, ValidPhone);
 
             _userRepository
                 .Setup(x => x.ExistsByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
