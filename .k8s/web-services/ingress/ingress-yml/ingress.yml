@@ -35,7 +35,7 @@ spec:
             name: content-service
             port:
               number: 80
-      - path:
+      - path: /marketplace(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
