@@ -1,7 +1,7 @@
 using Body4uHUB.Content.Api.Extensions;
-using Body4uHUB.Content.Api.Middleware;
 using Body4uHUB.Content.Application.Extensions;
 using Body4uHUB.Content.Infrastructure.Extensions;
+using Body4uHUB.Shared.Api.Handlers;
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -25,26 +25,22 @@ builder.Services.AddDataProtection()
 // THIS WILL BE FOR PRODUCTION
 #endif
 
-// Configure Serilog
 builder.ConfigureSerilog();
 
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-// Add services
 services
     .AddApiServices(configuration)
     .AddApplication(configuration)
-    .AddInfrastructure(configuration);
-
-services.AddSingleton<StartupHealthCheck>();
-
-services.AddCustomHealthChecks();
+    .AddInfrastructure(configuration)
+    .AddSingleton<StartupHealthCheck>()
+    .AddCustomHealthChecks()
+    .AddExceptionHandler<CustomExceptionHandler>();
 
 var app = builder.Build();
 
-// Middleware pipeline
-app.UseMiddleware<GlobalExceptionHandler>();
+app.UseExceptionHandler(options => { });
 app.UseForwardedHeaders();
 
 var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
