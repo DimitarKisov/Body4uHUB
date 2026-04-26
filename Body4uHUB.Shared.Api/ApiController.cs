@@ -31,7 +31,7 @@ namespace Body4uHUB.Shared.Api
 
             return result.ErrorType switch
             {
-                ErrorType.ResourceNotFound => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.ResourceNotFound => NotFound(new { error = result.Error }),
                 ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
                 ErrorType.Conflict => Conflict(new { error = result.Error }),
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
@@ -66,7 +66,7 @@ namespace Body4uHUB.Shared.Api
 
             return result.ErrorType switch
             {
-                ErrorType.ResourceNotFound => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.ResourceNotFound => NotFound(new { error = result.Error }),
                 ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
                 ErrorType.Conflict => Conflict(new { error = result.Error }),
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
@@ -89,7 +89,7 @@ namespace Body4uHUB.Shared.Api
 
             return result.ErrorType switch
             {
-                ErrorType.ResourceNotFound => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.ResourceNotFound => NotFound(new { error = result.Error }),
                 ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
                 ErrorType.Conflict => Conflict(new { error = result.Error }),
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
@@ -115,7 +115,7 @@ namespace Body4uHUB.Shared.Api
 
             return result.ErrorType switch
             {
-                ErrorType.ResourceNotFound => UnprocessableEntity(new { error = result.Error }),
+                ErrorType.ResourceNotFound => NotFound(new { error = result.Error }),
                 ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
                 ErrorType.Conflict => Conflict(new { error = result.Error }),
                 ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),

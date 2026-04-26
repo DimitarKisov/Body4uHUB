@@ -38,7 +38,7 @@ namespace Body4uHUB.Identity.Application.Commands.Login
             var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
             if (user == null || !_passwordHasherService.VerifyPassword(request.Password, user.PasswordHash))
             {
-                return Result.Unauthorized<AuthResponseDto>(InvalidCredentials);
+                return Result.ResourceNotFound<AuthResponseDto>(InvalidCredentials);
             }
 
             if (!user.IsEmailConfirmed)

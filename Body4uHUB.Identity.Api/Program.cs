@@ -36,6 +36,19 @@ var app = builder.Build();
 
 app.UseExceptionHandler(options => { });
 app.UseForwardedHeaders();
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    if (response.StatusCode == 404)
+    {
+        response.ContentType = "application/json";
+        await response.WriteAsJsonAsync(new
+        {
+            error = "Търсеният ресурс не е намерен."
+        });
+    }
+});
 
 var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
 

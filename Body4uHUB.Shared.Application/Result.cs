@@ -8,7 +8,7 @@
         None,
         Unauthorized,           // 401 Unauthorized - невалидна автентикация (invalid credentials)
         Forbidden,              // 403 Forbidden - валидна автентикация, но няма права
-        ResourceNotFound,       // 422 Unprocessable Entity - ресурс не съществува в базата
+        ResourceNotFound,       // 404 Not Found - ресурс не съществува в базата
         Conflict,               // 409 Conflict - конфликт с existing data (email already exists)
         BusinessRule,           // 422 Unprocessable Entity - нарушено бизнес правило (domain logic)
         InternalServerError     // 500 Internal Server Error - неочаквана грешка на сървъра
