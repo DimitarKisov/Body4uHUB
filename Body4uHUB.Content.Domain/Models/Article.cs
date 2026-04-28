@@ -10,7 +10,7 @@ namespace Body4uHUB.Content.Domain.Models
 {
     public class Article : AggregateRoot<Guid>
     {
-        private readonly List<Comment> _comments = new();
+        private readonly List<Comment> _comments = [];
 
         // External ID - за URLs и user references
         public int ArticleNumber { get; private set; }
@@ -109,7 +109,7 @@ namespace Body4uHUB.Content.Domain.Models
 
         private static void ValidateAuthorId(Guid authorId)
         {
-            Guard.AgainstEmptyString<InvalidArticleException>(authorId.ToString(), nameof(AuthorId));
+            Guard.AgainstEmptyGuid<InvalidArticleException>(authorId, nameof(AuthorId));
         }
     }
 }
