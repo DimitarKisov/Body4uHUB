@@ -11,7 +11,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Publish
     public record PublishArticleCommand(int Id) : IRequest<Result>
     {
         [JsonIgnore]
-        public AuthorizationContext AuthContext { get; set; }
+        public AuthorizationContext AuthContext { get; init; }
     }
 
     internal class PublishArticleCommandHandler : IRequestHandler<PublishArticleCommand, Result>
@@ -35,12 +35,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Publish
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            if (!request.AuthContext.IsAdmin && article.AuthorId != request.AuthContext.CurrentUserId)
-            {
-                return Result.Forbidden(ArticlePublishForbidden);
-            }
-
-            article.Publish();
+            article.Publish(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

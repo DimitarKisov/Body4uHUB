@@ -12,7 +12,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
         : IRequest<Result>
     {
         [JsonIgnore]
-        public AuthorizationContext AuthContext { get; set; }
+        public AuthorizationContext AuthContext { get; init; }
     }
 
     internal class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Result>
@@ -36,10 +36,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            if (!request.AuthContext.IsAdmin && article.AuthorId != request.AuthContext.CurrentUserId)
-            {
-                return Result.Forbidden(ArticleEditForbidden);
-            }
+            article.EnsureCanBeModifiedBy(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             article.UpdateTitle(request.Title);
             article.UpdateContent(request.Content);

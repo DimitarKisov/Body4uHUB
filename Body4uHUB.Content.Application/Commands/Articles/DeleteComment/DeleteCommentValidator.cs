@@ -3,7 +3,7 @@
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Comments.Delete
+namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
 {
     public class DeleteCommentCommandValidator : AbstractValidator<DeleteCommentCommand>
     {

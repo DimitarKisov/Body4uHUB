@@ -12,7 +12,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment
         : IRequest<Result<Guid>>
     {
         [JsonIgnore]
-        public Guid AuthorId { get; set; }
+        public Guid AuthorId { get; init; }
     }
 
     internal class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<Guid>>

@@ -6,13 +6,13 @@ using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Comments.Delete
+namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
 {
     public record DeleteCommentCommand(Guid Id, int ArticleId)
         : IRequest<Result>
     {
         [JsonIgnore]
-        public AuthorizationContext AuthContext { get; set; }
+        public AuthorizationContext AuthContext { get; init; }
     }
 
     internal class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, Result>

@@ -36,7 +36,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            article.EnsureCanBeDeleted(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
+            article.EnsureCanBeModifiedBy(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             _articleRepository.Remove(article);
 

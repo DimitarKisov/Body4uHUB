@@ -56,8 +56,10 @@ namespace Body4uHUB.Content.Domain.Models
             Content = content;
         }
 
-        public void Publish()
+        public void Publish(Guid requesterId, bool isAdmin)
         {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
             if (Status == ArticleStatus.Published)
             {
                 throw new InvalidArticleException(ArticleAlreadyPublished);
@@ -69,25 +71,22 @@ namespace Body4uHUB.Content.Domain.Models
 
         public void Archive(Guid requesterId, bool isAdmin)
         {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
             if (Status != ArticleStatus.Published)
             {
                 throw new InvalidArticleException(ArticleNotPublished);
-            }
-
-            if (!isAdmin && AuthorId != requesterId)
-            {
-                throw new DomainAuthorizationException(ArticleEditForbidden);
             }
 
             Status = ArticleStatus.Archived;
             PublishedAt = null;
         }
 
-        public void EnsureCanBeDeleted(Guid requesterId, bool isAdmin)
+        public void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
         {
             if (!isAdmin && AuthorId != requesterId)
             {
-                throw new DomainAuthorizationException(ArticleDeleteForibidden);
+                throw new DomainAuthorizationException(ArticleModifyForbidden);
             }
         }
 
