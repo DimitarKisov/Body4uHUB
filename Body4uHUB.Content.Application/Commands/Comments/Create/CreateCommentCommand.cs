@@ -37,16 +37,11 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Create
                 return Result.ResourceNotFound<Guid>(ArticleNotFound);
             }
 
-            var comment = Comment.Create(
-                request.Content,
-                request.AuthorId,
-                request.ParentCommentId.HasValue ? request.ParentCommentId.Value : null);
-
-            article.AddComment(comment);
+            var commentId = article.AddComment(request.Content, request.AuthorId, request.ParentCommentId);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(comment.Id);
+            return Result.Success(commentId);
         }
     }
 }

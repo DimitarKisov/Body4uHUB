@@ -1,10 +1,10 @@
 ﻿using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Exceptions;
-using Body4uHUB.Content.Domain.ValueObjects;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {
@@ -83,9 +83,23 @@ namespace Body4uHUB.Content.Domain.Models
             ViewCount++;
         }
 
-        public void AddComment(Comment comment)
+        public Guid AddComment(string content, Guid authorId, Guid? parentCommentId)
         {
+            if (Status != ArticleStatus.Published)
+            {
+                throw new InvalidArticleException(ArticleNotPublished);
+            }
+
+            if (parentCommentId.HasValue && !_comments.Any(x => x.Id == parentCommentId.Value))
+            {
+                throw new InvalidArticleException(CommentParentNotFound);
+            }
+
+            var comment = Comment.Create(content, authorId, parentCommentId);
+
             _comments.Add(comment);
+
+            return comment.Id;
         }
 
         private static void Validate(string title, string content, Guid authorId)

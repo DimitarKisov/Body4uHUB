@@ -39,6 +39,7 @@
             public const string CommentAlreadyDeleted = "Comment is already deleted.";
 
             public const string CommentNotFound = "Comment not found.";
+            public const string CommentParentNotFound = "Parent comment does not exist in this article.";
             public const string CommentDeleteForbidden = "You do not have permission to delete this comment.";
         }
 
