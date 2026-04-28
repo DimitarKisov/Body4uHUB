@@ -55,7 +55,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleCommand command)
         {
-            var result = await Mediator.Send(command with { AuthorId = User.GetUserId() });
+            var result = await Mediator.Send(command with { AuthorId = User.GetUserId()});
 
             return HandleResult(result, id => new { articleId = id });
         }

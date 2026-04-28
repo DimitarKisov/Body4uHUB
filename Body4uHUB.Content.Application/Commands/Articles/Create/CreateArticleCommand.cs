@@ -8,10 +8,9 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Create
 {
-    public record CreateArticleCommand(string Title, string Content)
+    public record CreateArticleCommand(string Title, string Content, Guid AuthorId)
         : IRequest<Result<int>>
     {
-        public Guid AuthorId { get; init; }
     }
 
     internal class CreateArticleCommandHandler : IRequestHandler<CreateArticleCommand, Result<int>>

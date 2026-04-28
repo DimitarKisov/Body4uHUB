@@ -83,6 +83,14 @@ namespace Body4uHUB.Content.Domain.Models
             PublishedAt = null;
         }
 
+        public void EnsureCanBeDeleted(Guid requesterId, bool isAdmin)
+        {
+            if (!isAdmin && AuthorId != requesterId)
+            {
+                throw new DomainAuthorizationException(ArticleDeleteForibidden);
+            }
+        }
+
         public void IncrementViewCount()
         {
             ViewCount++;

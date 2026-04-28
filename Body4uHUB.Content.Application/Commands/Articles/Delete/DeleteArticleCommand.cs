@@ -11,7 +11,6 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
     public record DeleteArticleCommand(int Id)
         : IRequest<Result>
     {
-
         [JsonIgnore]
         public AuthorizationContext AuthContext { get; init; }
     }
@@ -37,10 +36,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            if (!request.AuthContext.IsAdmin && article.AuthorId != request.AuthContext.CurrentUserId)
-            {
-                return Result.Forbidden(ArticleDeleteForibidden);
-            }
+            article.EnsureCanBeDeleted(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             _articleRepository.Remove(article);
 
