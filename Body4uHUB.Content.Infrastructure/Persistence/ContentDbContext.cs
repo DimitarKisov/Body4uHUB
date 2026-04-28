@@ -1,12 +1,9 @@
-﻿namespace Body4uHUB.Content.Infrastructure.Persistence
-{
-    using Body4uHUB.Content.Domain.Models;
-    using Body4uHUB.Content.Domain.ValueObjects;
-    using Body4uHUB.Content.Infrastructure.Persistence.Converters;
-    using Body4uHUB.Shared;
-    using Body4uHUB.Shared.Domain.Abstractions;
-    using Microsoft.EntityFrameworkCore;
+﻿using Body4uHUB.Content.Domain.Models;
+using Body4uHUB.Shared.Domain.Abstractions;
+using Microsoft.EntityFrameworkCore;
 
+namespace Body4uHUB.Content.Infrastructure.Persistence
+{
     internal class ContentDbContext : DbContext
     {
         public ContentDbContext(DbContextOptions<ContentDbContext> options)
@@ -15,7 +12,6 @@
         }
 
         public DbSet<Article> Articles { get; set; }
-        public DbSet<Comment> Comments { get; set; }
         public DbSet<ForumTopic> ForumTopics { get; set; }
         public DbSet<ForumPost> ForumPosts { get; set; }
         public DbSet<Bookmark> Bookmarks { get; set; }
