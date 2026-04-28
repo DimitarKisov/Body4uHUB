@@ -67,11 +67,16 @@ namespace Body4uHUB.Content.Domain.Models
             PublishedAt = DateTime.UtcNow;
         }
 
-        public void Archive()
+        public void Archive(Guid requesterId, bool isAdmin)
         {
             if (Status != ArticleStatus.Published)
             {
                 throw new InvalidArticleException(ArticleNotPublished);
+            }
+
+            if (!isAdmin && AuthorId != requesterId)
+            {
+                throw new DomainAuthorizationException(ArticleEditForbidden);
             }
 
             Status = ArticleStatus.Archived;

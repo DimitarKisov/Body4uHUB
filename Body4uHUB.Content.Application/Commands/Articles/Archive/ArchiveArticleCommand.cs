@@ -36,12 +36,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Archive
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            if (!request.AuthContext.IsAdmin && article.AuthorId != request.AuthContext.CurrentUserId)
-            {
-                return Result.Forbidden(ArticleEditForbidden);
-            }
-
-            article.Archive();
+            article.Archive(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
