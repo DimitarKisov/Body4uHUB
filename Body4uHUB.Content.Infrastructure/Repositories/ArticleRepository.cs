@@ -1,6 +1,5 @@
 ﻿using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
-using Body4uHUB.Content.Domain.ValueObjects;
 using Body4uHUB.Content.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,6 +59,13 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
         public void Remove(Article article)
         {
             _dbContext.Articles.Remove(article);
+        }
+
+        public async Task IncrementViewCountAsync(int articleNumber, CancellationToken cancellationToken = default)
+        {
+            await _dbContext.Articles
+                .Where(x => x.ArticleNumber == articleNumber)
+                .ExecuteUpdateAsync(x => x.SetProperty(y => y.ViewCount, y => y.ViewCount + 1), cancellationToken);
         }
     }
 }

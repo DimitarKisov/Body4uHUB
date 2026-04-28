@@ -17,7 +17,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Id)
-                .ValueGeneratedOnAdd()
                 .IsRequired();
 
             builder.Property(x => x.ArticleNumber)

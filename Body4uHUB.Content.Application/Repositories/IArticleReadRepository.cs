@@ -6,5 +6,6 @@ namespace Body4uHUB.Content.Application.Repositories
     {
         Task<IEnumerable<ArticleDto>> GetAllArticlesAsync(int skip, int take, CancellationToken cancellationToken);
         Task<IEnumerable<ArticleDto>> GetArticlesByAuthorAsync(Guid authorId, CancellationToken cancellationToken = default);
+        Task<ArticleDto> GetByNumberAsync(int id, CancellationToken cancellationToken = default);
     }
 }
