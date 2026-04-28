@@ -5,7 +5,6 @@ using MediatR;
 using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Comments.Delete
 {
@@ -37,18 +36,7 @@ namespace Body4uHUB.Content.Application.Commands.Comments.Delete
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            var comment = article.Comments.FirstOrDefault(x => x.Id == request.Id);
-            if (comment == null)
-            {
-                return Result.ResourceNotFound(CommentNotFound);
-            }
-
-            if (!request.AuthContext.IsAdmin && comment.AuthorId != request.AuthContext.CurrentUserId)
-            {
-                return Result.Forbidden(CommentDeleteForbidden);
-            }
-
-            comment.MarkAsDeleted();
+            article.DeleteComment(request.Id, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

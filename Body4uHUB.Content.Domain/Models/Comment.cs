@@ -2,7 +2,7 @@
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {
@@ -58,7 +58,7 @@ namespace Body4uHUB.Content.Domain.Models
         private static void ValidateContent(string content)
         {
             Guard.AgainstEmptyString<InvalidCommentException>(content, nameof(Content));
-            Guard.ForStringLength<InvalidCommentException>(content, ContentMinLength, ContentMaxLength, nameof(Content));
+            Guard.ForStringLength<InvalidCommentException>(content, CommentContentMinLength, CommentContentMaxLength, nameof(Content));
         }
 
         private static void ValidateAuthorId(Guid authorId)

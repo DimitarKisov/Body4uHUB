@@ -4,7 +4,7 @@ using Body4uHUB.Shared.Domain.Enumerations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
 {
@@ -28,7 +28,7 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.Content)
-                .HasMaxLength(ArticleConstants.ContentMaxLength)
+                .HasMaxLength(ContentMaxLength)
                 .IsRequired();
 
             builder.Property(x => x.AuthorId)
@@ -64,7 +64,7 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
                     .IsRequired();
 
                 commentBuilder.Property(c => c.Content)
-                    .HasMaxLength(CommentConstants.ContentMaxLength)
+                    .HasMaxLength(CommentContentMaxLength)
                     .IsRequired();
 
                 commentBuilder.Property(c => c.AuthorId)

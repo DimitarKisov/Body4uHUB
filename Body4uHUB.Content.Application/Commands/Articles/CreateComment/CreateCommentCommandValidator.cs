@@ -3,7 +3,7 @@
     using FluentValidation;
 
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
     public class CreateCommentCommandValidator : AbstractValidator<CreateCommentCommand>
     {
@@ -11,7 +11,7 @@
         {
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage(ContentRequired)
-                .Length(ContentMinLength, ContentMaxLength).WithMessage(ContentLengthMessage);
+                .Length(CommentContentMinLength, CommentContentMaxLength).WithMessage(ContentLengthMessage);
 
             RuleFor(x => x.AuthorId)
                 .NotEmpty().WithMessage(AuthorIdRequired);

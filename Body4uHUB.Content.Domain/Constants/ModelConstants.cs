@@ -4,13 +4,14 @@
     {
         public class ArticleConstants
         {
+            #region Article
             public const int ContentMinLength = 50;
             public const int ContentMaxLength = 5000;
             public const int TitleMinLength = 10;
             public const int TitleMaxLength = 100;
 
             public const string IdCannotBeZeroOrNegative = "Article ID must be greater than 0.";
-            
+
             public const string ArticleAlreadyPublished = "Article is already published.";
             public const string ArticleExists = "Article with title '{0}' already exists";
             public const string ArticleDeleteForibidden = "You do not have permission to delete this article.";
@@ -18,6 +19,20 @@
             public const string ArticleNotPublished = "Article is not published.";
             public const string ArticlePublishForbidden = "You do not have permission to publish this article.";
             public const string ArticleEditForbidden = "You do not have permission to edit this article.";
+            #endregion
+
+            #region Comment
+            public const int CommentContentMinLength = 2;
+            public const int CommentContentMaxLength = 1000;
+
+            public const string CommentIdRequired = "CommentId is required.";
+            public const string CommentIdCannotBeZeroOrNegative = "Comment ID must be greater than 0.";
+            public const string CommentAlreadyDeleted = "Comment is already deleted.";
+
+            public const string CommentNotFound = "Comment not found.";
+            public const string CommentParentNotFound = "Parent comment does not exist in this article.";
+            public const string CommentDeleteForbidden = "You do not have permission to delete this comment.";
+            #endregion
         }
 
         public class BookmarkConstants
@@ -27,20 +42,6 @@
             public const string BookmarkIdCannotBeZeroOrNegative = "Bookmark ID must be greater than 0.";
 
             public const string BookmarkNotFound = "Bookmark not found.";
-        }
-
-        public class CommentConstants
-        {
-            public const int ContentMinLength = 2;
-            public const int ContentMaxLength = 1000;
-
-            public const string CommentIdRequired = "CommentId is required.";
-            public const string CommentIdCannotBeZeroOrNegative = "Comment ID must be greater than 0.";
-            public const string CommentAlreadyDeleted = "Comment is already deleted.";
-
-            public const string CommentNotFound = "Comment not found.";
-            public const string CommentParentNotFound = "Parent comment does not exist in this article.";
-            public const string CommentDeleteForbidden = "You do not have permission to delete this comment.";
         }
 
         public class CommonConstants

@@ -1,10 +1,10 @@
 ﻿using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Exceptions;
 using Body4uHUB.Shared.Domain.Base;
+using Body4uHUB.Shared.Domain.Exceptions;
 using Body4uHUB.Shared.Domain.Guards;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommentConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {
@@ -83,6 +83,17 @@ namespace Body4uHUB.Content.Domain.Models
             ViewCount++;
         }
 
+        public Comment GetComment(Guid commentId)
+        {
+            var comment = _comments.FirstOrDefault(x => x.Id == commentId);
+            if (comment is null)
+            {
+                throw new DomainNotFoundException(CommentNotFound);
+            }
+
+            return comment;
+        }
+
         public Guid AddComment(string content, Guid authorId, Guid? parentCommentId)
         {
             if (Status != ArticleStatus.Published)
@@ -92,7 +103,7 @@ namespace Body4uHUB.Content.Domain.Models
 
             if (parentCommentId.HasValue && !_comments.Any(x => x.Id == parentCommentId.Value))
             {
-                throw new InvalidArticleException(CommentParentNotFound);
+                throw new DomainNotFoundException(CommentParentNotFound);
             }
 
             var comment = Comment.Create(content, authorId, parentCommentId);
@@ -100,6 +111,23 @@ namespace Body4uHUB.Content.Domain.Models
             _comments.Add(comment);
 
             return comment.Id;
+        }
+
+        public void DeleteComment(Guid commentId, Guid requesterId, bool isAdmin)
+        {
+            var comment = _comments.FirstOrDefault(x => x.Id == commentId);
+
+            if (comment is null)
+            {
+                throw new DomainNotFoundException(CommentNotFound);
+            }
+
+            if (!isAdmin && comment.AuthorId != requesterId)
+            {
+                throw new DomainAuthorizationException(CommentDeleteForbidden);
+            }
+
+            comment.MarkAsDeleted();
         }
 
         private static void Validate(string title, string content, Guid authorId)
