@@ -1,5 +1,4 @@
-﻿using Body4uHUB.Content.Domain.Models;
-using Body4uHUB.Content.Domain.Repositories;
+﻿using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -7,7 +6,7 @@ using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Comments.Create
+namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment
 {
     public record CreateCommentCommand(string Content, int ArticleId, Guid? ParentCommentId)
         : IRequest<Result<Guid>>

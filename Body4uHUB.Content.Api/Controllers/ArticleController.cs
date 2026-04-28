@@ -1,10 +1,10 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Application.Commands.Articles.Archive;
 using Body4uHUB.Content.Application.Commands.Articles.Create;
+using Body4uHUB.Content.Application.Commands.Articles.CreateComment;
 using Body4uHUB.Content.Application.Commands.Articles.Delete;
 using Body4uHUB.Content.Application.Commands.Articles.Edit;
 using Body4uHUB.Content.Application.Commands.Articles.Publish;
-using Body4uHUB.Content.Application.Commands.Comments.Create;
 using Body4uHUB.Content.Application.Commands.Comments.Delete;
 using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles;

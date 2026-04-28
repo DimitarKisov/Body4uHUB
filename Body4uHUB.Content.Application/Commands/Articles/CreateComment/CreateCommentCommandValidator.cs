@@ -1,4 +1,4 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Comments.Create
+﻿namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment
 {
     using FluentValidation;
 
