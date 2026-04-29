@@ -19,6 +19,7 @@
             public const string ArticleNotPublished = "Article is not published.";
             public const string ArticlePublishForbidden = "You do not have permission to publish this article.";
             public const string ArticleEditForbidden = "You do not have permission to edit this article.";
+            public const string ArticleAlreadyDeleted = "Article is already deleted.";
             #endregion
 
             #region Comment

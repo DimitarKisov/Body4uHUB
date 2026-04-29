@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
 using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Models;
@@ -38,23 +39,22 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<ArticleDto>> GetArticlesByAuthorAsync(Guid authorId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<GetArticlesByAuthorResponse>> GetArticlesByAuthorAsync(Guid authorId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles
                 .Where(x => x.AuthorId == authorId)
                 .OrderByDescending(a => a.CreatedAt)
-                .Select(x => new ArticleDto
-                {
-                    Id = x.ArticleNumber,
-                    Title = x.Title,
-                    Content = x.Content,
-                    AuthorId = x.AuthorId,
-                    Status = x.Status.Name,
-                    PublishedAt = x.PublishedAt,
-                    ViewCount = x.ViewCount,
-                    CreatedAt = x.CreatedAt,
-                    ModifiedAt = x.ModifiedAt
-                })
+                .Select(x => new GetArticlesByAuthorResponse
+                (
+                    x.ArticleNumber,
+                    x.Title,
+                    x.AuthorId,
+                    x.Status.Name,
+                    x.PublishedAt,
+                    x.ViewCount,
+                    x.CreatedAt,
+                    x.ModifiedAt)
+                )
                 .ToListAsync(cancellationToken);
         }
 

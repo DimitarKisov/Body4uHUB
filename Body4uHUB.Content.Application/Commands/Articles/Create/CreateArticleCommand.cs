@@ -8,9 +8,9 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Create
 {
-    public record CreateArticleCommand(string Title, string Content, Guid AuthorId) : IRequest<Result<int>>;
+    public record CreateArticleCommand(string Title, string Content, Guid AuthorId) : IRequest<Result<CreateArticleResponse>>;
 
-    internal sealed class CreateArticleCommandHandler : IRequestHandler<CreateArticleCommand, Result<int>>
+    internal sealed class CreateArticleCommandHandler : IRequestHandler<CreateArticleCommand, Result<CreateArticleResponse>>
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -23,13 +23,13 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Create
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<int>> Handle(CreateArticleCommand request, CancellationToken cancellationToken)
+        public async Task<Result<CreateArticleResponse>> Handle(CreateArticleCommand request, CancellationToken cancellationToken)
         {
             var articleExists = await _articleRepository.ExistsByTitleAsync(request.Title, cancellationToken);
 
             if (articleExists)
             {
-                return Result.Conflict<int>(string.Format(ArticleExists, request.Title));
+                return Result.Conflict<CreateArticleResponse>(string.Format(ArticleExists, request.Title));
             }
 
             var article = Article.Create(
@@ -41,7 +41,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Create
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(article.ArticleNumber);
+            return Result.Success(new CreateArticleResponse(article.ArticleNumber));
         }
     }
 }

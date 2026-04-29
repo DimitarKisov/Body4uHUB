@@ -1,11 +1,12 @@
 ﻿using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
 
 namespace Body4uHUB.Content.Application.Repositories
 {
     public interface IArticleReadRepository
     {
         Task<IEnumerable<ArticleDto>> GetAllArticlesAsync(int skip, int take, CancellationToken cancellationToken);
-        Task<IEnumerable<ArticleDto>> GetArticlesByAuthorAsync(Guid authorId, CancellationToken cancellationToken = default);
+        Task<IEnumerable<GetArticlesByAuthorResponse>> GetArticlesByAuthorAsync(Guid authorId, CancellationToken cancellationToken = default);
         Task<ArticleDto> GetByNumberAsync(int id, CancellationToken cancellationToken = default);
     }
 }

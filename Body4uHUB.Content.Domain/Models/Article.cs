@@ -56,6 +56,11 @@ namespace Body4uHUB.Content.Domain.Models
         {
             EnsureCanBeModifiedBy(requesterId, isAdmin);
 
+            if (IsDeleted)
+            {
+                throw new InvalidArticleException(ArticleAlreadyDeleted);
+            }
+
             MarkAsDeleted();
         }
 

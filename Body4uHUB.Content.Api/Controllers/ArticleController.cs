@@ -48,10 +48,10 @@ namespace Body4uHUB.Content.Api.Controllers
         /// </summary>
         [HttpPost]
         [Authorize(Policy = "TrainerOrAdmin")]
-        [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(CreateArticleResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request)
         {
             var command = new CreateArticleCommand(
@@ -67,13 +67,13 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Delete article (Author or Admin only)
         /// </summary>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteArticle(int id)
         {
             var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
@@ -85,9 +85,9 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Get all articles by a specific author
         /// </summary>
-        [HttpGet("author/{authorId}")]
+        [HttpGet("author/{authorId:guid}")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(IEnumerable<ArticleDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<GetArticlesByAuthorResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetArticlesByAuthor(Guid authorId)
         {
             var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId));
