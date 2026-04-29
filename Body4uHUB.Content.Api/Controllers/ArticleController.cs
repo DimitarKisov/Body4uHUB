@@ -161,12 +161,13 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Add a comment to an article
         /// </summary>
-        [HttpPost("{articleId}/comments")]
+        [HttpPost("{articleId:int}/comments")]
         [Authorize]
-        [ProducesResponseType(typeof(CreateCommentResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(CreateCommentResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> AddComment(int articleId, [FromBody] CreateCommentRequest request)
         {
             var command = new CreateCommentCommand(request.Content, articleId, User.GetUserId(), request.ParentCommentId);

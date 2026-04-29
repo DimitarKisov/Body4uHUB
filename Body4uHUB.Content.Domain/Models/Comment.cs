@@ -63,7 +63,7 @@ namespace Body4uHUB.Content.Domain.Models
 
         private static void ValidateAuthorId(Guid authorId)
         {
-            Guard.AgainstEmptyString<InvalidCommentException>(authorId.ToString(), nameof(AuthorId));
+            Guard.AgainstEmptyGuid<InvalidCommentException>(authorId, nameof(AuthorId));
         }
     }
 }
