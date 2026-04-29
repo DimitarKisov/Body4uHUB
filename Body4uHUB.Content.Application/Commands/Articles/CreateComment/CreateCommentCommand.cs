@@ -25,7 +25,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment
         public async Task<Result<CreateCommentResponse>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
         {
             var article = await _articleRepository.GetByNumberAsync(request.ArticleId, cancellationToken);
-            if (article == null)
+            if (article is null)
             {
                 return Result.ResourceNotFound<CreateCommentResponse>(ArticleNotFound);
             }

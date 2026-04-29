@@ -28,13 +28,13 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Archive article (Author or Admin only)
         /// </summary>
-        [HttpPost("{id}/archive")]
+        [HttpPost("{id:int}/archive")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> ArchiveArticle(Guid id)
         {
             var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());

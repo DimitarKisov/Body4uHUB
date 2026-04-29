@@ -22,9 +22,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Archive
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result> Handle(
-            ArchiveArticleCommand request,
-            CancellationToken cancellationToken)
+        public async Task<Result> Handle(ArchiveArticleCommand request, CancellationToken cancellationToken)
         {
             var article = await _articleRepository.GetByIdAsync(request.Id, cancellationToken);
             if (article is null)
