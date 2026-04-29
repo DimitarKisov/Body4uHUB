@@ -8,12 +8,9 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Create
 {
-    public record CreateArticleCommand(string Title, string Content, Guid AuthorId)
-        : IRequest<Result<int>>
-    {
-    }
+    public record CreateArticleCommand(string Title, string Content, Guid AuthorId) : IRequest<Result<int>>;
 
-    internal class CreateArticleCommandHandler : IRequestHandler<CreateArticleCommand, Result<int>>
+    internal sealed class CreateArticleCommandHandler : IRequestHandler<CreateArticleCommand, Result<int>>
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -29,6 +26,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Create
         public async Task<Result<int>> Handle(CreateArticleCommand request, CancellationToken cancellationToken)
         {
             var articleExists = await _articleRepository.ExistsByTitleAsync(request.Title, cancellationToken);
+
             if (articleExists)
             {
                 return Result.Conflict<int>(string.Format(ArticleExists, request.Title));

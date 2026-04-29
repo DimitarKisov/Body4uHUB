@@ -17,11 +17,8 @@ namespace Body4uHUB.Shared.Api
         protected ISender Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<ISender>();
 
         /// <summary>
-        /// Handles Result pattern with value and returns appropriate HTTP response based on error type
+        /// Handles Result with value - returns 200 OK on success
         /// </summary>
-        /// <typeparam name="T">Return type</typeparam>
-        /// <param name="result">Result object</param>
-        /// <returns>IActionResult with appropriate status code</returns>
         protected IActionResult HandleResult<T>(Result<T> result)
         {
             if (result.IsSuccess)
@@ -29,57 +26,25 @@ namespace Body4uHUB.Shared.Api
                 return Ok(result.Value);
             }
 
-            return result.ErrorType switch
-            {
-                ErrorType.ResourceNotFound => NotFound(new { error = result.Error }),
-                ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
-                ErrorType.Conflict => Conflict(new { error = result.Error }),
-                ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
-                ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
-                _ => StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error" })
-            };
+            return MapError(result);
         }
 
         /// <summary>
-        /// Handles Result pattern with Value Object (ArticleId, CommentId, etc.) and extracts primitive value
-        /// Usage: HandleResult(result, id => new { articleId = id })
+        /// Handles Result with custom response transformation - returns 200 OK on success
         /// </summary>
-        /// <typeparam name="T">Value Object type (ArticleId, CommentId, etc.)</typeparam>
-        /// <param name="result">Result object</param>
-        /// <param name="responseFactory">Function to create response object from extracted value</param>
-        /// <returns>IActionResult with appropriate status code</returns>
         protected IActionResult HandleResult<T>(Result<T> result, Func<object, object> responseFactory)
         {
             if (result.IsSuccess)
             {
-                // Use reflection to get Value property from Value Object
-                var valueProperty = typeof(T).GetProperty("Value");
-                if (valueProperty != null)
-                {
-                    var primitiveValue = valueProperty.GetValue(result.Value);
-                    return Ok(responseFactory(primitiveValue));
-                }
-
-                // Fallback to default handling
                 return Ok(responseFactory(result.Value));
             }
 
-            return result.ErrorType switch
-            {
-                ErrorType.ResourceNotFound => NotFound(new { error = result.Error }),
-                ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
-                ErrorType.Conflict => Conflict(new { error = result.Error }),
-                ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
-                ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
-                _ => StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error" })
-            };
+            return MapError(result);
         }
 
         /// <summary>
-        /// Handles Result pattern without return value and returns appropriate HTTP response
+        /// Handles Result without value - returns 204 NoContent on success
         /// </summary>
-        /// <param name="result">Result object</param>
-        /// <returns>IActionResult with appropriate status code</returns>
         protected IActionResult HandleResult(Result result)
         {
             if (result.IsSuccess)
@@ -87,25 +52,12 @@ namespace Body4uHUB.Shared.Api
                 return NoContent();
             }
 
-            return result.ErrorType switch
-            {
-                ErrorType.ResourceNotFound => NotFound(new { error = result.Error }),
-                ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
-                ErrorType.Conflict => Conflict(new { error = result.Error }),
-                ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
-                ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
-                _ => StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error" })
-            };
+            return MapError(result);
         }
 
         /// <summary>
-        /// Handles Result pattern with CreatedAtAction response for POST operations
+        /// Handles Result for POST operations - returns 201 Created on success
         /// </summary>
-        /// <typeparam name="T">Return type</typeparam>
-        /// <param name="result">Result object</param>
-        /// <param name="actionName">Action name for location header</param>
-        /// <param name="routeValues">Route values for location header</param>
-        /// <returns>IActionResult with appropriate status code</returns>
         protected IActionResult HandleCreatedResult<T>(Result<T> result, string actionName, object routeValues = null)
         {
             if (result.IsSuccess)
@@ -113,15 +65,51 @@ namespace Body4uHUB.Shared.Api
                 return CreatedAtAction(actionName, routeValues, result.Value);
             }
 
+            return MapError(result);
+        }
+
+        /// <summary>
+        /// Centralized error mapping - single source of truth
+        /// </summary>
+        private IActionResult MapError(Result result)
+        {
+            var problemDetails = new ProblemDetails
+            {
+                Detail = result.Error,
+                Instance = HttpContext.Request.Path
+            };
+
             return result.ErrorType switch
             {
-                ErrorType.ResourceNotFound => NotFound(new { error = result.Error }),
-                ErrorType.BusinessRule => UnprocessableEntity(new { error = result.Error }),
-                ErrorType.Conflict => Conflict(new { error = result.Error }),
-                ErrorType.Unauthorized => Unauthorized(new { error = result.Error }),
-                ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
-                _ => StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error" })
+                ErrorType.ResourceNotFound => CreateProblem(problemDetails,
+                    StatusCodes.Status404NotFound, "Resource not found"),
+
+                ErrorType.BusinessRule => CreateProblem(problemDetails,
+                    StatusCodes.Status422UnprocessableEntity, "Business rule violation"),
+
+                ErrorType.Conflict => CreateProblem(problemDetails,
+                    StatusCodes.Status409Conflict, "Conflict"),
+
+                ErrorType.Unauthorized => CreateProblem(problemDetails,
+                    StatusCodes.Status401Unauthorized, "Unauthorized"),
+
+                ErrorType.Forbidden => CreateProblem(problemDetails,
+                    StatusCodes.Status403Forbidden, "Forbidden"),
+
+                _ => CreateProblem(new ProblemDetails
+                {
+                    Detail = "Internal server error",
+                    Instance = HttpContext.Request.Path
+                },
+                StatusCodes.Status500InternalServerError, "Internal server error")
             };
+        }
+
+        private ObjectResult CreateProblem(ProblemDetails problemDetails, int statusCode, string title)
+        {
+            problemDetails.Status = statusCode;
+            problemDetails.Title = title;
+            return new ObjectResult(problemDetails) { StatusCode = statusCode };
         }
     }
 }

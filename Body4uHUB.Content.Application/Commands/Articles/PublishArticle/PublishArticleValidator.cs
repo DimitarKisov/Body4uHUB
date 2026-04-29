@@ -9,7 +9,7 @@
     {
         public PublishArticleValidator()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.Number)
                 .NotEmpty().WithMessage(ArticleIdRequired);
         }
     }

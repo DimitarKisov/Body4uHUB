@@ -5,10 +5,9 @@ using MediatR;
 
 namespace Body4uHUB.Content.Application.Queries.Articles.GetAll
 {
-    public record GetAllArticlesQuery(int Skip = 0, int Take = 10)
-        : IRequest<Result<IEnumerable<ArticleDto>>>;
+    public record GetAllArticlesQuery(int Skip = 0, int Take = 10): IRequest<Result<IEnumerable<ArticleDto>>>;
 
-    internal class GetAllArticlesQueryHandler : IRequestHandler<GetAllArticlesQuery, Result<IEnumerable<ArticleDto>>>
+    internal sealed class GetAllArticlesQueryHandler : IRequestHandler<GetAllArticlesQuery, Result<IEnumerable<ArticleDto>>>
     {
         private readonly IArticleReadRepository _articleReadRepository;
 

@@ -2,20 +2,14 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Delete
 {
-    public record DeleteArticleCommand(int Id)
-        : IRequest<Result>
-    {
-        [JsonIgnore]
-        public AuthorizationContext AuthContext { get; init; }
-    }
+    public record DeleteArticleCommand(int Number, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal class DeleteArticleCommandHandler : IRequestHandler<DeleteArticleCommand, Result>
+    internal sealed class DeleteArticleCommandHandler : IRequestHandler<DeleteArticleCommand, Result>
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -30,15 +24,13 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
 
         public async Task<Result> Handle(DeleteArticleCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByNumberAsync(request.Id, cancellationToken);
-            if (article == null)
+            var article = await _articleRepository.GetByNumberAsync(request.Number, cancellationToken);
+            if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            article.EnsureCanBeModifiedBy(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
-
-            _articleRepository.Remove(article);
+            article.Delete(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

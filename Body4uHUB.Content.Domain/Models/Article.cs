@@ -20,6 +20,7 @@ namespace Body4uHUB.Content.Domain.Models
         public DateTime? PublishedAt { get; private set; }
         public int ViewCount { get; private set; }
         public Guid AuthorId { get; private set; }
+        public bool IsDeleted { get; private set; }
         public IReadOnlyCollection<Comment> Comments => _comments.AsReadOnly();
 
         private Article()
@@ -44,13 +45,27 @@ namespace Body4uHUB.Content.Domain.Models
             return new Article(title, content, authorId);
         }
 
-        public void UpdateTitle(string title)
+        public void Edit(string title, string content, Guid requesterId, bool isAdmin)
+        {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+            UpdateTitle(title);
+            UpdateContent(content);
+        }
+
+        public void Delete(Guid requesterId, bool isAdmin)
+        {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
+            MarkAsDeleted();
+        }
+
+        private void UpdateTitle(string title)
         {
             ValidateTitle(title);
             Title = title;
         }
 
-        public void UpdateContent(string content)
+        private void UpdateContent(string content)
         {
             ValidateContent(content);
             Content = content;
@@ -82,7 +97,7 @@ namespace Body4uHUB.Content.Domain.Models
             PublishedAt = null;
         }
 
-        public void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
+        private void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
         {
             if (!isAdmin && AuthorId != requesterId)
             {
@@ -140,6 +155,11 @@ namespace Body4uHUB.Content.Domain.Models
             }
 
             comment.MarkAsDeleted();
+        }
+
+        private void MarkAsDeleted()
+        {
+            IsDeleted = true;
         }
 
         private static void Validate(string title, string content, Guid authorId)

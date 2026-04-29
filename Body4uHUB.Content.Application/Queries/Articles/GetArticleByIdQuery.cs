@@ -8,10 +8,9 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Queries.Articles
 {
-    public record GetArticleByIdQuery(int ArticleNumber)
-        : IRequest<Result<ArticleDto>>;
+    public record GetArticleByIdQuery(int ArticleNumber): IRequest<Result<ArticleDto>>;
 
-    internal class GetArticleByIdQueryHandler : IRequestHandler<GetArticleByIdQuery, Result<ArticleDto>>
+    internal sealed class GetArticleByIdQueryHandler : IRequestHandler<GetArticleByIdQuery, Result<ArticleDto>>
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IArticleReadRepository _articleReadRepository;

@@ -2,19 +2,14 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Publish
 {
-    public record PublishArticleCommand(int Id) : IRequest<Result>
-    {
-        [JsonIgnore]
-        public AuthorizationContext AuthContext { get; init; }
-    }
+    public record PublishArticleCommand(int Number, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal class PublishArticleCommandHandler : IRequestHandler<PublishArticleCommand, Result>
+    internal sealed class PublishArticleCommandHandler : IRequestHandler<PublishArticleCommand, Result>
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -29,7 +24,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Publish
 
         public async Task<Result> Handle(PublishArticleCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByNumberAsync(request.Id, cancellationToken);
+            var article = await _articleRepository.GetByNumberAsync(request.Number, cancellationToken);
             if (article == null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);

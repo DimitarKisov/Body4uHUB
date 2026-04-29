@@ -2,20 +2,14 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment
 {
-    public record CreateCommentCommand(string Content, int ArticleId, Guid? ParentCommentId)
-        : IRequest<Result<Guid>>
-    {
-        [JsonIgnore]
-        public Guid AuthorId { get; init; }
-    }
+    public record CreateCommentCommand(string Content, int ArticleId, Guid AuthorId, Guid? ParentCommentId) : IRequest<Result<CreateCommentResponse>>;
 
-    internal class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<Guid>>
+    internal sealed class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<CreateCommentResponse>>
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -28,19 +22,19 @@ namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<Guid>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+        public async Task<Result<CreateCommentResponse>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
         {
             var article = await _articleRepository.GetByNumberAsync(request.ArticleId, cancellationToken);
             if (article == null)
             {
-                return Result.ResourceNotFound<Guid>(ArticleNotFound);
+                return Result.ResourceNotFound<CreateCommentResponse>(ArticleNotFound);
             }
 
             var commentId = article.AddComment(request.Content, request.AuthorId, request.ParentCommentId);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(commentId);
+            return Result.Success(new CreateCommentResponse(commentId));
         }
     }
 }

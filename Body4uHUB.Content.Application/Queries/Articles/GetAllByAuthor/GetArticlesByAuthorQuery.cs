@@ -5,10 +5,9 @@ using MediatR;
 
 namespace Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor
 {
-    public record GetArticlesByAuthorQuery(Guid AuthorId)
-        : IRequest<Result<IEnumerable<ArticleDto>>>;
+    public record GetArticlesByAuthorQuery(Guid AuthorId): IRequest<Result<IEnumerable<ArticleDto>>>;
 
-    internal class GetArticlesByAuthorQueryHandler : IRequestHandler<GetArticlesByAuthorQuery, Result<IEnumerable<ArticleDto>>>
+    internal sealed class GetArticlesByAuthorQueryHandler : IRequestHandler<GetArticlesByAuthorQuery, Result<IEnumerable<ArticleDto>>>
     {
         private readonly IArticleReadRepository _articleReadRepository;
 

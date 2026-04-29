@@ -56,11 +56,6 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.ArticleNumber == id, cancellationToken);
         }
 
-        public void Remove(Article article)
-        {
-            _dbContext.Articles.Remove(article);
-        }
-
         public async Task IncrementViewCountAsync(int articleNumber, CancellationToken cancellationToken = default)
         {
             await _dbContext.Articles

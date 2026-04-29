@@ -2,20 +2,14 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Edit
 {
-    public record EditArticleCommand(int Id, string Title, string Content)
-        : IRequest<Result>
-    {
-        [JsonIgnore]
-        public AuthorizationContext AuthContext { get; init; }
-    }
+    public record EditArticleCommand(int Number, string Title, string Content, AuthorizationContext AuthContext): IRequest<Result>;
 
-    internal class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Result>
+    internal sealed class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Result>
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -30,16 +24,13 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
 
         public async Task<Result> Handle(EditArticleCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByNumberAsync(request.Id, cancellationToken);
-            if (article == null)
+            var article = await _articleRepository.GetByNumberAsync(request.Number, cancellationToken);
+            if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            article.EnsureCanBeModifiedBy(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
-
-            article.UpdateTitle(request.Title);
-            article.UpdateContent(request.Content);
+            article.Edit(request.Title, request.Content, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
