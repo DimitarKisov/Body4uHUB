@@ -83,7 +83,7 @@ namespace Body4uHUB.Content.Api.Controllers
         }
 
         /// <summary>
-        /// Get all articles by a specific author
+        /// Get all published articles by a specific author
         /// </summary>
         [HttpGet("author/{authorId:guid}")]
         [AllowAnonymous]
@@ -100,10 +100,10 @@ namespace Body4uHUB.Content.Api.Controllers
         /// </summary>
         [HttpGet]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(IEnumerable<ArticleDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllArticles([FromQuery] int skip = 0, [FromQuery] int take = 10)
+        [ProducesResponseType(typeof(PagedResult<GetAllArticlesResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllArticles([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            var result = await Mediator.Send(new GetAllArticlesQuery(skip, take));
+            var result = await Mediator.Send(new GetAllArticlesQuery(page, size));
 
             return HandleResult(result);
         }
