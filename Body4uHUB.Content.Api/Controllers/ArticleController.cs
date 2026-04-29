@@ -87,10 +87,10 @@ namespace Body4uHUB.Content.Api.Controllers
         /// </summary>
         [HttpGet("author/{authorId:guid}")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(IEnumerable<GetArticlesByAuthorResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetArticlesByAuthor(Guid authorId)
+        [ProducesResponseType(typeof(PagedResult<GetArticlesByAuthorResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetArticlesByAuthor(Guid authorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId));
+            var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId, page, pageSize));
 
             return HandleResult(result);
         }

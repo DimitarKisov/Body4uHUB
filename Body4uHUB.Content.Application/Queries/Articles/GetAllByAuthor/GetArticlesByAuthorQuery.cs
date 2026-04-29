@@ -5,9 +5,9 @@ using MediatR;
 
 namespace Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor
 {
-    public record GetArticlesByAuthorQuery(Guid AuthorId): IRequest<Result<IEnumerable<GetArticlesByAuthorResponse>>>;
+    public record GetArticlesByAuthorQuery(Guid AuthorId, int Page, int PageSize): IRequest<Result<PagedResult<GetArticlesByAuthorResponse>>>;
 
-    internal sealed class GetArticlesByAuthorQueryHandler : IRequestHandler<GetArticlesByAuthorQuery, Result<IEnumerable<GetArticlesByAuthorResponse>>>
+    internal sealed class GetArticlesByAuthorQueryHandler : IRequestHandler<GetArticlesByAuthorQuery, Result<PagedResult<GetArticlesByAuthorResponse>>>
     {
         private readonly IArticleReadRepository _articleReadRepository;
 
@@ -16,9 +16,9 @@ namespace Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor
             _articleReadRepository = articleReadRepository;
         }
 
-        public async Task<Result<IEnumerable<GetArticlesByAuthorResponse>>> Handle(GetArticlesByAuthorQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<GetArticlesByAuthorResponse>>> Handle(GetArticlesByAuthorQuery request, CancellationToken cancellationToken)
         {
-            var articles = await _articleReadRepository.GetArticlesByAuthorAsync(request.AuthorId, cancellationToken);
+            var articles = await _articleReadRepository.GetArticlesByAuthorAsync(request.AuthorId, request.Page, request.PageSize, cancellationToken);
 
             return Result.Success(articles);
         }

@@ -4,6 +4,7 @@ using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Infrastructure.Persistence;
+using Body4uHUB.Shared.Application;
 using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories
@@ -39,13 +40,17 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<GetArticlesByAuthorResponse>> GetArticlesByAuthorAsync(Guid authorId, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<GetArticlesByAuthorResponse>> GetArticlesByAuthorAsync(Guid authorId, int page, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Articles
-                .Where(x => x.AuthorId == authorId)
-                .OrderByDescending(a => a.CreatedAt)
-                .Select(x => new GetArticlesByAuthorResponse
-                (
+            var query = _dbContext.Articles.Where(x=>x.AuthorId == authorId);
+
+            var totalCount = query.Count();
+
+            var items = await _dbContext.Articles
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new GetArticlesByAuthorResponse(
                     x.ArticleNumber,
                     x.Title,
                     x.AuthorId,
@@ -53,9 +58,10 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                     x.PublishedAt,
                     x.ViewCount,
                     x.CreatedAt,
-                    x.ModifiedAt)
-                )
+                    x.ModifiedAt))
                 .ToListAsync(cancellationToken);
+
+            return new PagedResult<GetArticlesByAuthorResponse>(items, totalCount, page, pageSize);
         }
 
         public async Task<ArticleDto> GetByNumberAsync(int id, CancellationToken cancellationToken = default)
