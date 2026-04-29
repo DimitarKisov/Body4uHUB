@@ -49,11 +49,11 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<Article> GetByNumberAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<Article> GetByNumberAsync(int articleNumber, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles
                 .Include(x => x.Comments)
-                .FirstOrDefaultAsync(x => x.ArticleNumber == id, cancellationToken);
+                .FirstOrDefaultAsync(x => x.ArticleNumber == articleNumber, cancellationToken);
         }
 
         public async Task IncrementViewCountAsync(int articleNumber, CancellationToken cancellationToken = default)

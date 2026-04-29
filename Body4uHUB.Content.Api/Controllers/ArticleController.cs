@@ -11,6 +11,7 @@ using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles;
 using Body4uHUB.Content.Application.Queries.Articles.GetAll;
 using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
+using Body4uHUB.Content.Application.Queries.Articles.GetById;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Archive article (Author or Admin only)
         /// </summary>
-        [HttpPost("{id:int}/archive")]
+        [HttpPost("{id:Guid}/archive")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -77,7 +78,7 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> DeleteArticle(int id)
         {
             var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
-            var result = await Mediator.Send(new DeleteArticleCommand(id, authContext));
+            var result = await Mediator.Send(new DeleteArticleCommand(ArticleNumber: id, authContext));
 
             return HandleResult(result);
         }
@@ -85,7 +86,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Get all published articles by a specific author
         /// </summary>
-        [HttpGet("author/{authorId:guid}")]
+        [HttpGet("author/{authorId:Guid}")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(PagedResult<GetArticlesByAuthorResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetArticlesByAuthor(Guid authorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
@@ -111,13 +112,13 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Get article by ID
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(ArticleDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetArticle(int id)
         {
-            var result = await Mediator.Send(new GetArticleByIdQuery(id));
+            var result = await Mediator.Send(new GetArticleByIdQuery(ArticleNumber: id));
 
             return HandleResult(result);
         }

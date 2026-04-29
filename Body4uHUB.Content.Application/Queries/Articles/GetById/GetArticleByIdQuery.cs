@@ -6,7 +6,7 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Application.Queries.Articles
+namespace Body4uHUB.Content.Application.Queries.Articles.GetById
 {
     public record GetArticleByIdQuery(int ArticleNumber): IRequest<Result<ArticleDto>>;
 

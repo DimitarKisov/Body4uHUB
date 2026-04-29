@@ -7,7 +7,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Delete
 {
-    public record DeleteArticleCommand(int Number, AuthorizationContext AuthContext) : IRequest<Result>;
+    public record DeleteArticleCommand(int ArticleNumber, AuthorizationContext AuthContext) : IRequest<Result>;
 
     internal sealed class DeleteArticleCommandHandler : IRequestHandler<DeleteArticleCommand, Result>
     {
@@ -24,7 +24,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
 
         public async Task<Result> Handle(DeleteArticleCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByNumberAsync(request.Number, cancellationToken);
+            var article = await _articleRepository.GetByNumberAsync(request.ArticleNumber, cancellationToken);
             if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);
