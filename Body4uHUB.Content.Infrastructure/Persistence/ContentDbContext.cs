@@ -13,7 +13,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence
 
         public DbSet<Article> Articles { get; set; }
         public DbSet<ForumTopic> ForumTopics { get; set; }
-        public DbSet<ForumPost> ForumPosts { get; set; }
         public DbSet<Bookmark> Bookmarks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
