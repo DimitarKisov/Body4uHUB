@@ -7,10 +7,8 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Commands.Forum.LockForumTopic
 {
-    public class LockForumTopicCommand : IRequest<Result>
+    public record LockForumTopicCommand(Guid TopicId) : IRequest<Result>
     {
-        public Guid TopicId { get; set; }
-
         internal class LockForumTopicCommandHandler : IRequestHandler<LockForumTopicCommand, Result>
         {
             private readonly IForumRepository _forumRepository;

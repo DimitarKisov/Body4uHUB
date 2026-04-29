@@ -7,10 +7,8 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic
 {
-    public class DeleteForumTopicCommand : IRequest<Result>
+    public record DeleteForumTopicCommand(Guid TopicId) : IRequest<Result>
     {
-        public Guid TopicId { get; set; }
-
         internal class DeleteForumTopicCommandHandler : IRequestHandler<DeleteForumTopicCommand, Result>
         {
             private readonly IForumRepository _forumRepository;

@@ -8,11 +8,8 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic
 {
-    public class CreateForumTopicCommand : IRequest<Result<Guid>>
+    public record CreateForumTopicCommand(string Title, Guid AuthorId) : IRequest<Result<Guid>>
     {
-        public string Title { get; set; }
-        public Guid AuthorId { get; set; }
-
         internal class CreateForumTopicCommandHandler : IRequestHandler<CreateForumTopicCommand, Result<Guid>>
         {
             private readonly IForumRepository _forumRepository;

@@ -3,7 +3,7 @@
     using FluentValidation;
 
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
+    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
     public class CreateForumPostCommandValidator : AbstractValidator<CreateForumPostCommand>
     {
@@ -11,7 +11,7 @@
         {
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage(ContentRequired)
-                .Length(ContentMinLength, ContentMaxLength).WithMessage(ContentLengthMessage);
+                .Length(ForumPostContentMinLength, ForumPostContentMaxLength).WithMessage(ContentLengthMessage);
 
             RuleFor(x => x.AuthorId)
                 .NotEmpty().WithMessage(AuthorIdRequired);

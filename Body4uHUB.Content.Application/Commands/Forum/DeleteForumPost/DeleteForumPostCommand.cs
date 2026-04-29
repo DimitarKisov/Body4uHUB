@@ -2,20 +2,16 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
 {
-    public class DeleteForumPostCommand : IRequest<Result>
+    public record DeleteForumPostCommand : IRequest<Result>
     {
-        public Guid PostId { get; set; }
-        public Guid TopicId { get; set; }
-
-        [JsonIgnore]
-        public AuthorizationContext AuthContext { get; set; }
+        public Guid PostId { get; init; }
+        public Guid TopicId { get; init; }
+        public AuthorizationContext AuthContext { get; init; }
 
         internal class DeleteForumPostCommandHandler : IRequestHandler<DeleteForumPostCommand, Result>
         {
@@ -38,18 +34,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
                     return Result.ResourceNotFound(ForumTopicNotFound);
                 }
 
-                var post = topic.Posts.FirstOrDefault(x => x.Id == request.PostId);
-                if (post == null)
-                {
-                    return Result.ResourceNotFound(ForumPostNotFound);
-                }
-
-                if (!request.AuthContext.IsAdmin && post.AuthorId != request.AuthContext.CurrentUserId)
-                {
-                    return Result.Forbidden(ForumPostDeleteForbidden);
-                }
-
-                post.MarkAsDeleted();
+                topic.DeletePost(request.PostId);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -1,7 +1,8 @@
 ﻿using Body4uHUB.Content.Domain.Exceptions;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {
@@ -55,7 +56,7 @@ namespace Body4uHUB.Content.Domain.Models
         private static void ValidateContent(string content)
         {
             Guard.AgainstEmptyString<InvalidForumPostException>(content, nameof(content));
-            Guard.ForStringLength<InvalidForumPostException>(content, ContentMinLength, ContentMaxLength, nameof(content));
+            Guard.ForStringLength<InvalidForumPostException>(content, ForumPostContentMinLength, ForumPostContentMaxLength, nameof(content));
         }
 
         private static void ValidateAuthorId(Guid authorId)

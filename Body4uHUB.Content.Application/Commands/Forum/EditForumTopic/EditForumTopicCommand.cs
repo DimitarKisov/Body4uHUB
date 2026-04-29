@@ -8,13 +8,13 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Commands.Forum.EditForumTopic
 {
-    public class EditForumTopicCommand : IRequest<Result>
+    public record EditForumTopicCommand(string Title) : IRequest<Result>
     {
-        public Guid TopicId { get; set; }
-        public string Title { get; set; }
+        [JsonIgnore]
+        public Guid TopicId{ get; init; }
 
         [JsonIgnore]
-        public AuthorizationContext AuthContext { get; set; }
+        public AuthorizationContext AuthContext { get; init; }
 
         internal class EditForumTopicCommandHandler : IRequestHandler<EditForumTopicCommand, Result>
         {
@@ -43,10 +43,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumTopic
                     return Result.ResourceNotFound(ForumTopicNotFound);
                 }
 
-                if (!request.AuthContext.IsAdmin && topic.AuthorId != request.AuthContext.CurrentUserId)
-                {
-                    return Result.Forbidden(ForumTopicEditForbidden);
-                }
+                topic.EnsureCanBeModifiedBy(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
                 
                 topic.UpdateTitle(request.Title);
 

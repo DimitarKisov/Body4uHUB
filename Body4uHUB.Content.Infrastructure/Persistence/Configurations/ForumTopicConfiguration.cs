@@ -5,7 +5,6 @@
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
 
     internal class ForumTopicConfiguration : IEntityTypeConfiguration<ForumTopic>
     {
@@ -47,7 +46,7 @@
                     .HasForeignKey("ForumTopicId");
 
                 postBuilder.Property(x => x.Content)
-                    .HasMaxLength(ContentMaxLength)
+                    .HasMaxLength(ForumPostContentMaxLength)
                     .IsRequired();
 
                 postBuilder.Property(x => x.AuthorId)

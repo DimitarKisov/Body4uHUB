@@ -1,18 +1,20 @@
-﻿using Body4uHUB.Content.Domain.Models;
-using Body4uHUB.Content.Domain.Repositories;
+﻿using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
+using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumPost
 {
-    public class CreateForumPostCommand : IRequest<Result<Guid>>
+    public record CreateForumPostCommand(string Content) : IRequest<Result<Guid>>
     {
-        public string Content { get; set; }
-        public Guid AuthorId { get; set; }
-        public Guid TopicId { get; set; }
+        [JsonIgnore]
+        public Guid AuthorId { get; init; }
+
+        [JsonIgnore]
+        public Guid TopicId { get; init; }
 
         internal class CreateForumPostCommandHandler : IRequestHandler<CreateForumPostCommand, Result<Guid>>
         {
@@ -35,15 +37,11 @@ namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumPost
                     return Result.ResourceNotFound<Guid>(ForumTopicNotFound);
                 }
 
-                var post = ForumPost.Create(
-                    request.Content,
-                    request.AuthorId);
-
-                topic.AddPost(post);
+                var postId = topic.AddPost(request.Content, request.AuthorId);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return Result.Success(post.Id);
+                return Result.Success(postId);
             }
         }
     }

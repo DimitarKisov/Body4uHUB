@@ -14,9 +14,10 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<ForumTopicDto>> GetAllAsync(int skip, int take, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ForumTopicDto>> GetAllAsync(int skip, int take, bool includeDeleted, CancellationToken cancellationToken)
         {
             return await _dbContext.ForumTopics
+                .Where(x => includeDeleted || !x.IsDeleted)
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip(skip)
                 .Take(take)

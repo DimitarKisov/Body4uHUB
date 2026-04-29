@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Content.Domain.Exceptions;
 using Body4uHUB.Shared.Domain.Base;
+using Body4uHUB.Shared.Domain.Exceptions;
 using Body4uHUB.Shared.Domain.Guards;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
@@ -38,9 +39,44 @@ namespace Body4uHUB.Content.Domain.Models
             return new ForumTopic(title, authorId);
         }
 
-        public void AddPost(ForumPost post)
+        public Guid AddPost(string content, Guid authorId)
         {
+            if (IsLocked)
+            {
+                throw new InvalidForumTopicException(ForumTopicLocked);
+            }
+
+            var post = ForumPost.Create(content, authorId);
             _posts.Add(post);
+
+            return post.Id;
+        }
+
+        public void EditPost(Guid postId, string content, Guid requesterId, bool isAdmin)
+        {
+            var post = _posts.FirstOrDefault(x => x.Id == postId);
+            if (post == null)
+            {
+                throw new DomainNotFoundException(ForumPostNotFound);
+            }
+
+            if (!isAdmin && post.AuthorId != requesterId)
+            {
+                throw new DomainAuthorizationException(ForumPostEditForbidden);
+            }
+
+            post.UpdateContent(content);
+        }
+
+        public void DeletePost(Guid postId)
+        {
+            var post = _posts.FirstOrDefault(x => x.Id == postId);
+            if (post == null)
+            {
+                throw new InvalidForumTopicException(ForumPostNotFound);
+            }
+
+            post.MarkAsDeleted();
         }
 
         public void UpdateTitle(string title)
@@ -77,6 +113,14 @@ namespace Body4uHUB.Content.Domain.Models
         public void IncrementViewCount()
         {
             ViewCount++;
+        }
+
+        public void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
+        {
+            if (!isAdmin && AuthorId != requesterId)
+            {
+                throw new DomainAuthorizationException(ForumTopicModifyForbidden);
+            }
         }
 
         private static void Validate(string title, Guid authorId)

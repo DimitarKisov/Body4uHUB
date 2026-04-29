@@ -5,27 +5,22 @@ using MediatR;
 
 namespace Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics
 {
-    public class GetAllForumTopicsQuery : IRequest<Result<IEnumerable<ForumTopicDto>>>
+    public record GetAllForumTopicsQuery(int Skip = 0, int Take = 20, bool IncludeDeleted = false) : IRequest<Result<IEnumerable<ForumTopicDto>>>;
+
+    internal class GetAllForumTopicsQueryHandler : IRequestHandler<GetAllForumTopicsQuery, Result<IEnumerable<ForumTopicDto>>>
     {
-        public int Skip { get; set; } = 0;
-        public int Take { get; set; } = 20;
-        public bool IncludeDeleted { get; set; } = false;
+        private readonly IForumReadRepository _forumReadRepository;
 
-        internal class GetAllForumTopicsQueryHandler : IRequestHandler<GetAllForumTopicsQuery, Result<IEnumerable<ForumTopicDto>>>
+        public GetAllForumTopicsQueryHandler(IForumReadRepository forumReadRepository)
         {
-            private readonly IForumReadRepository _forumReadRepository;
+            _forumReadRepository = forumReadRepository;
+        }
 
-            public GetAllForumTopicsQueryHandler(IForumReadRepository forumReadRepository)
-            {
-                _forumReadRepository = forumReadRepository;
-            }
+        public async Task<Result<IEnumerable<ForumTopicDto>>> Handle(GetAllForumTopicsQuery request, CancellationToken cancellationToken)
+        {
+            var topics = await _forumReadRepository.GetAllAsync(request.Skip, request.Take, request.IncludeDeleted, cancellationToken);
 
-            public async Task<Result<IEnumerable<ForumTopicDto>>> Handle(GetAllForumTopicsQuery request, CancellationToken cancellationToken)
-            {
-                var topics = await _forumReadRepository.GetAllAsync(request.Skip, request.Take, cancellationToken);
-
-                return Result.Success(topics);
-            }
+            return Result.Success(topics);
         }
     }
 }

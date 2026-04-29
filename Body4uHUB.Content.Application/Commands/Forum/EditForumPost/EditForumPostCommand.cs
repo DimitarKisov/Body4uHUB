@@ -4,19 +4,20 @@ using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 using System.Text.Json.Serialization;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumPostConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
 {
-    public class EditForumPostCommand : IRequest<Result>
+    public record EditForumPostCommand(string Content) : IRequest<Result>
     {
-        public Guid PostId { get; set; }
-        public Guid TopicId { get; set; }
-        public string Content { get; set; }
+        [JsonIgnore]
+        public Guid PostId { get; init; }
 
         [JsonIgnore]
-        public AuthorizationContext AuthContext { get; set; }
+        public Guid TopicId { get; init; }
+
+        [JsonIgnore]
+        public AuthorizationContext AuthContext { get; init; }
 
         internal class EditForumPostCommandHandler : IRequestHandler<EditForumPostCommand, Result>
         {
@@ -39,18 +40,11 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
                     return Result.ResourceNotFound(ForumTopicNotFound);
                 }
 
-                var post = topic.Posts.FirstOrDefault(x => x.Id == request.PostId);
-                if (post == null)
-                {
-                    return Result.ResourceNotFound(ForumPostNotFound);
-                }
-
-                if (!request.AuthContext.IsAdmin && post.AuthorId != request.AuthContext.CurrentUserId)
-                {
-                    return Result.Forbidden(ForumPostEditForbidden);
-                }
-
-                post.UpdateContent(request.Content);
+                topic.EditPost(
+                    request.PostId,
+                    request.Content,
+                    request.AuthContext.CurrentUserId,
+                    request.AuthContext.IsAdmin);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

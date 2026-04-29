@@ -28,14 +28,14 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Create a new forum topic
         /// </summary>
-        [HttpPost("createTopic")]
+        [HttpPost("topics")]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateForumTopic([FromBody] CreateForumTopicCommand command)
         {
-            command.AuthorId = User.GetUserId();
+            command = command with { AuthorId = User.GetUserId() };
 
             var result = await Mediator.Send(command);
 
@@ -54,7 +54,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteForumTopic(Guid topicId)
         {
-            var result = await Mediator.Send(new DeleteForumTopicCommand { TopicId = topicId });
+            var result = await Mediator.Send(new DeleteForumTopicCommand(topicId));
             return HandleResult(result);
         }
 
@@ -70,12 +70,15 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> EditForumTopic(Guid topicId, [FromBody] EditForumTopicCommand command)
         {
-            command.TopicId = topicId;
-            command.AuthContext = AuthorizationContext.Create(
-                User.GetUserId(),
-                User.IsAdmin()
-            );
-
+            command = command with
+            {
+                TopicId = topicId,
+                AuthContext = AuthorizationContext.Create(
+                    User.GetUserId(),
+                    User.IsAdmin()
+                )
+            };
+            
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }
@@ -86,9 +89,9 @@ namespace Body4uHUB.Content.Api.Controllers
         [HttpGet("topics")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(IEnumerable<ForumTopicDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTopics([FromQuery] int skip = 0, [FromQuery] int take = 20)
+        public async Task<IActionResult> GetAllTopics([FromQuery] int skip = 0, [FromQuery] int take = 20, [FromQuery] bool includeDeleted = false)
         {
-            var result = await Mediator.Send(new GetAllForumTopicsQuery { Skip = skip, Take = take });
+            var result = await Mediator.Send(new GetAllForumTopicsQuery(skip, take, includeDeleted));
             return HandleResult(result);
         }
 
@@ -101,7 +104,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetForumTopic(Guid topicId)
         {
-            var result = await Mediator.Send(new GetForumTopicByIdQuery { TopicId = topicId });
+            var result = await Mediator.Send(new GetForumTopicByIdQuery(topicId));
             return HandleResult(result);
         }
 
@@ -117,7 +120,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> LockForumTopic(Guid topicId)
         {
-            var result = await Mediator.Send(new LockForumTopicCommand { TopicId = topicId });
+            var result = await Mediator.Send(new LockForumTopicCommand(topicId));
             return HandleResult(result);
         }
 
@@ -133,22 +136,25 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> UnlockForumTopic(Guid topicId)
         {
-            var result = await Mediator.Send(new UnlockForumTopicCommand { TopicId = topicId });
+            var result = await Mediator.Send(new UnlockForumTopicCommand(topicId));
             return HandleResult(result);
         }
 
         /// <summary>
         /// Create a new post in a forum topic
         /// </summary>
-        [HttpPost("topics/{topicId}/createPost")]
+        [HttpPost("topics/{topicId}/posts")]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CreateForumPost(Guid topicId, [FromBody] CreateForumPostCommand command)
         {
-            command.TopicId = topicId;
-            command.AuthorId = User.GetUserId();
+            command = command with
+            {
+                TopicId = topicId,
+                AuthorId = User.GetUserId()
+            };
 
             var result = await Mediator.Send(command);
             return HandleResult(result, id => new { postId = id });
@@ -191,12 +197,15 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> EditForumPost(Guid topicId, Guid postId, [FromBody] EditForumPostCommand command)
         {
-            command.PostId = postId;
-            command.TopicId = topicId;
-            command.AuthContext = AuthorizationContext.Create(
-                User.GetUserId(),
-                User.IsAdmin()
-            );
+            command = command with
+            {
+                PostId = postId,
+                TopicId = topicId,
+                AuthContext = AuthorizationContext.Create(
+                    User.GetUserId(),
+                    User.IsAdmin()
+                )
+            };
 
             var result = await Mediator.Send(command);
             return HandleResult(result);

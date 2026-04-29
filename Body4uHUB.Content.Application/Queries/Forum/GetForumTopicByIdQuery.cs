@@ -8,10 +8,8 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Queries.Forum
 {
-    public class GetForumTopicByIdQuery : IRequest<Result<ForumTopicDto>>
+    public record GetForumTopicByIdQuery(Guid TopicId) : IRequest<Result<ForumTopicDto>>
     {
-        public Guid TopicId { get; set; }
-
         internal class GetForumTopicByIdQueryHandler : IRequestHandler<GetForumTopicByIdQuery, Result<ForumTopicDto>>
         {
             private readonly IForumRepository _forumRepository;

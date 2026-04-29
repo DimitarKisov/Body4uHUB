@@ -7,37 +7,34 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic
 {
-    public class UnlockForumTopicCommand : IRequest<Result>
+    public record UnlockForumTopicCommand(Guid TopicId) : IRequest<Result>;
+
+    internal class UnlockForumTopicCommandHandler : IRequestHandler<UnlockForumTopicCommand, Result>
     {
-        public Guid TopicId { get; set; }
+        private readonly IForumRepository _forumRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        internal class UnlockForumTopicCommandHandler : IRequestHandler<UnlockForumTopicCommand, Result>
+        public UnlockForumTopicCommandHandler(
+            IForumRepository forumRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IForumRepository _forumRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _forumRepository = forumRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public UnlockForumTopicCommandHandler(
-                IForumRepository forumRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(UnlockForumTopicCommand request, CancellationToken cancellationToken)
+        {
+            var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
+            if (topic == null)
             {
-                _forumRepository = forumRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(ForumTopicNotFound);
             }
 
-            public async Task<Result> Handle(UnlockForumTopicCommand request, CancellationToken cancellationToken)
-            {
-                var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
-                if (topic == null)
-                {
-                    return Result.ResourceNotFound(ForumTopicNotFound);
-                }
+            topic.Unlock();
 
-                topic.Unlock();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
-            }
+            return Result.Success();
         }
     }
 }

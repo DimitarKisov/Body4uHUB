@@ -57,19 +57,9 @@
             public const string UserIdRequired = "UserId is required.";
         }
 
-        public class ForumPostConstants
-        {
-            public const int ContentMinLength = 5;
-            public const int ContentMaxLength = 2000;
-
-            public const string ForumPostDeleted = "Cannot update content of a deleted forum post.";
-            public const string ForumPostEditForbidden = "You do not have permission to edit this post.";
-            public const string ForumPostNotFound = "Forum post not found.";
-            public const string ForumPostDeleteForbidden = "You do not have permission to delete this post.";
-        }
-
         public class ForumTopicConstants
         {
+            #region ForumTopic
             public const int TitleMinLength = 5;
             public const int TitleMaxLength = 100;
 
@@ -77,9 +67,20 @@
             public const string ForumTopicExists = "Forum topic with title '{0}' already exists.";
             public const string ForumTopicLocked = "Forum topic is already locked.";
             public const string ForumTopicUnlocked = "Forum topic is already unlocked.";
-            public const string ForumTopicEditForbidden = "You do not have permission to edit this forum topic.";
+            public const string ForumTopicModifyForbidden = "You do not have permission to modify this forum topic.";
 
             public const string ForumTopicIdCannotBeZeroOrNegative = "Forum Topic ID must be greater than 0.";
+            #endregion
+
+            #region ForumPost
+            public const int ForumPostContentMinLength = 5;
+            public const int ForumPostContentMaxLength = 2000;
+
+            public const string ForumPostDeleted = "Cannot update content of a deleted forum post.";
+            public const string ForumPostEditForbidden = "You do not have permission to edit this post.";
+            public const string ForumPostNotFound = "Forum post not found.";
+            public const string ForumPostDeleteForbidden = "You do not have permission to delete this post.";
+            #endregion
         }
     }
 }
