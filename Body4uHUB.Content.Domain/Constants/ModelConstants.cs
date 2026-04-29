@@ -68,6 +68,7 @@
             public const string ForumTopicLocked = "Forum topic is already locked.";
             public const string ForumTopicUnlocked = "Forum topic is already unlocked.";
             public const string ForumTopicModifyForbidden = "You do not have permission to modify this forum topic.";
+            public const string ForumTopicDeleted = "Cannot modify a deleted forum topic.";
 
             public const string ForumTopicIdCannotBeZeroOrNegative = "Forum Topic ID must be greater than 0.";
             #endregion

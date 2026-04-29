@@ -39,6 +39,19 @@ namespace Body4uHUB.Content.Domain.Models
             return new ForumTopic(title, authorId);
         }
 
+        public void Edit(string title, Guid requesterId, bool isAdmin)
+        {
+            if (IsDeleted)
+            {
+                throw new InvalidForumTopicException(ForumTopicDeleted);
+            }
+
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
+            ValidateTitle(title);
+            Title = title;
+        }
+
         public Guid AddPost(string content, Guid authorId)
         {
             if (IsLocked)
@@ -115,7 +128,7 @@ namespace Body4uHUB.Content.Domain.Models
             ViewCount++;
         }
 
-        public void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
+        private void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
         {
             if (!isAdmin && AuthorId != requesterId)
             {

@@ -43,9 +43,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumTopic
                     return Result.ResourceNotFound(ForumTopicNotFound);
                 }
 
-                topic.EnsureCanBeModifiedBy(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
-                
-                topic.UpdateTitle(request.Title);
+                topic.Edit(request.Title, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
