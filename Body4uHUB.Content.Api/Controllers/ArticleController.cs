@@ -29,14 +29,14 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Archive article (Author or Admin only)
         /// </summary>
-        [HttpPost("{id:Guid}/archive")]
+        [HttpPost("{id:int}/archive")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> ArchiveArticle(Guid id)
+        public async Task<IActionResult> ArchiveArticle(int id)
         {
             var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
             var result = await Mediator.Send(new ArchiveArticleCommand(id, authContext));
@@ -78,7 +78,7 @@ namespace Body4uHUB.Content.Api.Controllers
         public async Task<IActionResult> DeleteArticle(int id)
         {
             var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
-            var result = await Mediator.Send(new DeleteArticleCommand(ArticleNumber: id, authContext));
+            var result = await Mediator.Send(new DeleteArticleCommand(id, authContext));
 
             return HandleResult(result);
         }
@@ -117,7 +117,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetArticle(int id)
         {
-            var result = await Mediator.Send(new GetArticleByIdQuery(ArticleNumber: id));
+            var result = await Mediator.Send(new GetArticleByIdQuery(id));
 
             return HandleResult(result);
         }
@@ -125,7 +125,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Edit article (Author or Admin only)
         /// </summary>
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -144,7 +144,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// <summary>
         /// Publish article (Author or Admin only)
         /// </summary>
-        [HttpPost("{id}/publish")]
+        [HttpPost("{id:int}/publish")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

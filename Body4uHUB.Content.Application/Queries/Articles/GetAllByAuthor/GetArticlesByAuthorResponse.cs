@@ -1,9 +1,7 @@
-﻿using Body4uHUB.Content.Application.DTOs;
-
-namespace Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor
+﻿namespace Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor
 {
     public record GetArticlesByAuthorResponse(
-        int ArticleNumber,
+        int Id,
         string Title,
         Guid AuthorId,
         string Status,

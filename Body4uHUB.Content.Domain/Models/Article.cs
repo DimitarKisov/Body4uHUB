@@ -8,12 +8,10 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Domain.Models
 {
-    public class Article : AggregateRoot<Guid>
+    public class Article : AggregateRoot<int>
     {
         private readonly List<Comment> _comments = [];
 
-        // External ID - за URLs и user references
-        public int ArticleNumber { get; private set; }
         public string Title { get; private set; }
         public string Content { get; private set; }
         public ArticleStatus Status { get; private set; }
@@ -29,7 +27,7 @@ namespace Body4uHUB.Content.Domain.Models
         }
 
         private Article(string title, string content, Guid authorId)
-            : base(Guid.NewGuid())
+            : base()
         {
             Title = title;
             Content = content;

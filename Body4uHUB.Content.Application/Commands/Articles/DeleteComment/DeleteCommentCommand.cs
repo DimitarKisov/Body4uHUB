@@ -30,7 +30,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
 
         public async Task<Result> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByNumberAsync(request.ArticleId, cancellationToken);
+            var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
             if (article == null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);

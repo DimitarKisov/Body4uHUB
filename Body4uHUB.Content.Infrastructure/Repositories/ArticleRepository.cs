@@ -19,14 +19,14 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             _dbContext.Articles.Add(article);
         }
 
-        public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles.AnyAsync(x => x.Id == id, cancellationToken);
         }
 
         public async Task<bool> ExistsByNumberAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Articles.AnyAsync(x => x.ArticleNumber == id, cancellationToken);
+            return await _dbContext.Articles.AnyAsync(x => x.Id == id, cancellationToken);
         }
 
         public async Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default)
@@ -34,32 +34,30 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return await _dbContext.Articles.AnyAsync(x => x.Title == title, cancellationToken);
         }
 
-        public async Task<Guid> GetArticleIdByNumberAsync(int number, CancellationToken cancellationToken = default)
+        public async Task<int> GetArticleIdByNumberAsync(int number, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles
-                .Where(x => x.ArticleNumber == number)
+                .Where(x => x.Id == number)
                 .Select(x => x.Id)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<Article> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Article> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles
                 .Include(x => x.Comments)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<Article> GetByNumberAsync(int articleNumber, CancellationToken cancellationToken = default)
+        public async Task<Article> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Articles
-                .Include(x => x.Comments)
-                .FirstOrDefaultAsync(x => x.ArticleNumber == articleNumber, cancellationToken);
+            return await _dbContext.Articles.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<bool> IncrementViewCountAsync(int articleNumber, CancellationToken cancellationToken = default)
+        public async Task<bool> IncrementViewCountAsync(int id, CancellationToken cancellationToken = default)
         {
             var articleId = await _dbContext.Articles
-                .Where(x => x.ArticleNumber == articleNumber)
+                .Where(x => x.Id == id)
                 .ExecuteUpdateAsync(x => x.SetProperty(y => y.ViewCount, y => y.ViewCount + 1), cancellationToken);
 
             return articleId > 0;

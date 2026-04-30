@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ContentDbContext))]
-    [Migration("20260429152931_AddedIsDeletedInArticle")]
-    partial class AddedIsDeletedInArticle
+    [Migration("20260430053244_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,15 +27,11 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Body4uHUB.Content.Domain.Models.Article", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ArticleNumber")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ArticleNumber"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
@@ -70,9 +66,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ArticleNumber")
-                        .IsUnique();
-
                     b.HasIndex("AuthorId");
 
                     b.HasIndex("Id")
@@ -91,8 +84,8 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ArticleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ArticleNumber")
                         .HasColumnType("int");
@@ -166,8 +159,8 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<Guid>("ArticleId")
-                                .HasColumnType("uniqueidentifier");
+                            b1.Property<int>("ArticleId")
+                                .HasColumnType("int");
 
                             b1.Property<Guid>("AuthorId")
                                 .HasColumnType("uniqueidentifier");

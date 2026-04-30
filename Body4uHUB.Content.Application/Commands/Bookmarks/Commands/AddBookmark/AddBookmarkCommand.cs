@@ -33,7 +33,7 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark
             public async Task<Result<Guid>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
             {
                 var articleId = await _articleRepository.GetArticleIdByNumberAsync(request.ArticleId, cancellationToken);
-                if (articleId == Guid.Empty)
+                if (articleId <= 0)
                 {
                     return Result.ResourceNotFound<Guid>(ArticleNotFound);
                 }
@@ -44,7 +44,7 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark
                     return Result.ResourceNotFound<Guid>(BookmarkAlreadyExists);
                 }
 
-                var bookmark = Bookmark.Create(request.UserId, articleId, request.ArticleId);
+                var bookmark = Bookmark.Create(request.UserId, articleId);
 
                 _bookmarkRepository.Add(bookmark);
 

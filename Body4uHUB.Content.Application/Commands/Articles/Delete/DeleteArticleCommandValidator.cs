@@ -8,7 +8,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
     {
         public DeleteArticleCommandValidator()
         {
-            RuleFor(x => x.ArticleNumber)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage(ArticleIdRequired);
         }
     }

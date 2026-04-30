@@ -19,10 +19,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id)
                 .IsRequired();
 
-            builder.Property(x => x.ArticleNumber)
-                .ValueGeneratedOnAdd()
-                .UseIdentityColumn();
-
             builder.Property(x => x.Title)
                 .HasMaxLength(200)
                 .IsRequired();
@@ -93,9 +89,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
 
             // Indexes
             builder.HasIndex(x => x.Id)
-                .IsUnique();
-
-            builder.HasIndex(x => x.ArticleNumber)
                 .IsUnique();
 
             builder.HasIndex(x => x.AuthorId);

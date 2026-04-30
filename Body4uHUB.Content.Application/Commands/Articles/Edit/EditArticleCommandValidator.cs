@@ -9,7 +9,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
     {
         public EditArticleCommandValidator()
         {
-            RuleFor(x => x.Number)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage(ArticleIdRequired);
 
             RuleFor(x => x.Title)

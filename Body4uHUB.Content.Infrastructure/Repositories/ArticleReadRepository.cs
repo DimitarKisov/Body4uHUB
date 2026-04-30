@@ -31,7 +31,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new GetAllArticlesResponse(
-                    x.ArticleNumber,
+                    x.Id,
                     x.Title,
                     x.AuthorId,
                     x.Status.Name,
@@ -59,7 +59,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new GetArticlesByAuthorResponse(
-                    x.ArticleNumber,
+                    x.Id,
                     x.Title,
                     x.AuthorId,
                     x.Status.Name,
@@ -72,11 +72,11 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return new PagedResult<GetArticlesByAuthorResponse>(items, totalCount, page, pageSize);
         }
 
-        public async Task<GetArticleByIdResponse> GetByNumberAsync(int articleNumber, CancellationToken cancellationToken = default)
+        public async Task<GetArticleByIdResponse> GetWithCommentsByIdAsync(int articleNumber, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles
                 .Select(x => new GetArticleByIdResponse(
-                    x.ArticleNumber,
+                    x.Id,
                     x.Title,
                     x.Content,
                     x.AuthorId,

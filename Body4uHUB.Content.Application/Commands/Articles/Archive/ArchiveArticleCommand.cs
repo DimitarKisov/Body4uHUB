@@ -7,7 +7,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Archive
 {
-    public record ArchiveArticleCommand(Guid Id, AuthorizationContext AuthContext) : IRequest<Result>;
+    public record ArchiveArticleCommand(int Id, AuthorizationContext AuthContext) : IRequest<Result>;
 
     internal sealed class ArchiveArticleCommandHandler: IRequestHandler<ArchiveArticleCommand, Result>
     {
@@ -24,7 +24,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Archive
 
         public async Task<Result> Handle(ArchiveArticleCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByIdAsync(request.Id, cancellationToken);
+            var article = await _articleRepository.GetWithCommentsByIdAsync(request.Id, cancellationToken);
             if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);

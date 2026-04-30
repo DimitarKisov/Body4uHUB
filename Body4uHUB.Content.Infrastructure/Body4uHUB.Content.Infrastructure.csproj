@@ -20,4 +20,8 @@
     <ProjectReference Include="..\Body4uHUB.Shared.Infrastructure\Body4uHUB.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\Migrations\" />
+  </ItemGroup>
+
 </Project>

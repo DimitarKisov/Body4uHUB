@@ -7,7 +7,7 @@ namespace Body4uHUB.Content.Domain.Models
     public class Bookmark : AggregateRoot<Guid>
     {
         public Guid UserId { get; private set; }
-        public Guid ArticleId { get; private set; }
+        public int ArticleId { get; private set; }
         public int ArticleNumber { get; private set; }
 
         private Bookmark()
@@ -15,25 +15,23 @@ namespace Body4uHUB.Content.Domain.Models
         {
         }
 
-        private Bookmark(Guid userId, Guid articleId, int articleNumber)
+        private Bookmark(Guid userId, int articleId)
             : base(Guid.NewGuid())
         {
             UserId = userId;
             ArticleId = articleId;
-            ArticleNumber = articleNumber;
         }
 
-        public static Bookmark Create(Guid userId, Guid articleId, int articleNumber)
+        public static Bookmark Create(Guid userId, int articleId)
         {
-            Validate(userId, articleId, articleNumber);
-            return new Bookmark(userId, articleId, articleNumber);
+            Validate(userId, articleId);
+            return new Bookmark(userId, articleId);
         }
 
-        private static void Validate(Guid userId, Guid articleId, int articleNumber)
+        private static void Validate(Guid userId, int articleId)
         {
             ValidateUserId(userId);
             ValidateArticleId(articleId);
-            ValidateArticleNumber(articleNumber);
         }
 
         private static void ValidateUserId(Guid userId)
@@ -41,14 +39,9 @@ namespace Body4uHUB.Content.Domain.Models
             Guard.AgainstEmptyGuid<InvalidBookmarkException>(userId, nameof(userId));
         }
 
-        private static void ValidateArticleId(Guid articleId)
+        private static void ValidateArticleId(int articleId)
         {
-            Guard.AgainstEmptyGuid<InvalidBookmarkException>(articleId, nameof(articleId));
-        }
-
-        private static void ValidateArticleNumber(int articleNumber)
-        {
-            Guard.AgainstNegativeAndZero<InvalidBookmarkException>(articleNumber, nameof(articleNumber));
+            Guard.AgainstNegativeAndZero<InvalidBookmarkException>(articleId, nameof(articleId));
         }
     }
 }

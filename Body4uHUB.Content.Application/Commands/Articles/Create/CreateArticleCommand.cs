@@ -41,7 +41,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Create
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(new CreateArticleResponse(article.ArticleNumber));
+            return Result.Success(new CreateArticleResponse(article.Id));
         }
     }
 }

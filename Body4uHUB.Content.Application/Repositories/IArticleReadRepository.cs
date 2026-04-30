@@ -10,6 +10,6 @@ namespace Body4uHUB.Content.Application.Repositories
     {
         Task<PagedResult<GetAllArticlesResponse>> GetAllArticlesAsync(int page, int pageSize, CancellationToken cancellationToken);
         Task<PagedResult<GetArticlesByAuthorResponse>> GetArticlesByAuthorAsync(Guid authorId, int page, int pageSize, CancellationToken cancellationToken = default);
-        Task<GetArticleByIdResponse> GetByNumberAsync(int id, CancellationToken cancellationToken = default);
+        Task<GetArticleByIdResponse> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default);
     }
 }

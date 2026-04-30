@@ -1,7 +1,7 @@
 ﻿namespace Body4uHUB.Content.Application.Queries.Articles.GetAll
 {
     public record GetAllArticlesResponse(
-        int ArticleNumber,
+        int Id,
         string Title,
         Guid AuthorId,
         string Status,

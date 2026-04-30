@@ -19,7 +19,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             _dbContext.Bookmarks.Add(bookmark);
         }
 
-        public async Task<bool> ExistsAsync(Guid userId, Guid articleId, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsAsync(Guid userId, int articleId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Bookmarks.AnyAsync(x => x.UserId == userId && x.ArticleId == articleId, cancellationToken);
         }
