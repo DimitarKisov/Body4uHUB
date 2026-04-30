@@ -84,7 +84,7 @@ namespace Body4uHUB.Content.Api.Controllers
         }
 
         /// <summary>
-        /// Get all published articles by a specific author
+        /// Get all published articles by a specific author with pagination
         /// </summary>
         [HttpGet("author/{authorId:Guid}")]
         [AllowAnonymous]

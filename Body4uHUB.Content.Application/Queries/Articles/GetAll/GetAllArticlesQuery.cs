@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Body4uHUB.Content.Application.Queries.Articles.GetAll
 {
-    public record GetAllArticlesQuery(int Page, int Size): IRequest<Result<PagedResult<GetAllArticlesResponse>>>;
+    public record GetAllArticlesQuery(int Page, int PageSize): IRequest<Result<PagedResult<GetAllArticlesResponse>>>;
 
     internal sealed class GetAllArticlesQueryHandler : IRequestHandler<GetAllArticlesQuery, Result<PagedResult<GetAllArticlesResponse>>>
     {
@@ -17,7 +17,7 @@ namespace Body4uHUB.Content.Application.Queries.Articles.GetAll
 
         public async Task<Result<PagedResult<GetAllArticlesResponse>>> Handle(GetAllArticlesQuery request, CancellationToken cancellationToken)
         {
-            var articles = await _articleReadRepository.GetAllArticlesAsync(request.Page, request.Size, cancellationToken);
+            var articles = await _articleReadRepository.GetAllArticlesAsync(request.Page, request.PageSize, cancellationToken);
 
             return Result.Success(articles);
         }

@@ -7,7 +7,7 @@ namespace Body4uHUB.Content.Application.Repositories
 {
     public interface IArticleReadRepository
     {
-        Task<PagedResult<GetAllArticlesResponse>> GetAllArticlesAsync(int skip, int take, CancellationToken cancellationToken);
+        Task<PagedResult<GetAllArticlesResponse>> GetAllArticlesAsync(int page, int pageSize, CancellationToken cancellationToken);
         Task<PagedResult<GetArticlesByAuthorResponse>> GetArticlesByAuthorAsync(Guid authorId, int page, int pageSize, CancellationToken cancellationToken = default);
         Task<ArticleDto> GetByNumberAsync(int id, CancellationToken cancellationToken = default);
     }
