@@ -12,6 +12,6 @@ namespace Body4uHUB.Content.Domain.Repositories
         Task<Guid> GetArticleIdByNumberAsync(int number, CancellationToken cancellationToken = default);
         Task<Article> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<Article> GetByNumberAsync(int articleNumber, CancellationToken cancellationToken = default);
-        Task IncrementViewCountAsync(int articleNumber, CancellationToken cancellationToken = default);
+        Task<bool> IncrementViewCountAsync(int articleNumber, CancellationToken cancellationToken = default);
     }
 }

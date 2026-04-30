@@ -1,6 +1,7 @@
 ﻿using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles.GetAll;
 using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
+using Body4uHUB.Content.Application.Queries.Articles.GetById;
 using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Models;
@@ -71,30 +72,28 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return new PagedResult<GetArticlesByAuthorResponse>(items, totalCount, page, pageSize);
         }
 
-        public async Task<ArticleDto> GetByNumberAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<GetArticleByIdResponse> GetByNumberAsync(int articleNumber, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles
-                .Select(x=> new ArticleDto
-                {
-                    Id = x.ArticleNumber,
-                    Title = x.Title,
-                    Content = x.Content,
-                    AuthorId = x.AuthorId,
-                    Status = x.Status.Name,
-                    PublishedAt = x.PublishedAt,
-                    ViewCount = x.ViewCount + 1,
-                    CreatedAt = x.CreatedAt,
-                    ModifiedAt = x.ModifiedAt,
-                    Comments = x.Comments.Select(y => new CommentDto
+                .Select(x => new GetArticleByIdResponse(
+                    x.ArticleNumber,
+                    x.Title,
+                    x.Content,
+                    x.AuthorId,
+                    x.Status.Name,
+                    x.PublishedAt,
+                    x.ViewCount + 1,
+                    x.CreatedAt,
+                    x.ModifiedAt,
+                    x.Comments.Select(y => new CommentDto
                     {
                         Id = y.Id,
                         AuthorId = y.AuthorId,
                         Content = y.Content,
                         CreatedAt = y.CreatedAt,
                         ModifiedAt = y.ModifiedAt
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+                    }).ToList()))
+                .FirstOrDefaultAsync(x => x.ArticleNumber == articleNumber, cancellationToken);
         }
     }
 }

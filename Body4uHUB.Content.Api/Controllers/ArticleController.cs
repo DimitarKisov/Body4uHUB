@@ -113,9 +113,8 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Get article by ID
         /// </summary>
         [HttpGet("{id:int}")]
-        [ProducesResponseType(typeof(ArticleDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(GetArticleByIdResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetArticle(int id)
         {
             var result = await Mediator.Send(new GetArticleByIdQuery(ArticleNumber: id));

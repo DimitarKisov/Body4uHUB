@@ -56,11 +56,13 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.ArticleNumber == articleNumber, cancellationToken);
         }
 
-        public async Task IncrementViewCountAsync(int articleNumber, CancellationToken cancellationToken = default)
+        public async Task<bool> IncrementViewCountAsync(int articleNumber, CancellationToken cancellationToken = default)
         {
-            await _dbContext.Articles
+            var articleId = await _dbContext.Articles
                 .Where(x => x.ArticleNumber == articleNumber)
                 .ExecuteUpdateAsync(x => x.SetProperty(y => y.ViewCount, y => y.ViewCount + 1), cancellationToken);
+
+            return articleId > 0;
         }
     }
 }

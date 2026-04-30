@@ -8,9 +8,9 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Queries.Articles.GetById
 {
-    public record GetArticleByIdQuery(int ArticleNumber): IRequest<Result<ArticleDto>>;
+    public record GetArticleByIdQuery(int ArticleNumber): IRequest<Result<GetArticleByIdResponse>>;
 
-    internal sealed class GetArticleByIdQueryHandler : IRequestHandler<GetArticleByIdQuery, Result<ArticleDto>>
+    internal sealed class GetArticleByIdQueryHandler : IRequestHandler<GetArticleByIdQuery, Result<GetArticleByIdResponse>>
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IArticleReadRepository _articleReadRepository;
@@ -23,15 +23,19 @@ namespace Body4uHUB.Content.Application.Queries.Articles.GetById
             _articleReadRepository = articleReadRepository;
         }
 
-        public async Task<Result<ArticleDto>> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<GetArticleByIdResponse>> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
         {
             var article = await _articleReadRepository.GetByNumberAsync(request.ArticleNumber, cancellationToken);
             if (article == null)
             {
-                return Result.ResourceNotFound<ArticleDto>(ArticleNotFound);
+                return Result.ResourceNotFound<GetArticleByIdResponse>(ArticleNotFound);
             }
 
-            await _articleRepository.IncrementViewCountAsync(request.ArticleNumber, cancellationToken);
+            var success = await _articleRepository.IncrementViewCountAsync(request.ArticleNumber, cancellationToken);
+            if (!success)
+            {
+                return Result.ResourceNotFound<GetArticleByIdResponse>(ArticleNotFound);
+            }
 
             return Result.Success(article);
         }
