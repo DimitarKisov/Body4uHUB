@@ -46,6 +46,12 @@ namespace Body4uHUB.Content.Domain.Models
         public void Edit(string title, string content, Guid requesterId, bool isAdmin)
         {
             EnsureCanBeModifiedBy(requesterId, isAdmin);
+
+            if (IsDeleted)
+            {
+                throw new InvalidArticleException(ArticleAlreadyDeleted);
+            }
+
             UpdateTitle(title);
             UpdateContent(content);
         }
@@ -81,6 +87,10 @@ namespace Body4uHUB.Content.Domain.Models
             if (Status == ArticleStatus.Published)
             {
                 throw new InvalidArticleException(ArticleAlreadyPublished);
+            }
+            else if (IsDeleted)
+            {
+                throw new InvalidArticleException(ArticleAlreadyDeleted);
             }
 
             Status = ArticleStatus.Published;
@@ -152,9 +162,11 @@ namespace Body4uHUB.Content.Domain.Models
                 throw new DomainNotFoundException(CommentNotFound);
             }
 
-            if (!isAdmin && comment.AuthorId != requesterId)
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
+            if (comment.IsDeleted)
             {
-                throw new DomainAuthorizationException(CommentDeleteForbidden);
+                throw new InvalidCommentException(CommentAlreadyDeleted);
             }
 
             comment.MarkAsDeleted();

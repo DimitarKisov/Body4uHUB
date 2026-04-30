@@ -7,8 +7,6 @@ using Body4uHUB.Content.Application.Commands.Articles.Delete;
 using Body4uHUB.Content.Application.Commands.Articles.DeleteComment;
 using Body4uHUB.Content.Application.Commands.Articles.Edit;
 using Body4uHUB.Content.Application.Commands.Articles.Publish;
-using Body4uHUB.Content.Application.DTOs;
-using Body4uHUB.Content.Application.Queries.Articles;
 using Body4uHUB.Content.Application.Queries.Articles.GetAll;
 using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
 using Body4uHUB.Content.Application.Queries.Articles.GetById;
@@ -18,7 +16,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Api.Controllers
@@ -128,10 +125,10 @@ namespace Body4uHUB.Content.Api.Controllers
         [HttpPut("{id:int}")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> EditArticle(int id, [FromBody] EditArticleRequest request)
         {
             var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
@@ -147,9 +144,9 @@ namespace Body4uHUB.Content.Api.Controllers
         [HttpPost("{id:int}/publish")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> PublishArticle(int id)
         {
             var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
@@ -182,16 +179,14 @@ namespace Body4uHUB.Content.Api.Controllers
         [HttpDelete("{articleId}/comments/{commentId}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteComment(int articleId, Guid commentId)
         {
-            var result = await Mediator.Send(new DeleteCommentCommand(commentId, articleId)
-            {
-                AuthContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin())
-            });
+            var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
+            var result = await Mediator.Send(new DeleteCommentCommand(commentId, articleId, authContext));
 
             return HandleResult(result);
         }

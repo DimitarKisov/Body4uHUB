@@ -2,18 +2,12 @@
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
 {
-    public record DeleteCommentCommand(Guid Id, int ArticleId)
-        : IRequest<Result>
-    {
-        [JsonIgnore]
-        public AuthorizationContext AuthContext { get; init; }
-    }
+    public record DeleteCommentCommand(Guid Id, int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
 
     internal class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, Result>
     {
@@ -31,7 +25,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
         public async Task<Result> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
         {
             var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
-            if (article == null)
+            if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);
             }
