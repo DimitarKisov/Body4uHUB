@@ -1,6 +1,7 @@
 ﻿using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Content.Infrastructure.Persistence;
+using Body4uHUB.Shared.Application;
 using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories
@@ -14,13 +15,17 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<ForumTopicDto>> GetAllAsync(int skip, int take, bool includeDeleted, CancellationToken cancellationToken)
+        public async Task<PagedResult<ForumTopicDto>> GetAllAsync(int page, int pageSize, bool includeDeleted, CancellationToken cancellationToken)
         {
-            return await _dbContext.ForumTopics
-                .Where(x => includeDeleted || !x.IsDeleted)
+            var query = _dbContext.ForumTopics
+                .Where(x => includeDeleted || !x.IsDeleted);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
                 .OrderByDescending(x => x.CreatedAt)
-                .Skip(skip)
-                .Take(take)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(x => new ForumTopicDto
                 {
                     Id = x.Id,
@@ -33,6 +38,8 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                     ModifiedAt = x.ModifiedAt
                 })
                 .ToListAsync(cancellationToken);
+
+            return new PagedResult<ForumTopicDto>(items, totalCount, page, pageSize);
         }
     }
 }

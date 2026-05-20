@@ -1,9 +1,10 @@
 ﻿using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Shared.Application;
 
 namespace Body4uHUB.Content.Application.Repositories
 {
     public interface IForumReadRepository
     {
-        Task<IEnumerable<ForumTopicDto>> GetAllAsync(int skip, int take, bool includeDeleted, CancellationToken cancellationToken);
+        Task<PagedResult<ForumTopicDto>> GetAllAsync(int page, int pageSize, bool includeDeleted, CancellationToken cancellationToken);
     }
 }

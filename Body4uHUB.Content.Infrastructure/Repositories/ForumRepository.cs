@@ -24,7 +24,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             _dbContext.ForumTopics.Add(forumTopic);
         }
 
-        public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.ForumTopics.AnyAsync(x => x.Id == id, cancellationToken);
         }
@@ -34,14 +34,14 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return await _dbContext.ForumTopics.AnyAsync(x => x.Title == title, cancellationToken);
         }
 
-        public async Task<ForumTopic> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ForumTopic> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.ForumTopics
                 .Where(x => !x.IsDeleted)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<ForumTopic> GetByIdWithPostsAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ForumTopic> GetByIdWithPostsAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.ForumTopics
                 .Include(x => x.Posts
