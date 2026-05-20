@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Content.Application.Queries.Forum.GetById;
 using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Content.Infrastructure.Persistence;
 using Body4uHUB.Shared.Application;
@@ -40,6 +41,36 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
 
             return new PagedResult<ForumTopicDto>(items, totalCount, page, pageSize);
+        }
+
+        public async Task<GetForumTopicByIdResponse> GetByIdAsync(int id, CancellationToken cancellationToken)
+        {
+            return await _dbContext.ForumTopics
+                .Where(x => !x.IsDeleted)
+                .Select(x => new GetForumTopicByIdResponse(
+                    x.Id,
+                    x.Title,
+                    x.AuthorId,
+                    x.IsLocked,
+                    x.ViewCount + 1,
+                    x.Posts.Count(y => !y.IsDeleted),
+                    x.CreatedAt,
+                    x.ModifiedAt,
+                    x.Posts
+                        .Where(y => !y.IsDeleted)
+                        .OrderBy(y => y.CreatedAt)
+                        .Select(y => new ForumPostDto
+                        {
+                            Id = y.Id,
+                            Content = y.Content,
+                            AuthorId = y.AuthorId,
+                            TopicId = x.Id,
+                            IsDeleted = y.IsDeleted,
+                            CreatedAt = y.CreatedAt,
+                            ModifiedAt = y.ModifiedAt
+                        })
+                        .ToList()))
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
     }
 }

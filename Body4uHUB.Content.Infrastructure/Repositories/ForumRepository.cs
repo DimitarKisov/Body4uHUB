@@ -49,6 +49,15 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
+        public async Task<bool> IncrementViewCountAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var affected = await _dbContext.ForumTopics
+                .Where(x => x.Id == id && !x.IsDeleted)
+                .ExecuteUpdateAsync(x => x.SetProperty(y => y.ViewCount, y => y.ViewCount + 1), cancellationToken);
+
+            return affected > 0;
+        }
+
         public void Remove(ForumTopic forumTopic)
         {
             _dbContext.ForumTopics.Remove(forumTopic);
