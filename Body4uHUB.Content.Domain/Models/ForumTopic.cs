@@ -81,15 +81,32 @@ namespace Body4uHUB.Content.Domain.Models
             post.UpdateContent(content);
         }
 
-        public void DeletePost(int postId)
+        public void DeletePost(int postId, Guid requesterId, bool isAdmin)
         {
             var post = _posts.FirstOrDefault(x => x.Id == postId);
             if (post == null)
             {
-                throw new InvalidForumTopicException(ForumPostNotFound);
+                throw new DomainNotFoundException(ForumPostNotFound);
+            }
+
+            if (!isAdmin && post.AuthorId != requesterId)
+            {
+                throw new DomainAuthorizationException(ForumPostDeleteForbidden);
             }
 
             post.MarkAsDeleted();
+        }
+
+        public void Delete(Guid requesterId, bool isAdmin)
+        {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
+            if (IsDeleted)
+            {
+                throw new InvalidForumTopicException(ForumTopicDeleted);
+            }
+
+            MarkAsDeleted();
         }
 
         public void UpdateTitle(string title)
@@ -98,7 +115,7 @@ namespace Body4uHUB.Content.Domain.Models
             Title = title;
         }
 
-        public void MarkAsDeleted()
+        private void MarkAsDeleted()
         {
             IsDeleted = true;
         }
