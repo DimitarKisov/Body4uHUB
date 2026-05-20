@@ -52,7 +52,8 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                 name: "ForumTopics",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ViewCount = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
@@ -94,11 +95,12 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                 name: "ForumPosts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Content = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
                     AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    ForumTopicId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ForumTopicId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -189,6 +191,12 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                 name: "IX_ForumTopics_CreatedAt",
                 table: "ForumTopics",
                 column: "CreatedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ForumTopics_Id",
+                table: "ForumTopics",
+                column: "Id",
+                unique: true);
         }
 
         /// <inheritdoc />

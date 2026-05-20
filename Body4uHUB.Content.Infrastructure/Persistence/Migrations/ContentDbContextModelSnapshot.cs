@@ -112,9 +112,11 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Body4uHUB.Content.Domain.Models.ForumTopic", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
@@ -144,6 +146,9 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                     b.HasIndex("AuthorId");
 
                     b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
 
                     b.ToTable("ForumTopics", (string)null);
                 });
@@ -200,9 +205,11 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                 {
                     b.OwnsMany("Body4uHUB.Content.Domain.Models.ForumPost", "Posts", b1 =>
                         {
-                            b1.Property<Guid>("Id")
+                            b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
 
                             b1.Property<Guid>("AuthorId")
                                 .HasColumnType("uniqueidentifier");
@@ -215,8 +222,8 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2");
 
-                            b1.Property<Guid>("ForumTopicId")
-                                .HasColumnType("uniqueidentifier");
+                            b1.Property<int>("ForumTopicId")
+                                .HasColumnType("int");
 
                             b1.Property<bool>("IsDeleted")
                                 .HasColumnType("bit");
