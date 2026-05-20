@@ -1,54 +1,49 @@
-﻿using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Forum.EditForumTopic
 {
-    public record EditForumTopicCommand(string Title) : IRequest<Result>
+    public record EditForumTopicCommand(int TopicId, string Title, AuthorizationContext AuthContext) : IRequest<Result>;
+
+    internal sealed class EditForumTopicCommandHandler : IRequestHandler<EditForumTopicCommand, Result>
     {
-        [JsonIgnore]
-        public Guid TopicId{ get; init; }
+        private readonly IForumRepository _forumRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        [JsonIgnore]
-        public AuthorizationContext AuthContext { get; init; }
-
-        internal class EditForumTopicCommandHandler : IRequestHandler<EditForumTopicCommand, Result>
+        public EditForumTopicCommandHandler(
+            IForumRepository forumRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IForumRepository _forumRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _forumRepository = forumRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public EditForumTopicCommandHandler(
-                IForumRepository forumRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(EditForumTopicCommand request, CancellationToken cancellationToken)
+        {
+            var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
+            if (topic == null)
             {
-                _forumRepository = forumRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(ForumTopicNotFound);
             }
 
-            public async Task<Result> Handle(EditForumTopicCommand request, CancellationToken cancellationToken)
+            if (!string.Equals(topic.Title, request.Title, StringComparison.Ordinal))
             {
                 var titleExists = await _forumRepository.ExistsByTitleAsync(request.Title, cancellationToken);
                 if (titleExists)
                 {
                     return Result.Conflict(string.Format(ForumTopicExists, request.Title));
                 }
-
-                var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
-                if (topic == null)
-                {
-                    return Result.ResourceNotFound(ForumTopicNotFound);
-                }
-
-                topic.Edit(request.Title, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
             }
+
+            topic.Edit(request.Title, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }
