@@ -14,6 +14,9 @@
 
             builder.HasKey(x => x.Id);
 
+            builder.Property(x => x.Id)
+                .IsRequired();
+
             builder.Property(x => x.Title)
                 .HasMaxLength(TitleMaxLength)
                 .IsRequired();
@@ -40,7 +43,8 @@
                 postBuilder.HasKey(x => x.Id);
 
                 postBuilder.Property(p => p.Id)
-                    .ValueGeneratedOnAdd();
+                    .ValueGeneratedOnAdd()
+                    .IsRequired();
 
                 postBuilder.WithOwner()
                     .HasForeignKey("ForumTopicId");
@@ -65,6 +69,9 @@
             });
 
             // Indexes
+            builder.HasIndex(x => x.Id)
+                .IsUnique();
+
             builder.HasIndex(x => x.AuthorId);
             builder.HasIndex(x => x.CreatedAt);
 
