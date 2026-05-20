@@ -1,13 +1,13 @@
-﻿using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Shared.Application;
 using MediatR;
 
 namespace Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics
 {
-    public record GetAllForumTopicsQuery(int Skip = 0, int Take = 20, bool IncludeDeleted = false) : IRequest<Result<IEnumerable<ForumTopicDto>>>;
+    public record GetAllForumTopicsQuery(int Page, int PageSize, bool IncludeDeleted = false) : IRequest<Result<PagedResult<ForumTopicDto>>>;
 
-    internal class GetAllForumTopicsQueryHandler : IRequestHandler<GetAllForumTopicsQuery, Result<IEnumerable<ForumTopicDto>>>
+    internal sealed class GetAllForumTopicsQueryHandler : IRequestHandler<GetAllForumTopicsQuery, Result<PagedResult<ForumTopicDto>>>
     {
         private readonly IForumReadRepository _forumReadRepository;
 
@@ -16,9 +16,9 @@ namespace Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics
             _forumReadRepository = forumReadRepository;
         }
 
-        public async Task<Result<IEnumerable<ForumTopicDto>>> Handle(GetAllForumTopicsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<ForumTopicDto>>> Handle(GetAllForumTopicsQuery request, CancellationToken cancellationToken)
         {
-            var topics = await _forumReadRepository.GetAllAsync(request.Skip, request.Take, request.IncludeDeleted, cancellationToken);
+            var topics = await _forumReadRepository.GetAllAsync(request.Page, request.PageSize, request.IncludeDeleted, cancellationToken);
 
             return Result.Success(topics);
         }
