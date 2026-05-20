@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -7,35 +7,34 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Commands.Forum.LockForumTopic
 {
-    public record LockForumTopicCommand(Guid TopicId) : IRequest<Result>
+    public record LockForumTopicCommand(int TopicId) : IRequest<Result>;
+
+    internal sealed class LockForumTopicCommandHandler : IRequestHandler<LockForumTopicCommand, Result>
     {
-        internal class LockForumTopicCommandHandler : IRequestHandler<LockForumTopicCommand, Result>
+        private readonly IForumRepository _forumRepository;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public LockForumTopicCommandHandler(
+            IForumRepository forumRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IForumRepository _forumRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _forumRepository = forumRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public LockForumTopicCommandHandler(
-                IForumRepository forumRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(LockForumTopicCommand request, CancellationToken cancellationToken)
+        {
+            var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
+            if (topic == null)
             {
-                _forumRepository = forumRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(ForumTopicNotFound);
             }
 
-            public async Task<Result> Handle(LockForumTopicCommand request, CancellationToken cancellationToken)
-            {
-                var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
-                if (topic == null)
-                {
-                    return Result.ResourceNotFound(ForumTopicNotFound);
-                }
+            topic.Lock();
 
-                topic.Lock();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
-            }
+            return Result.Success();
         }
     }
 }

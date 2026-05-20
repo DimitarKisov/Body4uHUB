@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -7,9 +7,9 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic
 {
-    public record UnlockForumTopicCommand(Guid TopicId) : IRequest<Result>;
+    public record UnlockForumTopicCommand(int TopicId) : IRequest<Result>;
 
-    internal class UnlockForumTopicCommandHandler : IRequestHandler<UnlockForumTopicCommand, Result>
+    internal sealed class UnlockForumTopicCommandHandler : IRequestHandler<UnlockForumTopicCommand, Result>
     {
         private readonly IForumRepository _forumRepository;
         private readonly IUnitOfWork _unitOfWork;
