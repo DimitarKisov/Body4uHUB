@@ -7,7 +7,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Domain.Models
 {
-    public class ForumTopic : AggregateRoot<Guid>
+    public class ForumTopic : AggregateRoot<int>
     {
         private readonly List<ForumPost> _posts = new();
 
@@ -19,12 +19,12 @@ namespace Body4uHUB.Content.Domain.Models
         public IReadOnlyCollection<ForumPost> Posts => _posts.AsReadOnly();
 
         private ForumTopic()
-            : base(Guid.Empty)
+            : base()
         {
         }
 
         private ForumTopic(string title, Guid authorId)
-            : base(Guid.Empty)
+            : base()
         {
             Title = title;
             AuthorId = authorId;
@@ -52,7 +52,7 @@ namespace Body4uHUB.Content.Domain.Models
             Title = title;
         }
 
-        public Guid AddPost(string content, Guid authorId)
+        public int AddPost(string content, Guid authorId)
         {
             if (IsLocked)
             {
@@ -65,7 +65,7 @@ namespace Body4uHUB.Content.Domain.Models
             return post.Id;
         }
 
-        public void EditPost(Guid postId, string content, Guid requesterId, bool isAdmin)
+        public void EditPost(int postId, string content, Guid requesterId, bool isAdmin)
         {
             var post = _posts.FirstOrDefault(x => x.Id == postId);
             if (post == null)
@@ -81,7 +81,7 @@ namespace Body4uHUB.Content.Domain.Models
             post.UpdateContent(content);
         }
 
-        public void DeletePost(Guid postId)
+        public void DeletePost(int postId)
         {
             var post = _posts.FirstOrDefault(x => x.Id == postId);
             if (post == null)

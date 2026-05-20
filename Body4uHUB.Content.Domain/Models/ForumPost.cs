@@ -6,19 +6,19 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Domain.Models
 {
-    public class ForumPost : Entity<Guid>
+    public class ForumPost : Entity<int>
     {
         public string Content { get; private set; }
         public Guid AuthorId { get; private set; }
         public bool IsDeleted { get; private set; }
 
         private ForumPost()
-            : base(Guid.Empty)
+            : base()
         {
         }
 
         private ForumPost(string content, Guid authorId)
-            : base(Guid.Empty)
+            : base()
         {
             Content = content;
             AuthorId = authorId;
