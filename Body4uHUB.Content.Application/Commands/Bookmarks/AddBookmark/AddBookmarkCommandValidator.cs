@@ -1,12 +1,12 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.RemoveBookmark
+﻿namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
 {
     using FluentValidation;
 
     using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
-    public class RemoveBookmarkCommandValidator : AbstractValidator<RemoveBookmarkCommand>
+    public class AddBookmarkCommandValidator : AbstractValidator<AddBookmarkCommand>
     {
-        public RemoveBookmarkCommandValidator()
+        public AddBookmarkCommandValidator()
         {
             RuleFor(x => x.UserId)
                 .NotEmpty().WithMessage(UserIdRequired);

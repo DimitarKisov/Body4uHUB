@@ -7,7 +7,7 @@ using MediatR;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark
+namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
 {
     public class AddBookmarkCommand : IRequest<Result<Guid>>
     {

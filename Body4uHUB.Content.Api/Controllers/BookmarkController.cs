@@ -1,7 +1,7 @@
 ﻿using Body4uHUB.Content.Api.Extensions;
-using Body4uHUB.Content.Application.Commands.Bookmarks.Commands.AddBookmark;
-using Body4uHUB.Content.Application.Commands.Bookmarks.Commands.RemoveBookmark;
-using Body4uHUB.Content.Application.Commands.Bookmarks.Queries.GetUserBookmarks;
+using Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark;
+using Body4uHUB.Content.Application.Commands.Bookmarks.RemoveBookmark;
+using Body4uHUB.Content.Application.Queries.Bookmarks.GetUserBookmarks;
 using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Http;

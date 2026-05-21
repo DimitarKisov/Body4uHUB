@@ -3,7 +3,7 @@ using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Shared.Application;
 using MediatR;
 
-namespace Body4uHUB.Content.Application.Commands.Bookmarks.Queries.GetUserBookmarks
+namespace Body4uHUB.Content.Application.Queries.Bookmarks.GetUserBookmarks
 {
     public class GetUserBookmarksQuery : IRequest<Result<IEnumerable<BookmarkDto>>>
     {
