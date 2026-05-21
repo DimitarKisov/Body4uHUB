@@ -1,6 +1,7 @@
 using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Identity.Application.Extensions;
 using Body4uHUB.Identity.Infrastructure.Extensions;
+using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.Handlers;
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
@@ -52,8 +53,9 @@ app.UseStatusCodePages(async context =>
 
 var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
 
-if (isLocalLikeEnvironment)
+if (app.IsSwaggerEnabled())
 {
+    app.UseSwaggerBasicAuth();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
