@@ -34,14 +34,6 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return await _dbContext.Articles.AnyAsync(x => x.Title == title, cancellationToken);
         }
 
-        public async Task<int> GetArticleIdByNumberAsync(int number, CancellationToken cancellationToken = default)
-        {
-            return await _dbContext.Articles
-                .Where(x => x.Id == number)
-                .Select(x => x.Id)
-                .FirstOrDefaultAsync(cancellationToken);
-        }
-
         public async Task<Article> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles

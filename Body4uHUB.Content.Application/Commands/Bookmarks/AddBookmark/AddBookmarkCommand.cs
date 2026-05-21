@@ -29,19 +29,19 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
 
         public async Task<Result<AddBookmarkResponse>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
         {
-            var articleId = await _articleRepository.GetArticleIdByNumberAsync(request.ArticleId, cancellationToken);
-            if (articleId <= 0)
+            var articleExists = await _articleRepository.ExistsByIdAsync(request.ArticleId, cancellationToken);
+            if (!articleExists)
             {
                 return Result.ResourceNotFound<AddBookmarkResponse>(ArticleNotFound);
             }
 
-            var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, articleId, cancellationToken);
+            var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, request.ArticleId, cancellationToken);
             if (bookmarkExists)
             {
                 return Result.Conflict<AddBookmarkResponse>(BookmarkAlreadyExists);
             }
 
-            var bookmark = Bookmark.Create(request.UserId, articleId);
+            var bookmark = Bookmark.Create(request.UserId, request.ArticleId);
 
             _bookmarkRepository.Add(bookmark);
 
