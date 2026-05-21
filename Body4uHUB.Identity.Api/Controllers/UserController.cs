@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Identity.Api.Extensions;
+using Body4uHUB.Identity.Api.Extensions;
+using Body4uHUB.Identity.Api.Models.Users;
 using Body4uHUB.Identity.Application.Commands.ChangePassword;
 using Body4uHUB.Identity.Application.Commands.CreateTrainer;
 using Body4uHUB.Identity.Application.Commands.DeleteTrainer;
@@ -23,9 +24,14 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
-            var result = await Mediator.Send(command with { UserId = User.GetUserId() });
+            var command = new ChangePasswordCommand(
+                User.GetUserId(),
+                request.CurrentPassword,
+                request.NewPassword);
+
+            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
 
@@ -46,7 +52,7 @@ namespace Body4uHUB.Identity.Api.Controllers
 
         /// <summary>
         /// Delete trainer account (Admin only)
-        /// </summary> 
+        /// </summary>
         [HttpDelete("deleteTrainer/{userId}")]
         [Authorize(Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -67,9 +73,15 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> EditUser(EditUserCommand command)
+        public async Task<IActionResult> EditUser([FromBody] EditUserRequest request)
         {
-            var result = await Mediator.Send(command with { Id = User.GetUserId() });
+            var command = new EditUserCommand(
+                User.GetUserId(),
+                request.FirstName,
+                request.LastName,
+                request.PhoneNumber);
+
+            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
 

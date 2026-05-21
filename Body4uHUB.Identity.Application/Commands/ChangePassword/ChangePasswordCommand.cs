@@ -3,17 +3,12 @@ using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.ChangePassword
 {
-    public record ChangePasswordCommand(string CurrentPassword, string NewPassword) : IRequest<Result>
-    {
-        [JsonIgnore]
-        public Guid UserId { get; init; }
-    }
+    public record ChangePasswordCommand(Guid UserId, string CurrentPassword, string NewPassword) : IRequest<Result>;
 
     internal sealed class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result>
     {

@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Identity.Application.Commands.AddUserRoles;
+using Body4uHUB.Identity.Api.Models.Roles;
+using Body4uHUB.Identity.Application.Commands.AddUserRoles;
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllRoles;
 using Body4uHUB.Shared.Api;
@@ -20,9 +21,10 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> AddRolesToUser(Guid userId, [FromBody] AddUserRolesCommand command)
+        public async Task<IActionResult> AddRolesToUser(Guid userId, [FromBody] AddUserRolesRequest request)
         {
-            var result = await Mediator.Send(command with { UserId = userId });
+            var command = new AddUserRolesCommand(userId, request.RoleIds);
+            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
 

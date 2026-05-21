@@ -7,11 +7,7 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
 {
-    public record AddUserRolesCommand(List<Guid> RoleIds)
-        : IRequest<Result>
-    {
-        public Guid UserId{ get; init; }
-    }
+    public record AddUserRolesCommand(Guid UserId, List<Guid> RoleIds) : IRequest<Result>;
 
     internal sealed class AddUserRolesCommandHandler : IRequestHandler<AddUserRolesCommand, Result>
     {
