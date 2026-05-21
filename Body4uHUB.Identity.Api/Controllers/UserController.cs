@@ -22,8 +22,8 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// </summary>
         [HttpPut("changePassword")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
             var command = new ChangePasswordCommand(
@@ -41,9 +41,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [HttpPost("createTrainer")]
         [Authorize(Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CreateTrainerAccount(CreateTrainerAccountCommand command)
         {
             var result = await Mediator.Send(command);
@@ -53,12 +53,12 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// <summary>
         /// Delete trainer account (Admin only)
         /// </summary>
-        [HttpDelete("deleteTrainer/{userId}")]
+        [HttpDelete("deleteTrainer/{userId:Guid}")]
         [Authorize(Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteTrainerAccount(Guid userId)
         {
             var result = await Mediator.Send(new DeleteTrainerCommand(userId));
@@ -70,9 +70,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// </summary>
         [HttpPut("edit")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> EditUser([FromBody] EditUserRequest request)
         {
             var command = new EditUserCommand(
@@ -91,8 +91,8 @@ namespace Body4uHUB.Identity.Api.Controllers
         [HttpGet]
         [Authorize(Policy = "AdminOnly")]
         [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await Mediator.Send(new GetAllUsersQuery());
@@ -104,7 +104,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// </summary>
         [HttpGet("profile")]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetProfile()
         {
             var result = await Mediator.Send(new GetUserByIdQuery(User.GetUserId()));
@@ -114,12 +114,12 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// <summary>
         /// Get user by ID (Admin only)
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("{id:Guid}")]
         [Authorize(Policy = "AdminOnly")]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetUserById(Guid id)
         {
             var result = await Mediator.Send(new GetUserByIdQuery(id));
