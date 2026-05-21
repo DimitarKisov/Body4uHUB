@@ -72,7 +72,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return new PagedResult<GetArticlesByAuthorResponse>(items, totalCount, page, pageSize);
         }
 
-        public async Task<GetArticleByIdResponse> GetWithCommentsByIdAsync(int articleNumber, CancellationToken cancellationToken = default)
+        public async Task<GetArticleByIdResponse> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles
                 .Select(x => new GetArticleByIdResponse(
@@ -93,7 +93,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                         CreatedAt = y.CreatedAt,
                         ModifiedAt = y.ModifiedAt
                     }).ToList()))
-                .FirstOrDefaultAsync(x => x.ArticleNumber == articleNumber, cancellationToken);
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace Body4uHUB.Content.Application.Queries.Articles.GetById
 {
     public record GetArticleByIdResponse(
-        int ArticleNumber,
+        int Id,
         string Title,
         string Content,
         Guid AuthorId,
