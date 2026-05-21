@@ -38,7 +38,7 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
             var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, articleId, cancellationToken);
             if (bookmarkExists)
             {
-                return Result.ResourceNotFound<AddBookmarkResponse>(BookmarkAlreadyExists);
+                return Result.Conflict<AddBookmarkResponse>(BookmarkAlreadyExists);
             }
 
             var bookmark = Bookmark.Create(request.UserId, articleId);
