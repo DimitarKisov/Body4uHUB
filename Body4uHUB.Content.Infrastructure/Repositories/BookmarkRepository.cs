@@ -24,9 +24,9 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return await _dbContext.Bookmarks.AnyAsync(x => x.UserId == userId && x.ArticleId == articleId, cancellationToken);
         }
 
-        public async Task<Bookmark> GetByUserAndArticleAsync(Guid userId, int articleNumber, CancellationToken cancellationToken = default)
+        public async Task<Bookmark> GetByUserAndArticleAsync(Guid userId, int articleId, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Bookmarks.FirstOrDefaultAsync(x => x.UserId == userId && x.ArticleNumber == articleNumber, cancellationToken);
+            return await _dbContext.Bookmarks.FirstOrDefaultAsync(x => x.UserId == userId && x.ArticleId == articleId, cancellationToken);
         }
 
         public void Remove(Bookmark bookmark)

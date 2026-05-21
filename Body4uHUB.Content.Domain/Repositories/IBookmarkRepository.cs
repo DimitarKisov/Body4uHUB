@@ -7,7 +7,7 @@ namespace Body4uHUB.Content.Domain.Repositories
     {
         void Add(Bookmark bookmark);
         Task<bool> ExistsAsync(Guid userId, int articleId, CancellationToken cancellationToken = default);
-        Task<Bookmark> GetByUserAndArticleAsync(Guid userId, int articleNumber, CancellationToken cancellationToken = default);
+        Task<Bookmark> GetByUserAndArticleAsync(Guid userId, int articleId, CancellationToken cancellationToken = default);
         void Remove(Bookmark bookmark);
     }
 }

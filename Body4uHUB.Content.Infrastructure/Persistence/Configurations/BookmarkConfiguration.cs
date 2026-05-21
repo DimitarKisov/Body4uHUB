@@ -21,9 +21,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
             builder.Property(x => x.ArticleId)
                 .IsRequired();
 
-            builder.Property(x => x.ArticleNumber)
-                .IsRequired();
-
             builder.Property(x => x.CreatedAt)
                 .IsRequired();
 
@@ -35,8 +32,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
             builder.HasIndex(x => x.UserId);
 
             builder.HasIndex(x => x.ArticleId);
-
-            builder.HasIndex(x => x.ArticleNumber);
 
             // Ignore domain events
             builder.Ignore(x => x.DomainEvents);

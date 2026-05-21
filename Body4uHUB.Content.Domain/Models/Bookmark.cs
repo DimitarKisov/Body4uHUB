@@ -8,7 +8,6 @@ namespace Body4uHUB.Content.Domain.Models
     {
         public Guid UserId { get; private set; }
         public int ArticleId { get; private set; }
-        public int ArticleNumber { get; private set; }
 
         private Bookmark()
             : base()
