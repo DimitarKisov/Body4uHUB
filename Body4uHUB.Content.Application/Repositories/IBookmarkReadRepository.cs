@@ -1,9 +1,10 @@
-﻿using Body4uHUB.Content.Application.DTOs;
+using Body4uHUB.Content.Application.Queries.Bookmarks.GetUserBookmarks;
+using Body4uHUB.Shared.Application;
 
 namespace Body4uHUB.Content.Application.Repositories
 {
     public interface IBookmarkReadRepository
     {
-        Task<IEnumerable<BookmarkDto>> GetByUserIdAsync(Guid userId, int skip, int take, CancellationToken cancellationToken = default);
+        Task<PagedResult<GetUserBookmarksResponse>> GetByUserIdAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default);
     }
 }

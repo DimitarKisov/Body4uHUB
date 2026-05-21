@@ -2,12 +2,10 @@
 using Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark;
 using Body4uHUB.Content.Application.Commands.Bookmarks.RemoveBookmark;
 using Body4uHUB.Content.Application.Queries.Bookmarks.GetUserBookmarks;
-using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Api.Controllers
@@ -35,11 +33,11 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Get all bookmarks for current user
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<BookmarkDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult<GetUserBookmarksResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetMyBookmarks([FromQuery] int skip = 0, [FromQuery] int take = 10)
+        public async Task<IActionResult> GetMyBookmarks([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var command = new GetUserBookmarksQuery(User.GetUserId(), skip, take);
+            var command = new GetUserBookmarksQuery(User.GetUserId(), page, pageSize);
 
             var result = await Mediator.Send(command);
             return HandleResult(result);

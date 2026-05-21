@@ -3,7 +3,8 @@
     "allow": [
       "Bash(Get-ChildItem *)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "Bash(git restore *)"
     ]
   }
 }
