@@ -40,14 +40,14 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// </summary>
         [HttpPost("createTrainer")]
         [Authorize(Policy = "AdminOnly")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(CreateTrainerAccountResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CreateTrainerAccount(CreateTrainerAccountCommand command)
         {
             var result = await Mediator.Send(command);
-            return HandleResult(result);
+            return HandleCreatedResult(result, response => response);
         }
 
         /// <summary>

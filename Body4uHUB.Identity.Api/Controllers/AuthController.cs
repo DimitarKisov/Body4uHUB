@@ -13,13 +13,13 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// Register a new user
         /// </summary>
         [HttpPost("register")]
-        [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Register(RegisterCommand command)
         {
             var result = await Mediator.Send(command);
-            return HandleResult(result);
+            return HandleCreatedResult(result, response => response);
         }
 
 
