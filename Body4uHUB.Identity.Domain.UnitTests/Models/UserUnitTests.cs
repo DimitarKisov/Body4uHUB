@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Identity.Domain.Exceptions;
 using Body4uHUB.Identity.Domain.Models;
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Domain.UnitTests.Models
@@ -258,6 +259,44 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
             _user.ConfirmEmail();
 
             Assert.That(_user.IsEmailConfirmed, Is.True);
+        }
+
+        [Test]
+        public void EnsureIsTrainer_ShouldNotThrow_WhenUserHasTrainerRole()
+        {
+            var trainerRole = Role.Create(TrainerRoleName);
+            _user.AddRole(trainerRole);
+
+            Assert.DoesNotThrow(() => _user.EnsureIsTrainer(trainerRole));
+        }
+
+        [Test]
+        public void EnsureIsTrainer_ShouldThrowInvalidUserException_WhenRoleIsNull()
+        {
+            var ex = Assert.Throws<InvalidUserException>(() => _user.EnsureIsTrainer(null));
+
+            Assert.That(ex.Error, Is.EqualTo("trainerRole cannot be the default value."));
+        }
+
+        [Test]
+        public void EnsureIsTrainer_ShouldThrowInvalidUserException_WhenRoleIsNotTrainer()
+        {
+            var nonTrainerRole = Role.Create("Administrator");
+            _user.AddRole(nonTrainerRole);
+
+            var ex = Assert.Throws<InvalidUserException>(() => _user.EnsureIsTrainer(nonTrainerRole));
+
+            Assert.That(ex.Error, Is.EqualTo(RoleIsNotTrainer));
+        }
+
+        [Test]
+        public void EnsureIsTrainer_ShouldThrowInvalidUserException_WhenUserIsNotInTrainerRole()
+        {
+            var trainerRole = Role.Create(TrainerRoleName);
+
+            var ex = Assert.Throws<InvalidUserException>(() => _user.EnsureIsTrainer(trainerRole));
+
+            Assert.That(ex.Error, Is.EqualTo(UserNotInRole));
         }
     }
 }

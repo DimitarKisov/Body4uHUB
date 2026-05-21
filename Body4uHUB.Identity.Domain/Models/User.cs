@@ -3,6 +3,7 @@ using Body4uHUB.Identity.Domain.ValueObjects;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
 
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Domain.Models
@@ -100,6 +101,21 @@ namespace Body4uHUB.Identity.Domain.Models
         public void ConfirmEmail()
         {
             IsEmailConfirmed = true;
+        }
+
+        public void EnsureIsTrainer(Role trainerRole)
+        {
+            Guard.AgainstDefault<InvalidUserException, Role>(trainerRole, nameof(trainerRole));
+
+            if (trainerRole.Name != TrainerRoleName)
+            {
+                throw new InvalidUserException(RoleIsNotTrainer);
+            }
+
+            if (!_roles.Any(x => x.Id == trainerRole.Id))
+            {
+                throw new InvalidUserException(UserNotInRole);
+            }
         }
 
         private static void Validate(string passwordHash, string firstName, string lastName)

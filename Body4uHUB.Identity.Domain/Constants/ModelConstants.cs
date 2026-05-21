@@ -30,8 +30,10 @@
 
         public class RoleConstants
         {
+            public const string TrainerRoleName = "Trainer";
             public const string RoleNotFound = "Role not found.";
             public const string UserNotInRole = "User is not assigned to the required role.";
+            public const string RoleIsNotTrainer = "Provided role is not the Trainer role.";
         }
     }
 }

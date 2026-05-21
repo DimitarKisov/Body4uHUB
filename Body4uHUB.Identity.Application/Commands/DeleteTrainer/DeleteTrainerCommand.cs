@@ -1,10 +1,10 @@
-﻿using Body4uHUB.Identity.Domain.Repositories;
+using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Application.Events;
 using MediatR;
 
-using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
 {
@@ -34,17 +34,13 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
                 return Result.ResourceNotFound(UserNotFound);
             }
 
-            var role = await _roleRepository.FindByNameAsync("Trainer", cancellationToken);
-            if (role == null)
+            var trainerRole = await _roleRepository.FindByNameAsync(TrainerRoleName, cancellationToken);
+            if (trainerRole == null)
             {
                 return Result.ResourceNotFound(RoleNotFound);
             }
 
-            var userIsInRole = user.Roles.Any(x => x.Id == role.Id);
-            if (!userIsInRole)
-            {
-                return Result.ResourceNotFound(UserNotInRole);
-            }
+            user.EnsureIsTrainer(trainerRole);
 
             var @event = new TrainerAccountDeletedEvent
             {
