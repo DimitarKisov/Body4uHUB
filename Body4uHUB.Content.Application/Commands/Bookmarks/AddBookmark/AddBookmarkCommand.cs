@@ -9,9 +9,9 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants
 
 namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
 {
-    public record AddBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result<Guid>>;
+    public record AddBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result<AddBookmarkResponse>>;
 
-    internal sealed class AddBookmarkCommandHandler : IRequestHandler<AddBookmarkCommand, Result<Guid>>
+    internal sealed class AddBookmarkCommandHandler : IRequestHandler<AddBookmarkCommand, Result<AddBookmarkResponse>>
     {
         private readonly IBookmarkRepository _bookmarkRepository;
         private readonly IArticleRepository _articleRepository;
@@ -27,18 +27,18 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<Guid>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AddBookmarkResponse>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
         {
             var articleId = await _articleRepository.GetArticleIdByNumberAsync(request.ArticleId, cancellationToken);
             if (articleId <= 0)
             {
-                return Result.ResourceNotFound<Guid>(ArticleNotFound);
+                return Result.ResourceNotFound<AddBookmarkResponse>(ArticleNotFound);
             }
 
             var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, articleId, cancellationToken);
             if (bookmarkExists)
             {
-                return Result.ResourceNotFound<Guid>(BookmarkAlreadyExists);
+                return Result.ResourceNotFound<AddBookmarkResponse>(BookmarkAlreadyExists);
             }
 
             var bookmark = Bookmark.Create(request.UserId, articleId);
@@ -47,7 +47,7 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(bookmark.Id);
+            return Result.Success(new AddBookmarkResponse(bookmark.Id));
         }
     }
 }

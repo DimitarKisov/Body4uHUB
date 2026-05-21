@@ -19,7 +19,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Add article to bookmarks
         /// </summary>
         [HttpPost("articles/{articleId}")]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AddBookmarkResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
