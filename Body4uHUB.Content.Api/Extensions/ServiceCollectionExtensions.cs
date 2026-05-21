@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Shared.Api.HealthChecks;
+﻿using Body4uHUB.Shared.Api.Extensions;
+using Body4uHUB.Shared.Api.HealthChecks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -23,6 +24,7 @@ namespace Body4uHUB.Content.Api.Extensions
             services.AddCorsPolicy(configuration);
             services.AddForwardedHeadersConfiguration();
             services.AddHttpsConfiguration(configuration);
+            services.AddSwaggerOptions(configuration);
             services.ConfigureSwagger();
 
             return services;

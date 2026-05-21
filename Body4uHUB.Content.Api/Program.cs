@@ -1,6 +1,7 @@
 using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Application.Extensions;
 using Body4uHUB.Content.Infrastructure.Extensions;
+using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.Handlers;
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
@@ -45,9 +46,9 @@ app.UseForwardedHeaders();
 
 var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
 
-if (isLocalLikeEnvironment)
-
+if (app.IsSwaggerEnabled())
 {
+    app.UseSwaggerBasicAuth();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
