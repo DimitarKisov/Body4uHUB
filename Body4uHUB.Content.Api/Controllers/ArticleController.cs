@@ -59,7 +59,7 @@ namespace Body4uHUB.Content.Api.Controllers
 
             var result = await Mediator.Send(command);
 
-            return HandleResult(result, id => new { articleId = id });
+            return HandleCreatedResult(result, id => new { articleId = id });
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Body4uHUB.Content.Api.Controllers
             var command = new CreateCommentCommand(request.Content, articleId, User.GetUserId(), request.ParentCommentId);
             var result = await Mediator.Send(command);
 
-            return HandleResult(result, id => new { commentId = id });
+            return HandleCreatedResult(result, id => new { commentId = id });
         }
 
         /// <summary>

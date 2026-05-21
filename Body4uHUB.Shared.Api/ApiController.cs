@@ -56,13 +56,13 @@ namespace Body4uHUB.Shared.Api
         }
 
         /// <summary>
-        /// Handles Result for POST operations - returns 201 Created on success
+        /// Handles Result for POST operations with custom response transformation - returns 201 Created on success
         /// </summary>
-        protected IActionResult HandleCreatedResult<T>(Result<T> result, string actionName, object routeValues = null)
+        protected IActionResult HandleCreatedResult<T>(Result<T> result, Func<object, object> responseFactory)
         {
             if (result.IsSuccess)
             {
-                return CreatedAtAction(actionName, routeValues, result.Value);
+                return StatusCode(StatusCodes.Status201Created, responseFactory(result.Value));
             }
 
             return MapError(result);

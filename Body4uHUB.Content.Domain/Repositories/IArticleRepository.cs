@@ -7,7 +7,6 @@ namespace Body4uHUB.Content.Domain.Repositories
     {
         void Add(Article article);
         Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default);
-        Task<bool> ExistsByNumberAsync(int id, CancellationToken cancellationToken = default);
         Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default);
         Task<Article> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default);
         Task<Article> GetByIdAsync(int id, CancellationToken cancellationToken = default);

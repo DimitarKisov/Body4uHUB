@@ -24,11 +24,6 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return await _dbContext.Articles.AnyAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<bool> ExistsByNumberAsync(int id, CancellationToken cancellationToken = default)
-        {
-            return await _dbContext.Articles.AnyAsync(x => x.Id == id, cancellationToken);
-        }
-
         public async Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles.AnyAsync(x => x.Title == title, cancellationToken);

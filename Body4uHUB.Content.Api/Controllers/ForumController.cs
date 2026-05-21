@@ -37,7 +37,7 @@ namespace Body4uHUB.Content.Api.Controllers
             var command = new CreateForumTopicCommand(request.Title, User.GetUserId());
             var result = await Mediator.Send(command);
 
-            return HandleResult(result, id => new { topicId = id });
+            return HandleCreatedResult(result, id => new { topicId = id });
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace Body4uHUB.Content.Api.Controllers
             var command = new CreateForumPostCommand(request.Content, topicId, User.GetUserId());
             var result = await Mediator.Send(command);
 
-            return HandleResult(result, id => new { postId = id });
+            return HandleCreatedResult(result, id => new { postId = id });
         }
 
         /// <summary>

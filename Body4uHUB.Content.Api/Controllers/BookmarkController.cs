@@ -24,13 +24,12 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> AddBookmark(int articleId)
         {
             var command = new AddBookmarkCommand(User.GetUserId(), articleId);
 
             var result = await Mediator.Send(command);
-            return HandleResult(result, id => new { bookmarkId = id });
+            return HandleCreatedResult(result, id => new { bookmarkId = id });
         }
 
         /// <summary>
