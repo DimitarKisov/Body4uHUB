@@ -13,7 +13,7 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
     {
     }
 
-    internal class CreateTrainerAccountCommandHandler : IRequestHandler<CreateTrainerAccountCommand, Result>
+    internal sealed class CreateTrainerAccountCommandHandler : IRequestHandler<CreateTrainerAccountCommand, Result>
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;

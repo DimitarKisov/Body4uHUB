@@ -12,44 +12,44 @@ namespace Body4uHUB.Identity.Application.Queries.GetProfile
     {
         [JsonIgnore]
         public Guid Id { get; init; }
+    }
 
-        internal class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
+    internal sealed class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
+    {
+        private readonly IUserRepository _userRepository;
+
+        public GetUserByIdQueryHandler(IUserRepository userRepository)
         {
-            private readonly IUserRepository _userRepository;
+            _userRepository = userRepository;
+        }
 
-            public GetUserByIdQueryHandler(IUserRepository userRepository)
+        public async Task<Result<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+        {
+            var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (user == null)
             {
-                _userRepository = userRepository;
+                return Result.ResourceNotFound<UserDto>(UserNotFound);
             }
 
-            public async Task<Result<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+            var userDto = new UserDto
             {
-                var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
-                if (user == null)
+                Id = user.Id,
+                Email = user.ContactInfo.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.ContactInfo.PhoneNumber,
+                CreatedAt = user.CreatedAt,
+                IsEmailConfirmed = user.IsEmailConfirmed,
+                Roles = user.Roles
+                .Select(x => new RoleDto
                 {
-                    return Result.ResourceNotFound<UserDto>(UserNotFound);
-                }
+                    Id = x.Id,
+                    Name = x.Name
+                })
+                .ToList()
+            };
 
-                var userDto = new UserDto
-                {
-                    Id = user.Id,
-                    Email = user.ContactInfo.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    PhoneNumber = user.ContactInfo.PhoneNumber,
-                    CreatedAt = user.CreatedAt,
-                    IsEmailConfirmed = user.IsEmailConfirmed,
-                    Roles = user.Roles
-                    .Select(x => new RoleDto
-                    {
-                        Id = x.Id,
-                        Name = x.Name
-                    })
-                    .ToList()
-                };
-
-                return Result.Success(userDto);
-            }
+            return Result.Success(userDto);
         }
     }
 }

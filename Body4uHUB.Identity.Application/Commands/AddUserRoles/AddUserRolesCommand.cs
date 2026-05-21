@@ -13,7 +13,7 @@ namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
         public Guid UserId{ get; init; }
     }
 
-    internal class AddUserRolesCommandHandler : IRequestHandler<AddUserRolesCommand, Result>
+    internal sealed class AddUserRolesCommandHandler : IRequestHandler<AddUserRolesCommand, Result>
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;

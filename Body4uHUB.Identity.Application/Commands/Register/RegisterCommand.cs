@@ -23,7 +23,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
     {
     }
 
-    internal class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<AuthResponseDto>>
+    internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<AuthResponseDto>>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasherService _passwordHasherService;

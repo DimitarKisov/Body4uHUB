@@ -13,7 +13,7 @@ namespace Body4uHUB.Identity.Application.Commands.EditUser
         [JsonIgnore]
         public Guid Id { get; init; }
     }
-    internal class EditUserCommandHandler : IRequestHandler<EditUserCommand, Result>
+    internal sealed class EditUserCommandHandler : IRequestHandler<EditUserCommand, Result>
     {
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;

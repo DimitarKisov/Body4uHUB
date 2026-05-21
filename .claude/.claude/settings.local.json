@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(findstr /i \"controller content article forum bookmark\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\dkisov\\\\Desktop\\\\Body4uHUB\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem *)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(findstr Shared)",
+      "Bash(dotnet build *)"
+    ]
+  }
+}

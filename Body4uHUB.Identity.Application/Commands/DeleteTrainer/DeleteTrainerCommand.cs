@@ -11,52 +11,52 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
     public class DeleteTrainerCommand : IRequest<Result>
     {
         public Guid UserId { get; init; }
+    }
 
-        internal class DeleteTrainerCommandHandler : IRequestHandler<DeleteTrainerCommand, Result>
+    internal sealed class DeleteTrainerCommandHandler : IRequestHandler<DeleteTrainerCommand, Result>
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IEventBus _eventBus;
+
+        public DeleteTrainerCommandHandler(
+            IUserRepository userRepository,
+            IRoleRepository roleRepository,
+            IEventBus eventBus)
         {
-            private readonly IUserRepository _userRepository;
-            private readonly IRoleRepository _roleRepository;
-            private readonly IEventBus _eventBus;
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
+            _eventBus = eventBus;
+        }
 
-            public DeleteTrainerCommandHandler(
-                IUserRepository userRepository,
-                IRoleRepository roleRepository,
-                IEventBus eventBus)
+        public async Task<Result> Handle(DeleteTrainerCommand request, CancellationToken cancellationToken)
+        {
+            var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
+            if (user == null)
             {
-                _userRepository = userRepository;
-                _roleRepository = roleRepository;
-                _eventBus = eventBus;
+                return Result.ResourceNotFound(UserNotFound);
             }
 
-            public async Task<Result> Handle(DeleteTrainerCommand request, CancellationToken cancellationToken)
+            var role = await _roleRepository.FindByNameAsync("Trainer", cancellationToken);
+            if (role == null)
             {
-                var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
-                if (user == null)
-                {
-                    return Result.ResourceNotFound(UserNotFound);
-                }
-
-                var role = await _roleRepository.FindByNameAsync("Trainer", cancellationToken);
-                if (role == null)
-                {
-                    return Result.ResourceNotFound(RoleNotFound);
-                }
-
-                var userIsInRole = user.Roles.Any(x => x.Id == role.Id);
-                if (!userIsInRole)
-                {
-                    return Result.ResourceNotFound(UserNotInRole);
-                }
-
-                var @event = new TrainerAccountDeletedEvent
-                {
-                    UserId = user.Id
-                };
-
-                await _eventBus.PublishAsync(@event);
-
-                return Result.Success();
+                return Result.ResourceNotFound(RoleNotFound);
             }
+
+            var userIsInRole = user.Roles.Any(x => x.Id == role.Id);
+            if (!userIsInRole)
+            {
+                return Result.ResourceNotFound(UserNotInRole);
+            }
+
+            var @event = new TrainerAccountDeletedEvent
+            {
+                UserId = user.Id
+            };
+
+            await _eventBus.PublishAsync(@event);
+
+            return Result.Success();
         }
     }
 }

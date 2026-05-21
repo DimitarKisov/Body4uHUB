@@ -10,26 +10,26 @@ namespace Body4uHUB.Identity.Application.Queries.GetUserById
     public class GetUserByIdQuery : IRequest<Result<UserDto>>
     {
         public Guid Id { get; set; }
+    }
 
-        internal class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
+    internal sealed class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
+    {
+        private readonly IUserReadRepository _userReadRepository;
+
+        public GetUserByIdQueryHandler(IUserReadRepository userReadRepository)
         {
-            private readonly IUserReadRepository _userReadRepository;
+            _userReadRepository = userReadRepository;
+        }
 
-            public GetUserByIdQueryHandler(IUserReadRepository userReadRepository)
+        public async Task<Result<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+        {
+            var user = await _userReadRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (user == null)
             {
-                _userReadRepository = userReadRepository;
+                return Result.ResourceNotFound<UserDto>(UserNotFound);
             }
 
-            public async Task<Result<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
-            {
-                var user = await _userReadRepository.GetByIdAsync(request.Id, cancellationToken);
-                if (user == null)
-                {
-                    return Result.ResourceNotFound<UserDto>(UserNotFound);
-                }
-
-                return Result.Success(user);
-            }
+            return Result.Success(user);
         }
     }
 }

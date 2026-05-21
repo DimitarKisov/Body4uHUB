@@ -6,19 +6,20 @@ namespace Body4uHUB.Identity.Application.Queries.GetAllRoles
 {
     public class GetAllRolesQuery : IRequest<IEnumerable<RoleDto>>
     {
-        internal class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, IEnumerable<RoleDto>>
+    }
+
+    internal sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, IEnumerable<RoleDto>>
+    {
+        private readonly IRoleReadRepository _roleReadRepository;
+
+        public GetAllRolesQueryHandler(IRoleReadRepository roleReadRepository)
         {
-            private readonly IRoleReadRepository _roleReadRepository;
+            _roleReadRepository = roleReadRepository;
+        }
 
-            public GetAllRolesQueryHandler(IRoleReadRepository roleReadRepository)
-            {
-                _roleReadRepository = roleReadRepository;
-            }
-
-            public async Task<IEnumerable<RoleDto>> Handle(GetAllRolesQuery request, CancellationToken cancellationToken)
-            {
-                return await _roleReadRepository.GetAllAsync(cancellationToken);
-            }
+        public async Task<IEnumerable<RoleDto>> Handle(GetAllRolesQuery request, CancellationToken cancellationToken)
+        {
+            return await _roleReadRepository.GetAllAsync(cancellationToken);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Body4uHUB.Identity.Application.Commands.ChangePassword
         public Guid UserId { get; init; }
     }
 
-    internal class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result>
+    internal sealed class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasherService _passwordHasherService;

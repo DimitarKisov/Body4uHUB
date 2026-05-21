@@ -14,7 +14,7 @@ namespace Body4uHUB.Identity.Application.Commands.Login
     {
     }
 
-    internal class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
+    internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
     {
         private readonly IUserRepository _userRepository;
         private readonly IJwtTokenService _jwtTokenService;
