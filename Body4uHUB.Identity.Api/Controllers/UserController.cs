@@ -8,6 +8,7 @@ using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllUsers;
 using Body4uHUB.Identity.Application.Queries.GetUserById;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -90,13 +91,13 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// </summary>
         [HttpGet]
         [Authorize(Policy = "AdminOnly")]
-        [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult<GetAllUsersResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var users = await Mediator.Send(new GetAllUsersQuery());
-            return Ok(users);
+            var result = await Mediator.Send(new GetAllUsersQuery(page, pageSize));
+            return HandleResult(result);
         }
 
         /// <summary>
