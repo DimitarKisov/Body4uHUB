@@ -25,11 +25,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> AddBookmark(int articleId)
         {
-            var command = new AddBookmarkCommand
-            {
-                ArticleId = articleId,
-                UserId = User.GetUserId()
-            };
+            var command = new AddBookmarkCommand(User.GetUserId(), articleId);
 
             var result = await Mediator.Send(command);
             return HandleResult(result, id => new { bookmarkId = id });
@@ -43,13 +39,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetMyBookmarks([FromQuery] int skip = 0, [FromQuery] int take = 10)
         {
-            var userId = User.GetUserId();
-            var command = new GetUserBookmarksQuery
-            {
-                UserId = userId,
-                Skip = skip,
-                Take = take
-            };
+            var command = new GetUserBookmarksQuery(User.GetUserId(), skip, take);
 
             var result = await Mediator.Send(command);
             return HandleResult(result);
@@ -65,12 +55,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> RemoveBookmark(int articleId)
         {
-            var userId = User.GetUserId();
-            var command = new RemoveBookmarkCommand
-            {
-                UserId = userId,
-                ArticleId = articleId
-            };
+            var command = new RemoveBookmarkCommand(User.GetUserId(), articleId);
 
             var result = await Mediator.Send(command);
             return HandleResult(result);

@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Content.Domain.Repositories;
+using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -7,42 +7,38 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants
 
 namespace Body4uHUB.Content.Application.Commands.Bookmarks.RemoveBookmark
 {
-    public class RemoveBookmarkCommand : IRequest<Result>
+    public record RemoveBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result>;
+
+    internal sealed class RemoveBookmarkCommandHandler : IRequestHandler<RemoveBookmarkCommand, Result>
     {
-        public Guid UserId { get; set; }
-        public int ArticleId { get; set; }
+        private readonly IBookmarkRepository _bookmarkRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        internal class RemoveBookmarkCommandHandler : IRequestHandler<RemoveBookmarkCommand, Result>
+        public RemoveBookmarkCommandHandler(
+            IBookmarkRepository bookmarkRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IBookmarkRepository _bookmarkRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _bookmarkRepository = bookmarkRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public RemoveBookmarkCommandHandler(
-                IBookmarkRepository bookmarkRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
+        {
+            var bookmark = await _bookmarkRepository.GetByUserAndArticleAsync(
+                request.UserId,
+                request.ArticleId,
+                cancellationToken);
+
+            if (bookmark == null)
             {
-                _bookmarkRepository = bookmarkRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(BookmarkNotFound);
             }
 
-            public async Task<Result> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
-            {
-                var bookmark = await _bookmarkRepository.GetByUserAndArticleAsync(
-                    request.UserId,
-                    request.ArticleId,
-                    cancellationToken);
+            _bookmarkRepository.Remove(bookmark);
 
-                if (bookmark == null)
-                {
-                    return Result.ResourceNotFound(BookmarkNotFound);
-                }
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                _bookmarkRepository.Remove(bookmark);
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
-            }
+            return Result.Success();
         }
     }
 }

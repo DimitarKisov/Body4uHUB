@@ -1,57 +1,53 @@
-﻿using Body4uHUB.Content.Domain.Models;
+using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
-using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Application;
+using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
 {
-    public class AddBookmarkCommand : IRequest<Result<Guid>>
+    public record AddBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result<Guid>>;
+
+    internal sealed class AddBookmarkCommandHandler : IRequestHandler<AddBookmarkCommand, Result<Guid>>
     {
-        public Guid UserId { get; set; }
-        public int ArticleId { get; set; }
+        private readonly IBookmarkRepository _bookmarkRepository;
+        private readonly IArticleRepository _articleRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        internal class AddBookmarkCommandHandler : IRequestHandler<AddBookmarkCommand, Result<Guid>>
+        public AddBookmarkCommandHandler(
+            IBookmarkRepository bookmarkRepository,
+            IArticleRepository articleRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IBookmarkRepository _bookmarkRepository;
-            private readonly IArticleRepository _articleRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _bookmarkRepository = bookmarkRepository;
+            _articleRepository = articleRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public AddBookmarkCommandHandler(
-                IBookmarkRepository bookmarkRepository,
-                IArticleRepository articleRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result<Guid>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
+        {
+            var articleId = await _articleRepository.GetArticleIdByNumberAsync(request.ArticleId, cancellationToken);
+            if (articleId <= 0)
             {
-                _bookmarkRepository = bookmarkRepository;
-                _articleRepository = articleRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound<Guid>(ArticleNotFound);
             }
 
-            public async Task<Result<Guid>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
+            var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, articleId, cancellationToken);
+            if (bookmarkExists)
             {
-                var articleId = await _articleRepository.GetArticleIdByNumberAsync(request.ArticleId, cancellationToken);
-                if (articleId <= 0)
-                {
-                    return Result.ResourceNotFound<Guid>(ArticleNotFound);
-                }
-
-                var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, articleId, cancellationToken);
-                if (bookmarkExists)
-                {
-                    return Result.ResourceNotFound<Guid>(BookmarkAlreadyExists);
-                }
-
-                var bookmark = Bookmark.Create(request.UserId, articleId);
-
-                _bookmarkRepository.Add(bookmark);
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success(bookmark.Id);
+                return Result.ResourceNotFound<Guid>(BookmarkAlreadyExists);
             }
+
+            var bookmark = Bookmark.Create(request.UserId, articleId);
+
+            _bookmarkRepository.Add(bookmark);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success(bookmark.Id);
         }
     }
 }
