@@ -5,7 +5,7 @@ using Body4uHUB.Identity.Application.Commands.DeleteTrainer;
 using Body4uHUB.Identity.Application.Commands.EditUser;
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllUsers;
-using Body4uHUB.Identity.Application.Queries.GetProfile;
+using Body4uHUB.Identity.Application.Queries.GetUserById;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
