@@ -7,10 +7,7 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Queries.GetUserById
 {
-    public class GetUserByIdQuery : IRequest<Result<UserDto>>
-    {
-        public Guid Id { get; set; }
-    }
+    public record GetUserByIdQuery(Guid Id) : IRequest<Result<UserDto>>;
 
     internal sealed class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
     {

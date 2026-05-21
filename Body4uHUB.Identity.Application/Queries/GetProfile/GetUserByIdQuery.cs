@@ -2,17 +2,12 @@
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using MediatR;
-using System.Text.Json.Serialization;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Queries.GetProfile
 {
-    public class GetUserByIdQuery : IRequest<Result<UserDto>>
-    {
-        [JsonIgnore]
-        public Guid Id { get; init; }
-    }
+    public record GetUserByIdQuery(Guid Id) : IRequest<Result<UserDto>>;
 
     internal sealed class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
     {

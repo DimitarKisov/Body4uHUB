@@ -4,9 +4,7 @@ using MediatR;
 
 namespace Body4uHUB.Identity.Application.Queries.GetAllUsers
 {
-    public class GetAllUsersQuery : IRequest<IEnumerable<UserDto>>
-    {
-    }
+    public record GetAllUsersQuery() : IRequest<IEnumerable<UserDto>>;
 
     internal sealed class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDto>>
     {

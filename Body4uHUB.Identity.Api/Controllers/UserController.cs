@@ -55,7 +55,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteTrainerAccount(Guid userId)
         {
-            var result = await Mediator.Send(new DeleteTrainerCommand { UserId = userId});
+            var result = await Mediator.Send(new DeleteTrainerCommand(userId));
             return HandleResult(result);
         }
 
@@ -95,7 +95,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetProfile()
         {
-            var result = await Mediator.Send(new GetUserByIdQuery { Id = User.GetUserId() });
+            var result = await Mediator.Send(new GetUserByIdQuery(User.GetUserId()));
             return HandleResult(result);
         }
 
@@ -110,7 +110,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetUserById(Guid id)
         {
-            var result = await Mediator.Send(new GetUserByIdQuery { Id = id });
+            var result = await Mediator.Send(new GetUserByIdQuery(id));
             return HandleResult(result);
         }
     }

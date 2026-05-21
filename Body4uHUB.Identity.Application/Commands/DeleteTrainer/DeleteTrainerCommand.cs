@@ -8,10 +8,7 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
 {
-    public class DeleteTrainerCommand : IRequest<Result>
-    {
-        public Guid UserId { get; init; }
-    }
+    public record DeleteTrainerCommand(Guid UserId) : IRequest<Result>;
 
     internal sealed class DeleteTrainerCommandHandler : IRequestHandler<DeleteTrainerCommand, Result>
     {

@@ -4,9 +4,7 @@ using MediatR;
 
 namespace Body4uHUB.Identity.Application.Queries.GetAllRoles
 {
-    public class GetAllRolesQuery : IRequest<IEnumerable<RoleDto>>
-    {
-    }
+    public record GetAllRolesQuery() : IRequest<IEnumerable<RoleDto>>;
 
     internal sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, IEnumerable<RoleDto>>
     {
