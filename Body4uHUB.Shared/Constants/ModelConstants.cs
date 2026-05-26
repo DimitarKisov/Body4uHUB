@@ -27,6 +27,7 @@
             //public const string SpecializationRequired = "At least one specialization is required";
             //public const string SpecializationLengthMessage = "Specialization must be between {0} and {1} characters";
             public const string TrainerProfileNotFound = "Trainer profile not found";
+            public const string TrainerProfileForbidden = "You do not have permission to modify this trainer profile.";
             //public const string TrainerProfileAlreadyExists = "Trainer profile already exists for this user";
             public const string MinYearsOfExperienceMessage = "Years of experience must be greater than or equal to {0}";
 

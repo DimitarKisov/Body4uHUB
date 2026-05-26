@@ -1,6 +1,7 @@
 using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Services.Domain.ValueObjects;
+using Body4uHUB.Shared.Domain.Exceptions;
 using Body4uHUB.Shared.Domain.Guards;
 using Body4uHUB.Shared.Domain.Base;
 
@@ -167,34 +168,32 @@ namespace Body4uHUB.Services.Domain.Models
             return service.Id;
         }
 
-        public void UpdateService(
-            int id,
-            string title,
+        public void UpdateServiceDetails(
+            int serviceId,
+            string name,
             string description,
-            Money price,
+            decimal price,
             int durationMinutes,
-            ServiceCategory category,
-            bool isActive,
-            int maxParticipants,
-            bool isOnline,
-            DateTime? startDate,
-            DateTime? endDate)
+            Guid requesterId,
+            bool isAdmin)
         {
-            if (_services.Any(x => x.Id != id && x.Name.Equals(title, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new InvalidServiceOfferingException(ServiceOfferingAlreadyExists);
-            }
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
 
-            var service = GetService(id);
+            var service = GetService(serviceId);
+            var money = Money.Create(price, service.Price.Currency);
 
-            service.UpdateName(title);
+            service.UpdateName(name);
             service.UpdateDescription(description);
-            service.UpdatePrice(price);
+            service.UpdatePrice(money);
             service.UpdateDurationInMinutes(durationMinutes);
-            service.UpdateCategory(category);
-            service.UpdateMaxParticipants(maxParticipants);
-            service.UpdateStartDate(startDate);
-            service.UpdateEndDate(endDate);
+        }
+
+        private void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
+        {
+            if (!isAdmin && UserId != requesterId)
+            {
+                throw new DomainAuthorizationException(TrainerProfileForbidden);
+            }
         }
 
         public void ActivateService(int id)

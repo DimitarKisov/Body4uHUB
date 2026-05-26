@@ -1,10 +1,8 @@
 using Body4uHUB.Services.Domain.Repositories;
-using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
@@ -42,23 +40,14 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
                 return Result.ResourceNotFound(TrainerProfileNotFound);
             }
 
-            var serviceOffering = trainerProfile.GetService(request.Id);
-            if (serviceOffering == null)
-            {
-                return Result.ResourceNotFound(ServiceOfferingNotFound);
-            }
-
-            if (!request.AuthContext.IsAdmin && trainerProfile.UserId != request.AuthContext.CurrentUserId)
-            {
-                return Result.Forbidden(ServiceOfferingForbidden);
-            }
-
-            var money = Money.Create(request.Price, serviceOffering.Price.Currency);
-
-            serviceOffering.UpdateName(request.Name);
-            serviceOffering.UpdateDescription(request.Description);
-            serviceOffering.UpdatePrice(money);
-            serviceOffering.UpdateDurationInMinutes(request.DurationMinutes);
+            trainerProfile.UpdateServiceDetails(
+                request.Id,
+                request.Name,
+                request.Description,
+                request.Price,
+                request.DurationMinutes,
+                request.AuthContext.CurrentUserId,
+                request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

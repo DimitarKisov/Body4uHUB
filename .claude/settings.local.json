@@ -5,7 +5,8 @@
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(dotnet build *)",
       "Bash(git restore *)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\dkisov\\\\Desktop\\\\Body4uHUB\\\\Body4uHUB.Content.Application\\\\Commands\\\\\" -Recurse -File | Where-Object {$_.Name -match \"\\(Handler|Update|Delete\\)\"} | Select-Object FullName)"
     ]
   }
 }
