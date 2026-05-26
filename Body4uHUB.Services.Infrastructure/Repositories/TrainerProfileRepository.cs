@@ -28,12 +28,5 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
         {
             return await _dbContext.TrainerProfiles.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
-
-        public async Task<TrainerProfile> GetWithServicesByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await _dbContext.TrainerProfiles
-                .Include(x => x.Services)
-                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
-        }
     }
 }
