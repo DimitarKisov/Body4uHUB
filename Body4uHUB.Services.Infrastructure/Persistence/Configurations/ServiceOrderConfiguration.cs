@@ -71,6 +71,8 @@ namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
             builder.HasIndex(x => x.TrainerId);
 
             builder.HasIndex(x => x.Status);
+
+            builder.Ignore(x => x.DomainEvents);
         }
     }
 }
