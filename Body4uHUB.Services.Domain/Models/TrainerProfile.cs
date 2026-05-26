@@ -27,12 +27,12 @@ namespace Body4uHUB.Services.Domain.Models
         public IReadOnlyCollection<ServiceOffering> Services => _services.AsReadOnly();
 
         private TrainerProfile()
-            : base(Guid.Empty)
+            : base(Guid.NewGuid())
         {
         }
 
         private TrainerProfile(Guid userId, string bio, int yearsOfExperience)
-            : base(Guid.Empty)
+            : base(Guid.NewGuid())
         {
             UserId = userId;
             Bio = bio;

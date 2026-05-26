@@ -2,7 +2,7 @@
 
 namespace Body4uHUB.Services.Domain.Exceptions
 {
-    internal class InvalidTrainerProfileException : BaseDomainException
+    public class InvalidTrainerProfileException : BaseDomainException
     {
         public InvalidTrainerProfileException()
         {

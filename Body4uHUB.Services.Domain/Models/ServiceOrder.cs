@@ -127,7 +127,7 @@ namespace Body4uHUB.Services.Domain.Models
 
         public void MarkPaymentFailed()
         {
-            if (PaymentStatus == PaymentStatus.Completed || PaymentStatus == PaymentStatus.Completed)
+            if (PaymentStatus == PaymentStatus.Completed || PaymentStatus == PaymentStatus.Failed)
             {
                 throw new InvalidServiceOrderException(CannotMarkPaymentFailed);
             }
