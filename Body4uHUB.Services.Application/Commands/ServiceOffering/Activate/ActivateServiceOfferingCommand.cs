@@ -3,7 +3,6 @@ using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
@@ -31,12 +30,10 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
                 return Result.ResourceNotFound(TrainerProfileNotFound);
             }
 
-            if (!request.AuthContext.IsAdmin && trainerProfile.UserId != request.AuthContext.CurrentUserId)
-            {
-                return Result.Forbidden(ServiceOfferingForbidden);
-            }
-
-            trainerProfile.ActivateService(request.Id);
+            trainerProfile.ActivateService(
+                request.Id,
+                request.AuthContext.CurrentUserId,
+                request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

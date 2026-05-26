@@ -50,13 +50,21 @@ namespace Body4uHUB.Services.Domain.Models
             return new TrainerProfile(userId, bio, yearsOfExperience);
         }
 
-        public void UpdateBio(string bio)
+        public void UpdateProfile(string bio, int yearsOfExperience, Guid requesterId, bool isAdmin)
+        {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
+            UpdateBio(bio);
+            UpdateYearsOfExperience(yearsOfExperience);
+        }
+
+        private void UpdateBio(string bio)
         {
             ValidateBio(bio);
             Bio = bio;
         }
 
-        public void UpdateYearsOfExperience(int yearsOfExperience)
+        private void UpdateYearsOfExperience(int yearsOfExperience)
         {
             ValidateYearsOfExperience(yearsOfExperience);
             YearsOfExperience = yearsOfExperience;
@@ -196,14 +204,18 @@ namespace Body4uHUB.Services.Domain.Models
             }
         }
 
-        public void ActivateService(int id)
+        public void ActivateService(int id, Guid requesterId, bool isAdmin)
         {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
             var service = GetService(id);
             service.Activate();
         }
 
-        public void DeactivateService(int id)
+        public void DeactivateService(int id, Guid requesterId, bool isAdmin)
         {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
             var service = GetService(id);
             service.Deactivate();
         }
@@ -219,7 +231,7 @@ namespace Body4uHUB.Services.Domain.Models
             var service = _services.FirstOrDefault(x => x.Id == id);
             if (service == null)
             {
-                throw new InvalidServiceOfferingException(ServiceOfferingNotFound);
+                throw new DomainNotFoundException(ServiceOfferingNotFound);
             }
 
             return service;
