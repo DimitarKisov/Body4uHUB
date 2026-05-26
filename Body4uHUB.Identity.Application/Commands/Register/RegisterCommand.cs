@@ -19,9 +19,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
         string FirstName,
         string LastName,
         string PhoneNumber)
-        : IRequest<Result<AuthResponseDto>>
-    {
-    }
+        : IRequest<Result<AuthResponseDto>>;
 
     internal sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<AuthResponseDto>>
     {

@@ -8,10 +8,7 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
 {
-    public record CreateTrainerAccountCommand(Guid UserId, string Bio, int YearsOfExperience)
-        : IRequest<Result<CreateTrainerAccountResponse>>
-    {
-    }
+    public record CreateTrainerAccountCommand(Guid UserId, string Bio, int YearsOfExperience) : IRequest<Result<CreateTrainerAccountResponse>>;
 
     internal sealed class CreateTrainerAccountCommandHandler : IRequestHandler<CreateTrainerAccountCommand, Result<CreateTrainerAccountResponse>>
     {

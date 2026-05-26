@@ -9,10 +9,7 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.Login
 {
-    public record LoginCommand(string Email, string Password)
-        : IRequest<Result<AuthResponseDto>>
-    {
-    }
+    public record LoginCommand(string Email, string Password) : IRequest<Result<AuthResponseDto>>;
 
     internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
     {
