@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
+using static Body4uHUB.Services.Domain.Constants.ModelConstants.CommonConstants;
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Complete
 {
@@ -9,7 +9,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Complete
         public CompleteServiceOrderCommandValidator()
         {
             RuleFor(x => x.Id)
-                .GreaterThan(0).WithMessage(ServiceOrderIdCannotBeZeroOrNegative);
+                .GreaterThan(0).WithMessage(ServiceOrderIdRequired);
         }
     }
 }

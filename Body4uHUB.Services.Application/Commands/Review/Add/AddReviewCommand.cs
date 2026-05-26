@@ -1,5 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Repositories;
-using Body4uHUB.Services.Domain.ValueObjects;
+using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using MediatR;
 using System.Text.Json.Serialization;
@@ -39,7 +38,7 @@ namespace Body4uHUB.Services.Application.Commands.Review.Add
 
             public async Task<Result> Handle(AddReviewCommand request, CancellationToken cancellationToken)
             {
-                var serviceOrder = await _serviceOrderRepository.GetByIdAsync(ServiceOrderId.Create(request.OrderId), cancellationToken);
+                var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.OrderId, cancellationToken);
                 if (serviceOrder == null)
                 {
                     return Result.ResourceNotFound(ServiceOrderNotFound);

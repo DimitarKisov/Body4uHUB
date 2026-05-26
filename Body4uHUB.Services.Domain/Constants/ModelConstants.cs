@@ -9,6 +9,7 @@ namespace Body4uHUB.Services.Domain.Constants
         {
             public const string TrainerIdRequired = "Trainer ID is required";
             public const string ServiceOfferingIdRequired = "Service Offering ID is required";
+            public const string ServiceOrderIdRequired = "Service Order ID is required";
             public const string SkipInvalid = "Skip must be greater than or equal to 0";
             public const string TakeInvalid = "Take must be between 1 and 100";
             public const string ClientIdRequired = "Client ID is required";
@@ -24,7 +25,6 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string CommentRequired = "Comment is required.";
             public const string CommentLength = "Comment must be between {0} and {1} characters.";
             public const string ServiceRatingOutOfRange = "Rating must be between {0} and {1}.";
-            public const string ReviewIdCannotBeZeroOrNegative = "Review ID must be greater than 0.";
             public const string ReviewAlreadyExists = "A review has already been added for this order.";
             public const string ReviewNotFound = "Review not found for this order.";
         }
@@ -46,7 +46,6 @@ namespace Body4uHUB.Services.Domain.Constants
             public const string MinDuration = "Duration must be at least {0} minutes.";
             public const string NameRequired = "Service name is required.";
             public const string NameLength = "Service name must be between {0} and {1} characters.";
-            public const string ServiceOfferingIdCannotBeZeroOrNegative = "ServiceOffering ID must be greater than 0.";
             public const string ServiceTypeRequired = "Service type is required.";
             public const string ServiceTypeInvalid = "Invalid service type. Valid values are: {0}.";
             public const string MinPrice = "Price must be bigger than 0.";
@@ -63,7 +62,6 @@ namespace Body4uHUB.Services.Domain.Constants
             public const int NotesMaxLength = 1000;
 
             public const string ServiceOrderNotFound = "Service order not found.";
-            public const string ServiceOrderIdCannotBeZeroOrNegative = "ServiceOrder ID must be greater than 0.";
 
             public const string OrderNotCompleted = "Cannot add a review to an order that is not completed.";
             public const string CannotMarkPaymentRefunded = "Payment can only be marked as refunded if it is currently pending.";

@@ -1,5 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Repositories;
-using Body4uHUB.Services.Domain.ValueObjects;
+using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -27,7 +26,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Cancel
 
             public async Task<Result> Handle(CancelServiceOrderCommand request, CancellationToken cancellationToken)
             {
-                var serviceOrder = await _serviceOrderRepository.GetByIdAsync(ServiceOrderId.Create(request.Id), cancellationToken);
+                var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.Id, cancellationToken);
                 if (serviceOrder == null)
                 {
                     return Result.ResourceNotFound(ServiceOrderNotFound);

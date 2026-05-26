@@ -1,7 +1,6 @@
-﻿using Body4uHUB.Services.Domain.Enumerations;
+using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Models;
 using Body4uHUB.Services.Domain.Repositories;
-using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -11,14 +10,14 @@ using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileCons
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Create
 {
-    public class CreateServiceOrderCommand : IRequest<Result<ServiceOrderId>>
+    public class CreateServiceOrderCommand : IRequest<Result<int>>
     {
         public Guid ClientId { get; set; }
         public Guid TrainerId { get; set; }
         public int ServiceOfferingId { get; set; }
         public string Notes { get; set; }
 
-        internal class CreateServiceOrderCommandHandler : IRequestHandler<CreateServiceOrderCommand, Result<ServiceOrderId>>
+        internal class CreateServiceOrderCommandHandler : IRequestHandler<CreateServiceOrderCommand, Result<int>>
         {
             private readonly IServiceOrderRepository _serviceOrderRepository;
             private readonly ITrainerProfileRepository _trainerRepository;
@@ -34,29 +33,29 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Create
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<ServiceOrderId>> Handle(CreateServiceOrderCommand request, CancellationToken cancellationToken)
+            public async Task<Result<int>> Handle(CreateServiceOrderCommand request, CancellationToken cancellationToken)
             {
                 var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
-                    return Result.ResourceNotFound<ServiceOrderId>(TrainerProfileNotFound);
+                    return Result.ResourceNotFound<int>(TrainerProfileNotFound);
                 }
 
-                var serviceOffering = trainerProfile.GetService(Domain.ValueObjects.ServiceOfferingId.Create(request.ServiceOfferingId));
+                var serviceOffering = trainerProfile.GetService(request.ServiceOfferingId);
                 if (serviceOffering == null)
                 {
-                    return Result.ResourceNotFound<ServiceOrderId>(ServiceOfferingNotFound);
+                    return Result.ResourceNotFound<int>(ServiceOfferingNotFound);
                 }
 
                 if (!serviceOffering.IsActive)
                 {
-                    return Result.BusinessRuleViolation<ServiceOrderId>(ServiceOfferingInactive);
+                    return Result.BusinessRuleViolation<int>(ServiceOfferingInactive);
                 }
 
                 var serviceOrder = ServiceOrder.Create(
                     request.ClientId,
                     request.TrainerId,
-                    Domain.ValueObjects.ServiceOfferingId.Create(request.ServiceOfferingId),
+                    request.ServiceOfferingId,
                     OrderStatus.Pending,
                     serviceOffering.Price,
                     PaymentStatus.Pending,

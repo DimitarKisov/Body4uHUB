@@ -1,6 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Models;
-using Body4uHUB.Services.Domain.ValueObjects;
-using Body4uHUB.Services.Infrastructure.Persistence.Converters;
+using Body4uHUB.Services.Domain.Models;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -28,24 +26,7 @@ namespace Body4uHUB.Services.Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
         }
 
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            configurationBuilder
-                .Properties<ServiceOfferingId>()
-                .HaveConversion<ServiceOfferingConverter>();
-
-            configurationBuilder
-                .Properties<ServiceOrderId>()
-                .HaveConversion<ServiceOrderConverter>();
-
-            configurationBuilder
-                .Properties<ReviewId>()
-                .HaveConversion<ReviewConverter>();
-
-            base.ConfigureConventions(configurationBuilder);
-        }
-
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             var modifiedEntries = ChangeTracker.Entries()
                 .Where(x => x.State == EntityState.Modified &&
@@ -57,7 +38,7 @@ namespace Body4uHUB.Services.Infrastructure.Persistence
                 entity.SetModifiedAt();
             }
 
-            return base.SaveChangesAsync(cancellationToken);
+            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

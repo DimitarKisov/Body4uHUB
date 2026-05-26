@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Enumerations;
+using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Domain.Guards;
@@ -133,7 +133,7 @@ namespace Body4uHUB.Services.Domain.Models
             _certifications.Clear();
         }
 
-        public ServiceOfferingId AddService(
+        public int AddService(
             string title,
             string description,
             Money price,
@@ -145,7 +145,6 @@ namespace Body4uHUB.Services.Domain.Models
             DateTime? startDate,
             DateTime? endDate)
         {
-            //TODO: Премести в command - application layer
             if (_services.Any(x => x.Name.Equals(title, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidServiceOfferingException(ServiceOfferingAlreadyExists);
@@ -169,7 +168,7 @@ namespace Body4uHUB.Services.Domain.Models
         }
 
         public void UpdateService(
-            ServiceOfferingId id,
+            int id,
             string title,
             string description,
             Money price,
@@ -198,25 +197,25 @@ namespace Body4uHUB.Services.Domain.Models
             service.UpdateEndDate(endDate);
         }
 
-        public void ActivateService(ServiceOfferingId id)
+        public void ActivateService(int id)
         {
             var service = GetService(id);
             service.Activate();
         }
 
-        public void DeactivateService(ServiceOfferingId id)
+        public void DeactivateService(int id)
         {
             var service = GetService(id);
             service.Deactivate();
         }
 
-        public void RemoveService(ServiceOfferingId id)
+        public void RemoveService(int id)
         {
             var service = GetService(id);
             _services.Remove(service);
         }
 
-        public ServiceOffering GetService(ServiceOfferingId id)
+        public ServiceOffering GetService(int id)
         {
             var service = _services.FirstOrDefault(x => x.Id == id);
             if (service == null)

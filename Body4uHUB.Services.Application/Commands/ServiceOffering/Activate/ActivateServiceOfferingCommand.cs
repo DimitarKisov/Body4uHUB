@@ -1,5 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Repositories;
-using Body4uHUB.Services.Domain.ValueObjects;
+using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -44,7 +43,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
                     return Result.Forbidden(ServiceOfferingForbidden);
                 }
 
-                trainerProfile.ActivateService(ServiceOfferingId.Create(request.Id));
+                trainerProfile.ActivateService(request.Id);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

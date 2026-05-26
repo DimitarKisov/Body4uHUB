@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Enumerations;
+using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
@@ -10,7 +10,7 @@ using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileCons
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Add
 {
-    public class AddServiceOfferingCommand : IRequest<Result<ServiceOfferingId>>
+    public class AddServiceOfferingCommand : IRequest<Result<int>>
     {
         public Guid TrainerId { get; set; }
         public string Name { get; set; }
@@ -24,7 +24,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Add
         public DateTime? StartDate {  get; set; }
         public DateTime? EndDate { get; set; }
 
-        internal class AddServiceOfferingCommandHandler : IRequestHandler<AddServiceOfferingCommand, Result<ServiceOfferingId>>
+        internal class AddServiceOfferingCommandHandler : IRequestHandler<AddServiceOfferingCommand, Result<int>>
         {
             private readonly ITrainerProfileRepository _trainerRepository;
             private readonly IUnitOfWork _unitOfWork;
@@ -37,12 +37,12 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Add
                 _unitOfWork = unitOfWork;
             }
 
-            public async Task<Result<ServiceOfferingId>> Handle(AddServiceOfferingCommand request, CancellationToken cancellationToken)
+            public async Task<Result<int>> Handle(AddServiceOfferingCommand request, CancellationToken cancellationToken)
             {
                 var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId, cancellationToken);
                 if (trainerProfile == null)
                 {
-                    return Result.ResourceNotFound<ServiceOfferingId>(TrainerProfileNotFound);
+                    return Result.ResourceNotFound<int>(TrainerProfileNotFound);
                 }
 
                 var money = Money.Create(request.Price, request.Currency);

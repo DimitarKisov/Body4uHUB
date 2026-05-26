@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Repositories;
+using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
@@ -44,7 +44,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
                     return Result.ResourceNotFound(TrainerProfileNotFound);
                 }
 
-                var serviceOffering = trainerProfile.GetService(ServiceOfferingId.Create(request.Id));
+                var serviceOffering = trainerProfile.GetService(request.Id);
                 if (serviceOffering == null)
                 {
                     return Result.ResourceNotFound(ServiceOfferingNotFound);

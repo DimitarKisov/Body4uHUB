@@ -1,6 +1,5 @@
-﻿using Body4uHUB.Services.Application.DTOs;
+using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Repositories;
-using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Services.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,7 +34,7 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public Task<ServiceOrderDto> GetByIdAsync(ServiceOrderId id, CancellationToken cancellationToken = default)
+        public Task<ServiceOrderDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return _dbContext.ServiceOrders
                 .Where(x => x.Id == id)

@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Enumerations;
+using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Domain.Guards;
@@ -9,11 +9,11 @@ using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
 
 namespace Body4uHUB.Services.Domain.Models
 {
-    public class ServiceOrder : AggregateRoot<ServiceOrderId>
+    public class ServiceOrder : AggregateRoot<int>
     {
         public Guid ClientId { get; private set; }
         public Guid TrainerId { get; private set; }
-        public ServiceOfferingId ServiceOfferingId { get; private set; }
+        public int ServiceOfferingId { get; private set; }
         public OrderStatus Status { get; private set; }
         public Money TotalPrice { get; private set; }
         public PaymentStatus PaymentStatus { get; private set; }
@@ -23,18 +23,18 @@ namespace Body4uHUB.Services.Domain.Models
         public bool IsReviewed { get; private set; }
 
         private ServiceOrder()
-            : base(default!)
+            : base()
         {
         }
 
         private ServiceOrder(Guid clientId,
             Guid trainerId,
-            ServiceOfferingId serviceId,
+            int serviceId,
             OrderStatus status,
             Money totalPrice,
             PaymentStatus paymentStatus,
             string notes)
-            : base(default!)
+            : base()
         {
             ClientId = clientId;
             TrainerId = trainerId;
@@ -49,7 +49,7 @@ namespace Body4uHUB.Services.Domain.Models
         public static ServiceOrder Create(
             Guid clientId,
             Guid trainerId,
-            ServiceOfferingId serviceId,
+            int serviceId,
             OrderStatus status,
             Money totalPrice,
             PaymentStatus paymentStatus,

@@ -1,5 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Exceptions;
-using Body4uHUB.Services.Domain.ValueObjects;
+using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
 
@@ -7,20 +6,20 @@ using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
 
 namespace Body4uHUB.Services.Domain.Models
 {
-    public class Review : Entity<ReviewId>
+    public class Review : Entity<int>
     {
         public Guid ClientId { get; private set; }
-        public ServiceOrderId OrderId { get; private set; }
+        public int OrderId { get; private set; }
         public int Rating { get; private set; }
         public string Comment { get; private set; }
 
         private Review()
-            : base(default!)
+            : base()
         {
         }
 
-        private Review(Guid reviewerId, ServiceOrderId orderId, int rating, string comment)
-            : base(default!)
+        private Review(Guid reviewerId, int orderId, int rating, string comment)
+            : base()
         {
             ClientId = reviewerId;
             OrderId = orderId;
@@ -28,7 +27,7 @@ namespace Body4uHUB.Services.Domain.Models
             Comment = comment;
         }
 
-        internal static Review Create(Guid reviewerId, ServiceOrderId orderId, int rating, string comment)
+        internal static Review Create(Guid reviewerId, int orderId, int rating, string comment)
         {
             Validate(reviewerId, orderId, rating, comment);
             return new Review(reviewerId, orderId, rating, comment);
@@ -42,7 +41,7 @@ namespace Body4uHUB.Services.Domain.Models
             Comment = comment;
         }
 
-        private static void Validate(Guid clientId, ServiceOrderId orderId, int rating, string comment)
+        private static void Validate(Guid clientId, int orderId, int rating, string comment)
         {
             ValidateClientId(clientId);
             ValidateOrderId(orderId);
@@ -55,9 +54,9 @@ namespace Body4uHUB.Services.Domain.Models
            Guard.AgainstEmptyGuid<InvalidReviewException>(clientId, nameof(ClientId));
         }
 
-        private static void ValidateOrderId(ServiceOrderId orderId)
+        private static void ValidateOrderId(int orderId)
         {
-            Guard.AgainstNegativeAndZero<InvalidReviewException>(orderId.Value, nameof(OrderId));
+            Guard.AgainstNegativeAndZero<InvalidReviewException>(orderId, nameof(OrderId));
         }
 
         private static void ValidateRating(int rating)

@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Services.Domain.Enumerations;
+using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Exceptions;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Domain.Guards;
@@ -9,7 +9,7 @@ using static Body4uHUB.Services.Domain.Constants.ModelConstants.ReviewConstants;
 
 namespace Body4uHUB.Services.Domain.Models
 {
-    public class ServiceOffering : Entity<ServiceOfferingId>
+    public class ServiceOffering : Entity<int>
     {
         private readonly List<Review> _reviews = new();
 
@@ -27,7 +27,7 @@ namespace Body4uHUB.Services.Domain.Models
         public IReadOnlyCollection<Review> Reviews => _reviews.AsReadOnly();
 
         private ServiceOffering()
-            : base(default!)
+            : base()
         {
         }
 
@@ -42,7 +42,7 @@ namespace Body4uHUB.Services.Domain.Models
             bool isOnline,
             DateTime? startDate,
             DateTime? endDate)
-            : base(default!)
+            : base()
         {
             Name = name;
             Description = description;
@@ -145,7 +145,7 @@ namespace Body4uHUB.Services.Domain.Models
             IsOnline = isOnline;
         }
 
-        public void AddReview(Guid clientId, ServiceOrderId orderId, int rating, string comment)
+        public void AddReview(Guid clientId, int orderId, int rating, string comment)
         {
             if (_reviews.Any(x => x.OrderId == orderId))
             {

@@ -1,6 +1,5 @@
-﻿using Body4uHUB.Services.Domain.Models;
+using Body4uHUB.Services.Domain.Models;
 using Body4uHUB.Services.Domain.Repositories;
-using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Services.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +19,7 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
             _dbContext.ServiceOrders.Add(serviceOrder);
         }
 
-        public async Task<ServiceOrder> GetByIdAsync(ServiceOrderId id, CancellationToken cancellationToken = default)
+        public async Task<ServiceOrder> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.ServiceOrders.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }

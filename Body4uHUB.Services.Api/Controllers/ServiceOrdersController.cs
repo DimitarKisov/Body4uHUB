@@ -6,7 +6,6 @@ using Body4uHUB.Services.Application.Commands.ServiceOrders.Create;
 using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderByClients;
 using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderById;
-using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
@@ -82,7 +81,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// </summary>
         [HttpPost("create")]
         [Authorize(Policy = "TrainerOrAdmin")]
-        [ProducesResponseType(typeof(ServiceOrderId), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
