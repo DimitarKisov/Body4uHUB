@@ -7,29 +7,26 @@ using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderCons
 
 namespace Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderById
 {
-    public class GetServiceOrderByIdQuery : IRequest<Result<ServiceOrderDto>>
+    public record GetServiceOrderByIdQuery(int Id) : IRequest<Result<ServiceOrderDto>>;
+
+    internal sealed class GetServiceOrderByIdQueryHandler : IRequestHandler<GetServiceOrderByIdQuery, Result<ServiceOrderDto>>
     {
-        public int Id { get; set; }
+        private readonly IServiceOrderReadRepository _serviceOrderReadRepository;
 
-        internal class GetServiceOrderByIdQueryHandler : IRequestHandler<GetServiceOrderByIdQuery, Result<ServiceOrderDto>>
+        public GetServiceOrderByIdQueryHandler(IServiceOrderReadRepository serviceOrderReadRepository)
         {
-            private readonly IServiceOrderReadRepository _serviceOrderReadRepository;
+            _serviceOrderReadRepository = serviceOrderReadRepository;
+        }
 
-            public GetServiceOrderByIdQueryHandler(IServiceOrderReadRepository serviceOrderReadRepository)
+        public async Task<Result<ServiceOrderDto>> Handle(GetServiceOrderByIdQuery request, CancellationToken cancellationToken)
+        {
+            var serviceOrder = await _serviceOrderReadRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (serviceOrder == null)
             {
-                _serviceOrderReadRepository = serviceOrderReadRepository;
+                return Result.ResourceNotFound<ServiceOrderDto>(ServiceOrderNotFound);
             }
 
-            public async Task<Result<ServiceOrderDto>> Handle(GetServiceOrderByIdQuery request, CancellationToken cancellationToken)
-            {
-                var serviceOrder = await _serviceOrderReadRepository.GetByIdAsync(request.Id, cancellationToken);
-                if (serviceOrder == null)
-                {
-                    return Result.ResourceNotFound<ServiceOrderDto>(ServiceOrderNotFound);
-                }
-
-                return Result.Success(serviceOrder);
-            }
+            return Result.Success(serviceOrder);
         }
     }
 }

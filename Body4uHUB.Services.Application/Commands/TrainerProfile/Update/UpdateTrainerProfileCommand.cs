@@ -1,55 +1,52 @@
-﻿using Body4uHUB.Services.Domain.Repositories;
+using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using System.Text.Json.Serialization;
+
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
 {
-    public class UpdateTrainerProfileCommand : IRequest<Result>
+    public record UpdateTrainerProfileCommand(
+        Guid Id,
+        string Bio,
+        int YearsOfExperience,
+        AuthorizationContext AuthContext)
+        : IRequest<Result>;
+
+    internal sealed class UpdateTrainerProfileCommandHandler : IRequestHandler<UpdateTrainerProfileCommand, Result>
     {
-        public Guid Id { get; set; }
-        public string Bio { get; set; }
-        public int YearsOfExperience { get; set; }
+        private readonly ITrainerProfileRepository _trainerRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        [JsonIgnore]
-        public AuthorizationContext AuthContext { get; set; }
-
-        internal class UpdateTrainerProfileCommandHandler : IRequestHandler<UpdateTrainerProfileCommand, Result>
+        public UpdateTrainerProfileCommandHandler(
+            ITrainerProfileRepository trainerRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly ITrainerProfileRepository _trainerRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _trainerRepository = trainerRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public UpdateTrainerProfileCommandHandler(
-                ITrainerProfileRepository trainerRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(UpdateTrainerProfileCommand request, CancellationToken cancellationToken)
+        {
+            var trainerProfile = await _trainerRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (trainerProfile == null)
             {
-                _trainerRepository = trainerRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(TrainerProfileNotFound);
             }
 
-            public async Task<Result> Handle(UpdateTrainerProfileCommand request, CancellationToken cancellationToken)
+            if (!request.AuthContext.IsAdmin && trainerProfile.UserId != request.AuthContext.CurrentUserId)
             {
-                var trainerProfile = await _trainerRepository.GetByIdAsync(request.Id, cancellationToken);
-                if (trainerProfile == null)
-                {
-                    return Result.ResourceNotFound(TrainerProfileNotFound);
-                }
-
-                if (!request.AuthContext.IsAdmin && trainerProfile.Id != request.AuthContext.CurrentUserId)
-                {
-                    return Result.Forbidden(ServiceOfferingForbidden);
-                }
-
-                trainerProfile.UpdateBio(request.Bio);
-                trainerProfile.UpdateYearsOfExperience(request.YearsOfExperience);
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
+                return Result.Forbidden(ServiceOfferingForbidden);
             }
+
+            trainerProfile.UpdateBio(request.Bio);
+            trainerProfile.UpdateYearsOfExperience(request.YearsOfExperience);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

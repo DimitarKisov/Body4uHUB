@@ -10,64 +10,63 @@ using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileCons
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Create
 {
-    public class CreateServiceOrderCommand : IRequest<Result<int>>
+    public record CreateServiceOrderCommand(
+        Guid ClientId,
+        Guid TrainerId,
+        int ServiceOfferingId,
+        string Notes)
+        : IRequest<Result<CreateServiceOrderResponse>>;
+
+    internal sealed class CreateServiceOrderCommandHandler : IRequestHandler<CreateServiceOrderCommand, Result<CreateServiceOrderResponse>>
     {
-        public Guid ClientId { get; set; }
-        public Guid TrainerId { get; set; }
-        public int ServiceOfferingId { get; set; }
-        public string Notes { get; set; }
+        private readonly IServiceOrderRepository _serviceOrderRepository;
+        private readonly ITrainerProfileRepository _trainerRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        internal class CreateServiceOrderCommandHandler : IRequestHandler<CreateServiceOrderCommand, Result<int>>
+        public CreateServiceOrderCommandHandler(
+            IServiceOrderRepository serviceOrderRepository,
+            ITrainerProfileRepository trainerRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IServiceOrderRepository _serviceOrderRepository;
-            private readonly ITrainerProfileRepository _trainerRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _serviceOrderRepository = serviceOrderRepository;
+            _trainerRepository = trainerRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public CreateServiceOrderCommandHandler(
-                IServiceOrderRepository serviceOrderRepository,
-                ITrainerProfileRepository trainerRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result<CreateServiceOrderResponse>> Handle(CreateServiceOrderCommand request, CancellationToken cancellationToken)
+        {
+            var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId, cancellationToken);
+            if (trainerProfile == null)
             {
-                _serviceOrderRepository = serviceOrderRepository;
-                _trainerRepository = trainerRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound<CreateServiceOrderResponse>(TrainerProfileNotFound);
             }
 
-            public async Task<Result<int>> Handle(CreateServiceOrderCommand request, CancellationToken cancellationToken)
+            var serviceOffering = trainerProfile.GetService(request.ServiceOfferingId);
+            if (serviceOffering == null)
             {
-                var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId, cancellationToken);
-                if (trainerProfile == null)
-                {
-                    return Result.ResourceNotFound<int>(TrainerProfileNotFound);
-                }
-
-                var serviceOffering = trainerProfile.GetService(request.ServiceOfferingId);
-                if (serviceOffering == null)
-                {
-                    return Result.ResourceNotFound<int>(ServiceOfferingNotFound);
-                }
-
-                if (!serviceOffering.IsActive)
-                {
-                    return Result.BusinessRuleViolation<int>(ServiceOfferingInactive);
-                }
-
-                var serviceOrder = ServiceOrder.Create(
-                    request.ClientId,
-                    request.TrainerId,
-                    request.ServiceOfferingId,
-                    OrderStatus.Pending,
-                    serviceOffering.Price,
-                    PaymentStatus.Pending,
-                    request.Notes
-                );
-
-                _serviceOrderRepository.Add(serviceOrder);
-
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success(serviceOrder.Id);
+                return Result.ResourceNotFound<CreateServiceOrderResponse>(ServiceOfferingNotFound);
             }
+
+            if (!serviceOffering.IsActive)
+            {
+                return Result.BusinessRuleViolation<CreateServiceOrderResponse>(ServiceOfferingInactive);
+            }
+
+            var serviceOrder = ServiceOrder.Create(
+                request.ClientId,
+                request.TrainerId,
+                request.ServiceOfferingId,
+                OrderStatus.Pending,
+                serviceOffering.Price,
+                PaymentStatus.Pending,
+                request.Notes
+            );
+
+            _serviceOrderRepository.Add(serviceOrder);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success(new CreateServiceOrderResponse(serviceOrder.Id));
         }
     }
 }

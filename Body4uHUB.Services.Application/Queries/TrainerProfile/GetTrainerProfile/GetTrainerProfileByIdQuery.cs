@@ -1,4 +1,4 @@
-﻿using Body4uHUB.Services.Application.DTOs;
+using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Repositories;
 using Body4uHUB.Shared.Application;
 using MediatR;
@@ -7,29 +7,26 @@ using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileCons
 
 namespace Body4uHUB.Services.Application.Queries.TrainerProfile.GetTrainerProfile
 {
-    public class GetTrainerProfileByIdQuery : IRequest<Result<TrainerProfileDto>>
+    public record GetTrainerProfileByIdQuery(Guid TrainerId) : IRequest<Result<TrainerProfileDto>>;
+
+    internal sealed class GetTrainerProfileByIdQueryHandler : IRequestHandler<GetTrainerProfileByIdQuery, Result<TrainerProfileDto>>
     {
-        public Guid TrainerId { get; set; }
+        private readonly ITrainerProfileReadRepository _trainerReadRepository;
 
-        internal class GetTrainerProfileByIdQueryHandler : IRequestHandler<GetTrainerProfileByIdQuery, Result<TrainerProfileDto>>
+        public GetTrainerProfileByIdQueryHandler(ITrainerProfileReadRepository trainerReadRepository)
         {
-            private readonly ITrainerProfileReadRepository _trainerReadRepository;
+            _trainerReadRepository = trainerReadRepository;
+        }
 
-            public GetTrainerProfileByIdQueryHandler(ITrainerProfileReadRepository trainerReadRepository)
+        public async Task<Result<TrainerProfileDto>> Handle(GetTrainerProfileByIdQuery request, CancellationToken cancellationToken)
+        {
+            var trainerProfile = await _trainerReadRepository.GetByIdAsync(request.TrainerId, cancellationToken);
+            if (trainerProfile == null)
             {
-                _trainerReadRepository = trainerReadRepository;
+                return Result.ResourceNotFound<TrainerProfileDto>(TrainerProfileNotFound);
             }
 
-            public async Task<Result<TrainerProfileDto>> Handle(GetTrainerProfileByIdQuery request, CancellationToken cancellationToken)
-            {
-                var trainerProfile = await _trainerReadRepository.GetByIdAsync(request.TrainerId, cancellationToken);
-                if (trainerProfile == null)
-                {
-                    return Result.ResourceNotFound<TrainerProfileDto>(TrainerProfileNotFound);
-                }
-
-                return Result.Success(trainerProfile);
-            }
+            return Result.Success(trainerProfile);
         }
     }
 }

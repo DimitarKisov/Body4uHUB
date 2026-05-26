@@ -7,37 +7,34 @@ using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderCons
 
 namespace Body4uHUB.Services.Application.Commands.ServiceOrders.Complete
 {
-    public class CompleteServiceOrderCommand : IRequest<Result>
+    public record CompleteServiceOrderCommand(int Id) : IRequest<Result>;
+
+    internal sealed class CompleteServiceOrderCommandHandler : IRequestHandler<CompleteServiceOrderCommand, Result>
     {
-        public int Id { get; set; }
+        private readonly IServiceOrderRepository _serviceOrderRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        internal class CompleteServiceOrderCommandHandler : IRequestHandler<CompleteServiceOrderCommand, Result>
+        public CompleteServiceOrderCommandHandler(
+            IServiceOrderRepository serviceOrderRepository,
+            IUnitOfWork unitOfWork)
         {
-            private readonly IServiceOrderRepository _serviceOrderRepository;
-            private readonly IUnitOfWork _unitOfWork;
+            _serviceOrderRepository = serviceOrderRepository;
+            _unitOfWork = unitOfWork;
+        }
 
-            public CompleteServiceOrderCommandHandler(
-                IServiceOrderRepository serviceOrderRepository,
-                IUnitOfWork unitOfWork)
+        public async Task<Result> Handle(CompleteServiceOrderCommand request, CancellationToken cancellationToken)
+        {
+            var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.Id, cancellationToken);
+            if (serviceOrder == null)
             {
-                _serviceOrderRepository = serviceOrderRepository;
-                _unitOfWork = unitOfWork;
+                return Result.ResourceNotFound(ServiceOrderNotFound);
             }
 
-            public async Task<Result> Handle(CompleteServiceOrderCommand request, CancellationToken cancellationToken)
-            {
-                var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.Id, cancellationToken);
-                if (serviceOrder == null)
-                {
-                    return Result.ResourceNotFound(ServiceOrderNotFound);
-                }
+            serviceOrder.Complete();
 
-                serviceOrder.Complete();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return Result.Success();
-            }
+            return Result.Success();
         }
     }
 }

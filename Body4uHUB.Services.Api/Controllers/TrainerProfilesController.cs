@@ -1,4 +1,7 @@
-﻿using Body4uHUB.Services.Api.Extensions;
+using Body4uHUB.Services.Api.Extensions;
+using Body4uHUB.Services.Api.Models.Reviews;
+using Body4uHUB.Services.Api.Models.ServiceOfferings;
+using Body4uHUB.Services.Api.Models.TrainerProfiles;
 using Body4uHUB.Services.Application.Commands.Review.Add;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Activate;
 using Body4uHUB.Services.Application.Commands.ServiceOffering.Add;
@@ -28,13 +31,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<TrainerProfileDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllActiveTrainerProfiles([FromQuery] int skip, [FromQuery] int take)
         {
-            var query = new GetAllActiveTrainersQuery
-            {
-                Skip = skip,
-                Take = take
-            };
-
-            var result = await Mediator.Send(query);
+            var result = await Mediator.Send(new GetAllActiveTrainersQuery(skip, take));
             return HandleResult(result);
         }
 
@@ -46,7 +43,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetTrainerProfile(Guid id)
         {
-            var result = await Mediator.Send(new GetTrainerProfileByIdQuery { TrainerId = id });
+            var result = await Mediator.Send(new GetTrainerProfileByIdQuery(id));
             return HandleResult(result);
         }
 
@@ -60,14 +57,10 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> UpdateTrainerProfile(Guid id, [FromBody] UpdateTrainerProfileCommand command)
+        public async Task<IActionResult> UpdateTrainerProfile(Guid id, [FromBody] UpdateTrainerProfileRequest request)
         {
-            command.Id = id;
-            command.AuthContext = AuthorizationContext.Create(
-                User.GetUserId(),
-                User.IsAdmin()
-            );
-
+            var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
+            var command = new UpdateTrainerProfileCommand(id, request.Bio, request.YearsOfExperience, authContext);
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }
@@ -78,7 +71,7 @@ namespace Body4uHUB.Services.Api.Controllers
 
         /// <summary>
         /// Activate a service offering
-        /// </summary> 
+        /// </summary>
         [HttpPost("{trainerId}/services/{serviceId}/activate")]
         [Authorize(Policy= "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -88,17 +81,8 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> ActivateServiceOffering(Guid trainerId, int serviceId)
         {
-            var command = new ActivateServiceOfferingCommand
-            {
-                Id = serviceId,
-                TrainerId = trainerId,
-                AuthContext = AuthorizationContext.Create(
-                    User.GetUserId(),
-                    User.IsAdmin()
-                )
-            };
-
-            var result = await Mediator.Send(command);
+            var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
+            var result = await Mediator.Send(new ActivateServiceOfferingCommand(serviceId, trainerId, authContext));
             return HandleResult(result);
         }
 
@@ -111,11 +95,9 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> AddReview([FromRoute] int orderId, [FromBody] AddReviewCommand command)
+        public async Task<IActionResult> AddReview([FromRoute] int orderId, [FromBody] AddReviewRequest request)
         {
-            command.OrderId = orderId;
-            command.ClientId = User.GetUserId();
-
+            var command = new AddReviewCommand(orderId, request.Rating, request.Comment, User.GetUserId());
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }
@@ -125,17 +107,28 @@ namespace Body4uHUB.Services.Api.Controllers
         /// </summary>
         [HttpPost("{trainerId}/services")]
         [Authorize(Policy = "TrainerOrAdmin")]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AddServiceOfferingResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> CreateServiceOffering(Guid trainerId, [FromBody] AddServiceOfferingCommand command)
+        public async Task<IActionResult> CreateServiceOffering(Guid trainerId, [FromBody] AddServiceOfferingRequest request)
         {
-            command.TrainerId = trainerId;
+            var command = new AddServiceOfferingCommand(
+                trainerId,
+                request.Name,
+                request.Description,
+                request.Price,
+                request.Currency,
+                request.DurationMinutes,
+                request.ServiceType,
+                request.MaxParticipants,
+                request.IsOnline,
+                request.StartDate,
+                request.EndDate);
 
             var result = await Mediator.Send(command);
-            return HandleResult(result, id => new { serviceId = id });
+            return HandleCreatedResult(result, response => response);
         }
 
         /// <summary>
@@ -150,17 +143,8 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> DeleteServiceOffering(Guid trainerId, int serviceId)
         {
-            var command = new DeactivateServiceOfferingCommand
-            {
-                Id = serviceId,
-                TrainerId = trainerId,
-                AuthContext = AuthorizationContext.Create(
-                    User.GetUserId(),
-                    User.IsAdmin()
-                )
-            };
-
-            var result = await Mediator.Send(command);
+            var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
+            var result = await Mediator.Send(new DeactivateServiceOfferingCommand(serviceId, trainerId, authContext));
             return HandleResult(result);
         }
 
@@ -173,14 +157,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetServiceOfferings([FromRoute] Guid trainerId, [FromQuery] int skip, [FromQuery] int take)
         {
-            var query = new GetServiceOfferingsByTrainerQuery
-            {
-                TrainerId = trainerId,
-                Skip = skip,
-                Take = take
-            };
-
-            var result = await Mediator.Send(query);
+            var result = await Mediator.Send(new GetServiceOfferingsByTrainerQuery(trainerId, skip, take));
             return HandleResult(result);
         }
 
@@ -194,14 +171,19 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> UpdateServiceOffering(Guid trainerId, int serviceId, [FromBody] UpdateServiceOfferingCommand command)
+        public async Task<IActionResult> UpdateServiceOffering(Guid trainerId, int serviceId, [FromBody] UpdateServiceOfferingRequest request)
         {
-            command.Id = serviceId;
-            command.TrainerId = trainerId;
-            command.AuthContext = AuthorizationContext.Create(
-                User.GetUserId(),
-                User.IsAdmin()
-            );
+            var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
+            var command = new UpdateServiceOfferingCommand(
+                serviceId,
+                trainerId,
+                request.Name,
+                request.Description,
+                request.Price,
+                request.Currency,
+                request.DurationMinutes,
+                request.ServiceType,
+                authContext);
 
             var result = await Mediator.Send(command);
             return HandleResult(result);

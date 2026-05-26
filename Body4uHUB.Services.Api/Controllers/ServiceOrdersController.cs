@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Services.Api.Extensions;
+using Body4uHUB.Services.Api.Extensions;
+using Body4uHUB.Services.Api.Models.ServiceOrders;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Cancel;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Complete;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Confirm;
@@ -7,7 +8,6 @@ using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderByClients;
 using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderById;
 using Body4uHUB.Shared.Api;
-using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,12 +27,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CancelServiceOrder(int id)
         {
-            var command = new CancelServiceOrderCommand
-            {
-                Id = id
-            };
-
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(new CancelServiceOrderCommand(id));
             return HandleResult(result);
         }
 
@@ -47,12 +42,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CompleteServiceOrder(int id)
         {
-            var command = new CompleteServiceOrderCommand
-            {
-                Id = id
-            };
-
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(new CompleteServiceOrderCommand(id));
             return HandleResult(result);
         }
 
@@ -67,12 +57,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> ConfirmServiceOrder(int id)
         {
-            var command = new ConfirmServiceOrderCommand
-            {
-                Id = id
-            };
-
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(new ConfirmServiceOrderCommand(id));
             return HandleResult(result);
         }
 
@@ -80,15 +65,21 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Creates a new service order
         /// </summary>
         [HttpPost("create")]
-        [Authorize(Policy = "TrainerOrAdmin")]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [Authorize]
+        [ProducesResponseType(typeof(CreateServiceOrderResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> CreateServiceOrder(CreateServiceOrderCommand command)
+        public async Task<IActionResult> CreateServiceOrder([FromBody] CreateServiceOrderRequest request)
         {
+            var command = new CreateServiceOrderCommand(
+                User.GetUserId(),
+                request.TrainerId,
+                request.ServiceOfferingId,
+                request.Notes);
+
             var result = await Mediator.Send(command);
-            return HandleResult(result);
+            return HandleCreatedResult(result, response => response);
         }
 
         /// <summary>
@@ -101,12 +92,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetServiceOrdersByClient(Guid clientId)
         {
-            var query = new GetOrdersByClientQuery
-            {
-                ClientId = clientId
-            };
-
-            var result = await Mediator.Send(query);
+            var result = await Mediator.Send(new GetOrdersByClientQuery(clientId));
             return HandleResult(result);
         }
 
@@ -121,12 +107,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> GetServiceOrderById(int id)
         {
-            var query = new GetServiceOrderByIdQuery
-            {
-                Id = id
-            };
-
-            var result = await Mediator.Send(query);
+            var result = await Mediator.Send(new GetServiceOrderByIdQuery(id));
             return HandleResult(result);
         }
     }
