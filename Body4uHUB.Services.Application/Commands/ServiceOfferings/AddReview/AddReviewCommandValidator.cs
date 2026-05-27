@@ -5,7 +5,7 @@ using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderCons
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Commands.Review.Add
+namespace Body4uHUB.Services.Application.Commands.ServiceOfferings.AddReview
 {
     public class AddReviewCommandValidator : AbstractValidator<AddReviewCommand>
     {

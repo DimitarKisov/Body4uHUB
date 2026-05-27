@@ -2,7 +2,7 @@
 using Body4uHUB.Services.Api.Models.Reviews;
 using Body4uHUB.Services.Api.Models.ServiceOfferings;
 using Body4uHUB.Services.Api.Models.TrainerProfiles;
-using Body4uHUB.Services.Application.Commands.Review.Add;
+using Body4uHUB.Services.Application.Commands.ServiceOfferings.AddReview;
 using Body4uHUB.Services.Application.Commands.ServiceOfferings.Activate;
 using Body4uHUB.Services.Application.Commands.ServiceOfferings.Add;
 using Body4uHUB.Services.Application.Commands.ServiceOfferings.Deactivate;

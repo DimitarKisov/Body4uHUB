@@ -1,4 +1,4 @@
-using Body4uHUB.Services.Domain.Repositories;
+﻿using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -6,7 +6,7 @@ using MediatR;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Commands.Review.Add
+namespace Body4uHUB.Services.Application.Commands.ServiceOfferings.AddReview
 {
     public record AddReviewCommand(
         Guid TrainerId,
