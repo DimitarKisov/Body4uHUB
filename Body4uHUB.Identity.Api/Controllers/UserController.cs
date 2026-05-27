@@ -23,7 +23,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// <summary>
         /// Change current user password
         /// </summary>
-        [HttpPut("changePassword")]
+        [HttpPost("me/change-password")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
