@@ -41,7 +41,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// <summary>
         /// Create a new trainer account
         /// </summary>
-        [HttpPost("createTrainer")]
+        [HttpPost("trainers")]
         [Authorize(Policy = "AdminOnly")]
         [ProducesResponseType(typeof(CreateTrainerAccountResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -56,7 +56,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// <summary>
         /// Delete trainer account (Admin only)
         /// </summary>
-        [HttpDelete("deleteTrainer/{userId:Guid}")]
+        [HttpDelete("trainers/{userId:Guid}")]
         [Authorize(Policy = "AdminOnly")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
