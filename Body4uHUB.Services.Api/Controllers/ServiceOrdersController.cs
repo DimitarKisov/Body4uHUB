@@ -19,7 +19,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// <summary>
         /// Cancels a service order
         /// </summary>
-        [HttpPut("{id}/cancel")]
+        [HttpPost("{id}/cancel")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -34,7 +34,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// <summary>
         /// Completes a service order
         /// </summary>
-        [HttpPut("{id}/complete")]
+        [HttpPost("{id}/complete")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -49,7 +49,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// <summary>
         /// Confirms a service order
         /// </summary>
-        [HttpPut("{id}/confirm")]
+        [HttpPost("{id}/confirm")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -64,7 +64,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// <summary>
         /// Creates a new service order
         /// </summary>
-        [HttpPost("create")]
+        [HttpPost]
         [Authorize]
         [ProducesResponseType(typeof(CreateServiceOrderResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
