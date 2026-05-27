@@ -4,12 +4,17 @@ using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOrderConstants;
-using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
 namespace Body4uHUB.Services.Application.Commands.Review.Add
 {
-    public record AddReviewCommand(int OrderId, int Rating, string Comment, Guid ClientId) : IRequest<Result>;
+    public record AddReviewCommand(
+        Guid TrainerId,
+        int ServiceId,
+        int OrderId,
+        int Rating,
+        string Comment,
+        AuthorizationContext AuthContext) : IRequest<Result>;
 
     internal sealed class AddReviewCommandHandler : IRequestHandler<AddReviewCommand, Result>
     {
@@ -29,27 +34,27 @@ namespace Body4uHUB.Services.Application.Commands.Review.Add
 
         public async Task<Result> Handle(AddReviewCommand request, CancellationToken cancellationToken)
         {
-            var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.OrderId, cancellationToken);
-            if (serviceOrder == null)
-            {
-                return Result.ResourceNotFound(ServiceOrderNotFound);
-            }
-
-            var trainerProfile = await _trainerRepository.GetByIdAsync(serviceOrder.TrainerId);
+            var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId);
             if (trainerProfile == null)
             {
                 return Result.ResourceNotFound(TrainerProfileNotFound);
             }
 
-            var serviceOffering = trainerProfile.GetService(serviceOrder.ServiceOfferingId);
-            if (serviceOffering == null)
+            var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.OrderId, cancellationToken);
+
+            if (serviceOrder == null ||
+                serviceOrder.TrainerId != request.TrainerId ||
+                serviceOrder.ServiceOfferingId != request.ServiceId)
             {
-                return Result.ResourceNotFound(ServiceOfferingNotFound);
+                return Result.ResourceNotFound(ServiceOrderNotFound);
             }
 
-            serviceOffering.AddReview(request.ClientId, serviceOrder.Id, request.Rating, request.Comment);
-
-            trainerProfile.UpdateRating();
+            trainerProfile.AddReviewToService(
+                request.ServiceId,
+                request.AuthContext.CurrentUserId,
+                serviceOrder.Id,
+                request.Rating,
+                request.Comment);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

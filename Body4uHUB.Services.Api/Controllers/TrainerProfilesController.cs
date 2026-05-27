@@ -89,15 +89,17 @@ namespace Body4uHUB.Services.Api.Controllers
         /// <summary>
         /// Add a review for a service offering
         /// </summary>
-        [HttpPost("{orderId}/reviews")]
+        [HttpPost("{trainerId}/services/{serviceId}/reviews")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> AddReview([FromRoute] int orderId, [FromBody] AddReviewRequest request)
+        public async Task<IActionResult> AddReview(Guid trainerId, int serviceId, [FromBody] AddReviewRequest request)
         {
-            var command = new AddReviewCommand(orderId, request.Rating, request.Comment, User.GetUserId());
+            var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
+            var command = new AddReviewCommand(trainerId, serviceId, request.OrderId, request.Rating, request.Comment, authContext);
             var result = await Mediator.Send(command);
             return HandleResult(result);
         }

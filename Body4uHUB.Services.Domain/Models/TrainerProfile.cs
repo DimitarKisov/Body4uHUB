@@ -226,6 +226,14 @@ namespace Body4uHUB.Services.Domain.Models
             _services.Remove(service);
         }
 
+        public void AddReviewToService(int serviceId, Guid clientId, int orderId, int rating, string comment)
+        {
+            var service = GetService(serviceId);
+            service.AddReview(clientId, orderId, rating, comment);
+
+            UpdateRating();
+        }
+
         public ServiceOffering GetService(int id)
         {
             var service = _services.FirstOrDefault(x => x.Id == id);

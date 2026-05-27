@@ -145,7 +145,7 @@ namespace Body4uHUB.Services.Domain.Models
             IsOnline = isOnline;
         }
 
-        public void AddReview(Guid clientId, int orderId, int rating, string comment)
+        internal void AddReview(Guid clientId, int orderId, int rating, string comment)
         {
             if (_reviews.Any(x => x.OrderId == orderId))
             {
