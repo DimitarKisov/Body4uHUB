@@ -134,16 +134,16 @@ namespace Body4uHUB.Services.Api.Controllers
         }
 
         /// <summary>
-        /// Delete service offering
+        /// Deactivate a service offering
         /// </summary>
-        [HttpDelete("{trainerId}/services/{serviceId}")]
+        [HttpPost("{trainerId}/services/{serviceId}/deactivate")]
         [Authorize(Policy = "TrainerOrAdmin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> DeleteServiceOffering(Guid trainerId, int serviceId)
+        public async Task<IActionResult> DeactivateServiceOffering(Guid trainerId, int serviceId)
         {
             var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
             var result = await Mediator.Send(new DeactivateServiceOfferingCommand(serviceId, trainerId, authContext));
