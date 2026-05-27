@@ -3,7 +3,7 @@
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.CommonConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Commands.TrainerProfile.Update
+namespace Body4uHUB.Services.Application.Commands.TrainerProfiles.Update
 {
     public class UpdateTrainerProfileCommandValidator : AbstractValidator<UpdateTrainerProfileCommand>
     {

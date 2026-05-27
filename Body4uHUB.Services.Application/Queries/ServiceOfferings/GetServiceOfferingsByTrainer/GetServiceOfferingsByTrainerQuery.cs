@@ -1,11 +1,11 @@
-using Body4uHUB.Services.Application.DTOs;
+﻿using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Repositories;
 using Body4uHUB.Shared.Application;
 using MediatR;
 
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOfferingsByTrainer
+namespace Body4uHUB.Services.Application.Queries.ServiceOfferings.GetServiceOfferingsByTrainer
 {
     public record GetServiceOfferingsByTrainerQuery(Guid TrainerId, int Skip = 0, int Take = 10)
         : IRequest<Result<IEnumerable<ServiceOfferingDto>>>;

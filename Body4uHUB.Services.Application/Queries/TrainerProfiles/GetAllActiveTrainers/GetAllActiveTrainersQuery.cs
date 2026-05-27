@@ -1,9 +1,9 @@
-using Body4uHUB.Services.Application.DTOs;
+﻿using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Repositories;
 using Body4uHUB.Shared.Application;
 using MediatR;
 
-namespace Body4uHUB.Services.Application.Queries.TrainerProfile.GetAllActiveTrainers
+namespace Body4uHUB.Services.Application.Queries.TrainerProfiles.GetAllActiveTrainers
 {
     public record GetAllActiveTrainersQuery(int Skip = 0, int Take = 20) : IRequest<Result<IEnumerable<TrainerProfileDto>>>;
 

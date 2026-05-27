@@ -6,7 +6,7 @@ using FluentValidation;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.CommonConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 
-namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Update
+namespace Body4uHUB.Services.Application.Commands.ServiceOfferings.Update
 {
     public class UpdateServiceOfferingCommandValidator : AbstractValidator<UpdateServiceOfferingCommand>
     {

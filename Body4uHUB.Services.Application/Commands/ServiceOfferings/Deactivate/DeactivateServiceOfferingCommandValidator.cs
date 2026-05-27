@@ -3,7 +3,7 @@
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.CommonConstants;
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.ServiceOfferingConstants;
 
-namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate
+namespace Body4uHUB.Services.Application.Commands.ServiceOfferings.Deactivate
 {
     public class DeactivateServiceOfferingCommandValidator : AbstractValidator<DeactivateServiceOfferingCommand>
     {

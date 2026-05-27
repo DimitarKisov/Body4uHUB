@@ -2,7 +2,7 @@
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Services.Application.Queries.ServiceOffering.GetServiceOfferingsByTrainer
+namespace Body4uHUB.Services.Application.Queries.ServiceOfferings.GetServiceOfferingsByTrainer
 {
     public class GetServiceOfferingsByTrainerQueryValidator : AbstractValidator<GetServiceOfferingsByTrainerQuery>
     {

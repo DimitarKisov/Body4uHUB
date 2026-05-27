@@ -1,20 +1,30 @@
-using Body4uHUB.Services.Domain.Repositories;
+﻿using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
+namespace Body4uHUB.Services.Application.Commands.ServiceOfferings.Update
 {
-    public record ActivateServiceOfferingCommand(int Id, Guid TrainerId, AuthorizationContext AuthContext) : IRequest<Result>;
+    public record UpdateServiceOfferingCommand(
+        int Id,
+        Guid TrainerId,
+        string Name,
+        string Description,
+        decimal Price,
+        string Currency,
+        int DurationMinutes,
+        string ServiceType,
+        AuthorizationContext AuthContext)
+        : IRequest<Result>;
 
-    internal sealed class ActivateServiceOfferingCommandHandler : IRequestHandler<ActivateServiceOfferingCommand, Result>
+    internal sealed class UpdateServiceOfferingCommandHandler : IRequestHandler<UpdateServiceOfferingCommand, Result>
     {
         private readonly ITrainerProfileRepository _trainerRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ActivateServiceOfferingCommandHandler(
+        public UpdateServiceOfferingCommandHandler(
             ITrainerProfileRepository trainerRepository,
             IUnitOfWork unitOfWork)
         {
@@ -22,7 +32,7 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result> Handle(ActivateServiceOfferingCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateServiceOfferingCommand request, CancellationToken cancellationToken)
         {
             var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId, cancellationToken);
             if (trainerProfile == null)
@@ -30,8 +40,12 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Activate
                 return Result.ResourceNotFound(TrainerProfileNotFound);
             }
 
-            trainerProfile.ActivateService(
+            trainerProfile.UpdateServiceDetails(
                 request.Id,
+                request.Name,
+                request.Description,
+                request.Price,
+                request.DurationMinutes,
                 request.AuthContext.CurrentUserId,
                 request.AuthContext.IsAdmin);
 

@@ -1,4 +1,4 @@
-using Body4uHUB.Services.Domain.Enumerations;
+﻿using Body4uHUB.Services.Domain.Enumerations;
 using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Services.Domain.ValueObjects;
 using Body4uHUB.Shared.Application;
@@ -8,7 +8,7 @@ using MediatR;
 
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Add
+namespace Body4uHUB.Services.Application.Commands.ServiceOfferings.Add
 {
     public record AddServiceOfferingCommand(
         Guid TrainerId,

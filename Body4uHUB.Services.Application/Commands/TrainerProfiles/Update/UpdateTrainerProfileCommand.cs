@@ -1,20 +1,25 @@
-using Body4uHUB.Services.Domain.Repositories;
+﻿using Body4uHUB.Services.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileConstants;
 
-namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate
+namespace Body4uHUB.Services.Application.Commands.TrainerProfiles.Update
 {
-    public record DeactivateServiceOfferingCommand(int Id, Guid TrainerId, AuthorizationContext AuthContext) : IRequest<Result>;
+    public record UpdateTrainerProfileCommand(
+        Guid Id,
+        string Bio,
+        int YearsOfExperience,
+        AuthorizationContext AuthContext)
+        : IRequest<Result>;
 
-    internal sealed class DeactivateServiceOfferingCommandHandler : IRequestHandler<DeactivateServiceOfferingCommand, Result>
+    internal sealed class UpdateTrainerProfileCommandHandler : IRequestHandler<UpdateTrainerProfileCommand, Result>
     {
         private readonly ITrainerProfileRepository _trainerRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DeactivateServiceOfferingCommandHandler(
+        public UpdateTrainerProfileCommandHandler(
             ITrainerProfileRepository trainerRepository,
             IUnitOfWork unitOfWork)
         {
@@ -22,16 +27,17 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOffering.Deactivate
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result> Handle(DeactivateServiceOfferingCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateTrainerProfileCommand request, CancellationToken cancellationToken)
         {
-            var trainerProfile = await _trainerRepository.GetByIdAsync(request.TrainerId, cancellationToken);
+            var trainerProfile = await _trainerRepository.GetByIdAsync(request.Id, cancellationToken);
             if (trainerProfile == null)
             {
                 return Result.ResourceNotFound(TrainerProfileNotFound);
             }
 
-            trainerProfile.DeactivateService(
-                request.Id,
+            trainerProfile.UpdateProfile(
+                request.Bio,
+                request.YearsOfExperience,
                 request.AuthContext.CurrentUserId,
                 request.AuthContext.IsAdmin);
 
