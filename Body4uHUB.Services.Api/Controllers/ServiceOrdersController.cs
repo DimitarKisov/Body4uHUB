@@ -1,11 +1,11 @@
-using Body4uHUB.Services.Api.Extensions;
+﻿using Body4uHUB.Services.Api.Extensions;
 using Body4uHUB.Services.Api.Models.ServiceOrders;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Cancel;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Complete;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Confirm;
 using Body4uHUB.Services.Application.Commands.ServiceOrders.Create;
 using Body4uHUB.Services.Application.DTOs;
-using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderByClients;
+using Body4uHUB.Services.Application.Queries.ServiceOrders.GetOrdersByClient;
 using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderById;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Authorization;

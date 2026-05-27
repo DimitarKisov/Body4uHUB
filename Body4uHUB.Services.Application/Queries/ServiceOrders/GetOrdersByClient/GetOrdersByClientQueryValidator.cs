@@ -2,7 +2,7 @@
 
 using static Body4uHUB.Services.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderByClients
+namespace Body4uHUB.Services.Application.Queries.ServiceOrders.GetOrdersByClient
 {
     public class GetOrdersByClientQueryValidator : AbstractValidator<GetOrdersByClientQuery>
     {

@@ -1,9 +1,9 @@
-using Body4uHUB.Services.Application.DTOs;
+﻿using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Repositories;
 using Body4uHUB.Shared.Application;
 using MediatR;
 
-namespace Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderByClients
+namespace Body4uHUB.Services.Application.Queries.ServiceOrders.GetOrdersByClient
 {
     public record GetOrdersByClientQuery(Guid ClientId) : IRequest<Result<IEnumerable<ServiceOrderDto>>>;
 
