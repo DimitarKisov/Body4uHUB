@@ -105,7 +105,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// <summary>
         /// Get current authenticated user profile
         /// </summary>
-        [HttpGet("profile")]
+        [HttpGet("me")]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetProfile()
