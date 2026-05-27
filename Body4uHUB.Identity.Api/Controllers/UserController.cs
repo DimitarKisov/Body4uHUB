@@ -1,5 +1,7 @@
 using Body4uHUB.Identity.Api.Extensions;
+using Body4uHUB.Identity.Api.Models.Roles;
 using Body4uHUB.Identity.Api.Models.Users;
+using Body4uHUB.Identity.Application.Commands.AddUserRoles;
 using Body4uHUB.Identity.Application.Commands.ChangePassword;
 using Body4uHUB.Identity.Application.Commands.CreateTrainer;
 using Body4uHUB.Identity.Application.Commands.DeleteTrainer;
@@ -124,6 +126,23 @@ namespace Body4uHUB.Identity.Api.Controllers
         public async Task<IActionResult> GetUserById(Guid id)
         {
             var result = await Mediator.Send(new GetUserByIdQuery(id));
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Add roles to a user (Admin only)
+        /// </summary>
+        [HttpPost("{userId:Guid}/roles")]
+        [Authorize(Policy = "AdminOnly")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> AddRolesToUser(Guid userId, [FromBody] AddUserRolesRequest request)
+        {
+            var command = new AddUserRolesCommand(userId, request.RoleIds);
+            var result = await Mediator.Send(command);
             return HandleResult(result);
         }
     }

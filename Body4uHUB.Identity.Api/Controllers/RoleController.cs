@@ -1,5 +1,3 @@
-using Body4uHUB.Identity.Api.Models.Roles;
-using Body4uHUB.Identity.Application.Commands.AddUserRoles;
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllRoles;
 using Body4uHUB.Shared.Api;
@@ -12,22 +10,6 @@ namespace Body4uHUB.Identity.Api.Controllers
     [Route("api/roles")]
     public class RoleController : ApiController
     {
-        /// <summary>
-        /// Add roles to a user (Admin only)
-        /// </summary>
-        [HttpPost("users/{userId:Guid}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> AddRolesToUser(Guid userId, [FromBody] AddUserRolesRequest request)
-        {
-            var command = new AddUserRolesCommand(userId, request.RoleIds);
-            var result = await Mediator.Send(command);
-            return HandleResult(result);
-        }
-
         /// <summary>
         /// Get all available roles (Admin only)
         /// </summary>
