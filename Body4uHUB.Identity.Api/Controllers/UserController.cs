@@ -71,7 +71,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// <summary>
         /// Edit current user profile
         /// </summary>
-        [HttpPut("edit")]
+        [HttpPut("me")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
