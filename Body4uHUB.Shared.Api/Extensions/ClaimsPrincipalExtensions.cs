@@ -1,8 +1,8 @@
-﻿using Body4uHUB.Shared.Exceptions;
+using Body4uHUB.Shared.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace Body4uHUB.Identity.Api.Extensions
+namespace Body4uHUB.Shared.Api.Extensions
 {
     public static class ClaimsPrincipalExtensions
     {
@@ -11,12 +11,12 @@ namespace Body4uHUB.Identity.Api.Extensions
             var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
                            ?? principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
-            if (string.IsNullOrEmpty(userIdClaim))
+            if (!Guid.TryParse(userIdClaim, out var userId))
             {
                 throw new UnauthorizedException("User ID not found in token");
             }
 
-            return Guid.Parse(userIdClaim);
+            return userId;
         }
 
         public static string GetUserEmail(this ClaimsPrincipal principal)
@@ -28,6 +28,11 @@ namespace Body4uHUB.Identity.Api.Extensions
         public static string GetUserRole(this ClaimsPrincipal principal)
         {
             return principal.FindFirst(ClaimTypes.Role)?.Value;
+        }
+
+        public static bool IsAdmin(this ClaimsPrincipal principal)
+        {
+            return principal.IsInRole("Administrator") || principal.IsInRole("Admin");
         }
     }
 }

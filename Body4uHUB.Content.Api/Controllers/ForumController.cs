@@ -1,4 +1,3 @@
-using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Api.Models.Forum;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic;
@@ -12,6 +11,7 @@ using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics;
 using Body4uHUB.Content.Application.Queries.Forum.GetById;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

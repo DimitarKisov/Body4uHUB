@@ -1,4 +1,3 @@
-using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Identity.Api.Models.Roles;
 using Body4uHUB.Identity.Api.Models.Users;
 using Body4uHUB.Identity.Application.Commands.AddUserRoles;
@@ -10,6 +9,7 @@ using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllUsers;
 using Body4uHUB.Identity.Application.Queries.GetUserById;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

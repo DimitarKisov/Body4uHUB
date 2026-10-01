@@ -1,5 +1,4 @@
-﻿using Body4uHUB.Content.Api.Extensions;
-using Body4uHUB.Content.Api.Models.Articles;
+﻿using Body4uHUB.Content.Api.Models.Articles;
 using Body4uHUB.Content.Application.Commands.Articles.Archive;
 using Body4uHUB.Content.Application.Commands.Articles.Create;
 using Body4uHUB.Content.Application.Commands.Articles.CreateComment;
@@ -11,6 +10,7 @@ using Body4uHUB.Content.Application.Queries.Articles.GetAll;
 using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
 using Body4uHUB.Content.Application.Queries.Articles.GetById;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

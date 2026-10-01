@@ -1,5 +1,4 @@
-﻿using Body4uHUB.Services.Api.Extensions;
-using Body4uHUB.Services.Api.Models.Reviews;
+﻿using Body4uHUB.Services.Api.Models.Reviews;
 using Body4uHUB.Services.Api.Models.ServiceOfferings;
 using Body4uHUB.Services.Api.Models.TrainerProfiles;
 using Body4uHUB.Services.Application.Commands.ServiceOfferings.AddReview;
@@ -13,6 +12,7 @@ using Body4uHUB.Services.Application.Queries.ServiceOfferings.GetServiceOffering
 using Body4uHUB.Services.Application.Queries.TrainerProfiles.GetAllActiveTrainers;
 using Body4uHUB.Services.Application.Queries.TrainerProfiles.GetTrainerProfile;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
