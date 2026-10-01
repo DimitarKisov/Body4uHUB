@@ -16,9 +16,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> Register(RegisterCommand command)
+        public async Task<IActionResult> Register(RegisterCommand command, CancellationToken cancellationToken)
         {
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command, cancellationToken);
             return HandleCreatedResult(result, response => response);
         }
 
@@ -31,9 +31,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> Login(LoginCommand command)
+        public async Task<IActionResult> Login(LoginCommand command, CancellationToken cancellationToken)
         {
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command, cancellationToken);
             return HandleResult(result);
         }
     }

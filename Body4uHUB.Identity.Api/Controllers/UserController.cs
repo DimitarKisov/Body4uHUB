@@ -27,14 +27,14 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
         {
             var command = new ChangePasswordCommand(
                 User.GetUserId(),
                 request.CurrentPassword,
                 request.NewPassword);
 
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command, cancellationToken);
             return HandleResult(result);
         }
 
@@ -47,9 +47,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> CreateTrainerAccount(CreateTrainerAccountCommand command)
+        public async Task<IActionResult> CreateTrainerAccount(CreateTrainerAccountCommand command, CancellationToken cancellationToken)
         {
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command, cancellationToken);
             return HandleCreatedResult(result, response => response);
         }
 
@@ -62,9 +62,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> DeleteTrainerAccount(Guid userId)
+        public async Task<IActionResult> DeleteTrainerAccount(Guid userId, CancellationToken cancellationToken)
         {
-            var result = await Mediator.Send(new DeleteTrainerCommand(userId));
+            var result = await Mediator.Send(new DeleteTrainerCommand(userId), cancellationToken);
             return HandleResult(result);
         }
 
@@ -76,7 +76,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> EditUser([FromBody] EditUserRequest request)
+        public async Task<IActionResult> EditUser([FromBody] EditUserRequest request, CancellationToken cancellationToken)
         {
             var command = new EditUserCommand(
                 User.GetUserId(),
@@ -84,7 +84,7 @@ namespace Body4uHUB.Identity.Api.Controllers
                 request.LastName,
                 request.PhoneNumber);
 
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command, cancellationToken);
             return HandleResult(result);
         }
 
@@ -96,9 +96,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(PagedResult<GetAllUsersResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
-            var result = await Mediator.Send(new GetAllUsersQuery(page, pageSize));
+            var result = await Mediator.Send(new GetAllUsersQuery(page, pageSize), cancellationToken);
             return HandleResult(result);
         }
 
@@ -108,9 +108,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [HttpGet("me")]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetProfile()
+        public async Task<IActionResult> GetProfile(CancellationToken cancellationToken)
         {
-            var result = await Mediator.Send(new GetUserByIdQuery(User.GetUserId()));
+            var result = await Mediator.Send(new GetUserByIdQuery(User.GetUserId()), cancellationToken);
             return HandleResult(result);
         }
 
@@ -123,9 +123,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> GetUserById(Guid id)
+        public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken)
         {
-            var result = await Mediator.Send(new GetUserByIdQuery(id));
+            var result = await Mediator.Send(new GetUserByIdQuery(id), cancellationToken);
             return HandleResult(result);
         }
 
@@ -139,10 +139,10 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-        public async Task<IActionResult> AddRolesToUser(Guid userId, [FromBody] AddUserRolesRequest request)
+        public async Task<IActionResult> AddRolesToUser(Guid userId, [FromBody] AddUserRolesRequest request, CancellationToken cancellationToken)
         {
             var command = new AddUserRolesCommand(userId, request.RoleIds);
-            var result = await Mediator.Send(command);
+            var result = await Mediator.Send(command, cancellationToken);
             return HandleResult(result);
         }
     }

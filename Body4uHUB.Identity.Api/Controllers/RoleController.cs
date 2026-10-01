@@ -17,9 +17,9 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<RoleDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> GetAllRoles()
+        public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
         {
-            var roles = await Mediator.Send(new GetAllRolesQuery());
+            var roles = await Mediator.Send(new GetAllRolesQuery(), cancellationToken);
             return Ok(roles);
         }
     }
