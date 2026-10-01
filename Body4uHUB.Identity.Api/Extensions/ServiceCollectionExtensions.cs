@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.HealthChecks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
@@ -10,11 +11,12 @@ namespace Body4uHUB.Identity.Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
-            services.AddCorsPolicy(configuration);
+            services.AddDataProtectionConfiguration(configuration);
+            services.AddCorsPolicy(configuration, environment);
             services.AddForwardedHeadersConfiguration();
             services.AddHttpsConfiguration(configuration);
             services.AddSwaggerOptions(configuration);
@@ -23,7 +25,22 @@ namespace Body4uHUB.Identity.Api.Extensions
             return services;
         }
 
-        private static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddDataProtectionConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            var dataProtectionBuilder = services
+                .AddDataProtection()
+                .SetApplicationName("Body4uHUB");
+
+            var keysPath = configuration["DataProtection:KeysPath"];
+            if (!string.IsNullOrWhiteSpace(keysPath))
+            {
+                dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+            }
+
+            return services;
+        }
+
+        private static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
             var allowedOrigins = configuration
                 .GetSection("Cors:AllowedOrigins")
@@ -38,19 +55,21 @@ namespace Body4uHUB.Identity.Api.Extensions
             {
                 options.AddDefaultPolicy(policy =>
                 {
-#if DEBUG
-                    policy.WithOrigins(allowedOrigins)
-                          .AllowAnyMethod()
-                          .AllowAnyHeader()
-                          .AllowCredentials();
-#else
+                    if (environment.IsLocalLike())
+                    {
+                        policy.WithOrigins(allowedOrigins)
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials();
+
+                        return;
+                    }
+
                     policy.WithOrigins(allowedOrigins)
                           .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                           .WithHeaders("Authorization", "Content-Type", "Accept")
                           .AllowCredentials()
                           .SetPreflightMaxAge(TimeSpan.FromHours(1));
-
-#endif
                 });
             });
 
