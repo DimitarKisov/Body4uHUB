@@ -24,11 +24,12 @@ try
         .AddInfrastructure(configuration)
         .AddSingleton<StartupHealthCheck>()
         .AddCustomHealthChecks()
+        .AddProblemDetails()
         .AddExceptionHandler<CustomExceptionHandler>();
 
     var app = builder.Build();
 
-    app.UseExceptionHandler(options => { });
+    app.UseExceptionHandler();
     app.UseForwardedHeaders();
     app.UseStatusCodePages(async context =>
     {
