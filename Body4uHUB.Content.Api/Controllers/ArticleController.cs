@@ -12,6 +12,7 @@ using Body4uHUB.Content.Application.Queries.Articles.GetById;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
+using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Archive article (Author or Admin only)
         /// </summary>
         [HttpPost("{id:int}/archive")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -45,7 +46,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Create a new article (Trainers and Admins only)
         /// </summary>
         [HttpPost]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(typeof(CreateArticleResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -66,7 +67,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Delete article (Author or Admin only)
         /// </summary>
         [HttpDelete("{id:int}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -123,7 +124,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Edit article (Author or Admin only)
         /// </summary>
         [HttpPut("{id:int}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -142,7 +143,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Publish article (Author or Admin only)
         /// </summary>
         [HttpPost("{id:int}/publish")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

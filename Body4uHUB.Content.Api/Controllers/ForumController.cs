@@ -13,6 +13,7 @@ using Body4uHUB.Content.Application.Queries.Forum.GetById;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
+using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Create a new forum topic (Trainers and Admins only)
         /// </summary>
         [HttpPost("topics")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(typeof(CreateForumTopicResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -44,7 +45,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Delete forum topic (Author or Admin only)
         /// </summary>
         [HttpDelete("topics/{topicId:int}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -63,7 +64,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Edit forum topic title (Author or Admin only)
         /// </summary>
         [HttpPut("topics/{topicId:int}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -111,7 +112,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Lock forum topic (Admin only)
         /// </summary>
         [HttpPost("topics/{topicId:int}/lock")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -129,7 +130,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Unlock forum topic (Admin only)
         /// </summary>
         [HttpPost("topics/{topicId:int}/unlock")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -147,7 +148,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Create a new post in a forum topic (Trainers and Admins only)
         /// </summary>
         [HttpPost("topics/{topicId:int}/posts")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(typeof(CreateForumPostResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -165,7 +166,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Delete forum post (Author or Admin only)
         /// </summary>
         [HttpDelete("topics/{topicId:int}/posts/{postId:int}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -185,7 +186,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// Edit forum post (Author or Admin only)
         /// </summary>
         [HttpPut("topics/{topicId:int}/posts/{postId:int}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

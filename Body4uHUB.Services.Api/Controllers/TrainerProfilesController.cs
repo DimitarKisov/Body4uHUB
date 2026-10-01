@@ -14,6 +14,7 @@ using Body4uHUB.Services.Application.Queries.TrainerProfiles.GetTrainerProfile;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
+using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,7 +52,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Update trainer profile
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -73,7 +74,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Activate a service offering
         /// </summary>
         [HttpPost("{trainerId}/services/{serviceId}/activate")]
-        [Authorize(Policy= "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -108,7 +109,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Create a new service offering
         /// </summary>
         [HttpPost("{trainerId}/services")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(typeof(AddServiceOfferingResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -137,7 +138,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Deactivate a service offering
         /// </summary>
         [HttpPost("{trainerId}/services/{serviceId}/deactivate")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -167,7 +168,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Update service offering
         /// </summary>
         [HttpPut("{trainerId}/services/{serviceId}")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

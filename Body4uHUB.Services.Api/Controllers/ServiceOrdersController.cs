@@ -8,6 +8,7 @@ using Body4uHUB.Services.Application.Queries.ServiceOrders.GetOrdersByClient;
 using Body4uHUB.Services.Application.Queries.ServiceOrders.GetServiceOrderById;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Api.Extensions;
+using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +21,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Cancels a service order
         /// </summary>
         [HttpPost("{id}/cancel")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -35,7 +36,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Completes a service order
         /// </summary>
         [HttpPost("{id}/complete")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -50,7 +51,7 @@ namespace Body4uHUB.Services.Api.Controllers
         /// Confirms a service order
         /// </summary>
         [HttpPost("{id}/confirm")]
-        [Authorize(Policy = "TrainerOrAdmin")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

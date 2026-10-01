@@ -1,12 +1,13 @@
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllRoles;
 using Body4uHUB.Shared.Api;
+using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Body4uHUB.Identity.Api.Controllers
 {
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
     [Route("api/roles")]
     public class RoleController : ApiController
     {

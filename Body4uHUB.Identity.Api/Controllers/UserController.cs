@@ -11,6 +11,7 @@ using Body4uHUB.Identity.Application.Queries.GetUserById;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
+using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,7 +43,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// Create a new trainer account
         /// </summary>
         [HttpPost("trainers")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [ProducesResponseType(typeof(CreateTrainerAccountResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -57,7 +58,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// Delete trainer account (Admin only)
         /// </summary>
         [HttpDelete("trainers/{userId:Guid}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -92,7 +93,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// Get all users in the system (Admin only)
         /// </summary>
         [HttpGet]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [ProducesResponseType(typeof(PagedResult<GetAllUsersResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
@@ -118,7 +119,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// Get user by ID (Admin only)
         /// </summary>
         [HttpGet("{id:Guid}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
@@ -133,7 +134,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// Add roles to a user (Admin only)
         /// </summary>
         [HttpPost("{userId:Guid}/roles")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]

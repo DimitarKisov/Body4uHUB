@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Shared.Application.Behaviours;
+using Body4uHUB.Shared.Application.Commons;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -28,7 +29,7 @@ namespace Body4uHUB.Identity.Application.Extensions
         {
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("AdminOnly", policy =>
+                options.AddPolicy(AuthorizationPolicies.AdminOnly, policy =>
                     policy.RequireRole("Administrator", "Admin"));
             });
 
