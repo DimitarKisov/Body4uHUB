@@ -9,107 +9,109 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
-
-#if DEBUG
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/home/app/.aspnet/DataProtection-Keys"))
-    .SetApplicationName("Body4uHUB");
-#else
-// THIS WILL BE FOR PRODUCTION
-#endif
-
-builder.ConfigureSerilog();
-
-var services = builder.Services;
-var configuration = builder.Configuration;
-
-services
-    .AddApiServices(configuration)
-    .AddHttpContextAccessor()
-    .AddApplication(configuration)
-    .AddInfrastructure(configuration)
-    .AddSingleton<StartupHealthCheck>()
-    .AddCustomHealthChecks()
-    .AddExceptionHandler<CustomExceptionHandler>();
-
-var app = builder.Build();
-
-app.UseExceptionHandler(options => { });
-app.UseForwardedHeaders();
-app.UseStatusCodePages(async context =>
-{
-    var response = context.HttpContext.Response;
-
-    if (response.StatusCode == 404)
-    {
-        response.ContentType = "application/json";
-        await response.WriteAsJsonAsync(new
-        {
-            error = "Търсеният ресурс не е намерен."
-        });
-    }
-});
-
-var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
-
-if (app.IsSwaggerEnabled())
-{
-    app.UseSwaggerBasicAuth();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-var shouldUseHttpsRedirection = ResolveHttpsRedirectionEnabled(configuration, isLocalLikeEnvironment);
-if (shouldUseHttpsRedirection)
-{
-    if (!isLocalLikeEnvironment)
-    {
-        app.UseHsts();
-    }
-
-    app.UseHttpsRedirection();
-}
-else
-{
-    Log.Warning("HTTPS redirection is disabled. Configure HttpsRedirection:Enabled=true or set ASPNETCORE_HTTPS_PORTS/HTTPS_PORT/ASPNETCORE_URLS with an https endpoint.");
-}
-
-
-app.UseCors();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-app.MapHealthChecks("/health/startup", new HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("startup")
-});
-
-app.MapHealthChecks("/health/live", new HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("liveness")
-});
-
-app.MapHealthChecks("/health/ready", new HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("readiness")
-});
-
-using var scope = app.Services.CreateScope();
-var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-await dbInitializer.InitializeAsync();
-
-var startupHealthCheck = app.Services.GetRequiredService<StartupHealthCheck>();
-startupHealthCheck.MarkStartupCompleted();
-
 try
 {
+    var builder = WebApplication.CreateBuilder(args);
+
+#if DEBUG
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo("/home/app/.aspnet/DataProtection-Keys"))
+        .SetApplicationName("Body4uHUB");
+#else
+    // THIS WILL BE FOR PRODUCTION
+#endif
+
+    builder.ConfigureSerilog();
+
+    var services = builder.Services;
+    var configuration = builder.Configuration;
+
+    services
+        .AddApiServices(configuration)
+        .AddHttpContextAccessor()
+        .AddApplication(configuration)
+        .AddInfrastructure(configuration)
+        .AddSingleton<StartupHealthCheck>()
+        .AddCustomHealthChecks()
+        .AddExceptionHandler<CustomExceptionHandler>();
+
+    var app = builder.Build();
+
+    app.UseExceptionHandler(options => { });
+    app.UseForwardedHeaders();
+    app.UseStatusCodePages(async context =>
+    {
+        var response = context.HttpContext.Response;
+
+        if (response.StatusCode == 404)
+        {
+            response.ContentType = "application/json";
+            await response.WriteAsJsonAsync(new
+            {
+                error = "Търсеният ресурс не е намерен."
+            });
+        }
+    });
+
+    var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
+
+    if (app.IsSwaggerEnabled())
+    {
+        app.UseSwaggerBasicAuth();
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    var shouldUseHttpsRedirection = ResolveHttpsRedirectionEnabled(configuration, isLocalLikeEnvironment);
+    if (shouldUseHttpsRedirection)
+    {
+        if (!isLocalLikeEnvironment)
+        {
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
+    }
+    else
+    {
+        Log.Warning("HTTPS redirection is disabled. Configure HttpsRedirection:Enabled=true or set ASPNETCORE_HTTPS_PORTS/HTTPS_PORT/ASPNETCORE_URLS with an https endpoint.");
+    }
+
+
+    app.UseCors();
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
+
+    app.MapHealthChecks("/health/startup", new HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains("startup")
+    });
+
+    app.MapHealthChecks("/health/live", new HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains("liveness")
+    });
+
+    app.MapHealthChecks("/health/ready", new HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains("readiness")
+    });
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        await dbInitializer.InitializeAsync();
+    }
+
+    var startupHealthCheck = app.Services.GetRequiredService<StartupHealthCheck>();
+    startupHealthCheck.MarkStartupCompleted();
+
     Log.Information("Starting Body4uHUB.Identity.Api");
 
     app.Run();
 }
-catch (Exception ex)
+catch (Exception ex) when (ex is not HostAbortedException)
 {
     Log.Fatal(ex, "Application terminated unexpectedly!");
 }
