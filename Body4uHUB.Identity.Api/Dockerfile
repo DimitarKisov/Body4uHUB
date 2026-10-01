@@ -22,6 +22,9 @@ COPY ["Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj", "Body4uHUB.Identit
 COPY ["Body4uHUB.Identity.Application/Body4uHUB.Identity.Application.csproj", "Body4uHUB.Identity.Application/"]
 COPY ["Body4uHUB.Identity.Domain/Body4uHUB.Identity.Domain.csproj", "Body4uHUB.Identity.Domain/"]
 COPY ["Body4uHUB.Shared/Body4uHUB.Shared.Domain.csproj", "Body4uHUB.Shared/"]
+COPY ["Body4uHUB.Shared.Api/Body4uHUB.Shared.Api.csproj", "Body4uHUB.Shared.Api/"]
+COPY ["Body4uHUB.Shared.Application/Body4uHUB.Shared.Application.csproj", "Body4uHUB.Shared.Application/"]
+COPY ["Body4uHUB.Shared.Infrastructure/Body4uHUB.Shared.Infrastructure.csproj", "Body4uHUB.Shared.Infrastructure/"]
 COPY ["Body4uHUB.Identity.Infrastructure/Body4uHUB.Identity.Infrastructure.csproj", "Body4uHUB.Identity.Infrastructure/"]
 RUN dotnet restore "./Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj"
 COPY . .
