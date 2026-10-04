@@ -20,8 +20,8 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
         {
-            var roles = await Mediator.Send(new GetAllRolesQuery(), cancellationToken);
-            return Ok(roles);
+            var result = await Mediator.Send(new GetAllRolesQuery(), cancellationToken);
+            return HandleResult(result);
         }
     }
 }

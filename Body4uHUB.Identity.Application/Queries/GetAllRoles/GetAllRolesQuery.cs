@@ -1,12 +1,13 @@
 ﻿using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Repositories;
+using Body4uHUB.Shared.Application;
 using MediatR;
 
 namespace Body4uHUB.Identity.Application.Queries.GetAllRoles
 {
-    public record GetAllRolesQuery() : IRequest<IEnumerable<RoleDto>>;
+    public record GetAllRolesQuery() : IRequest<Result<IEnumerable<RoleDto>>>;
 
-    internal sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, IEnumerable<RoleDto>>
+    internal sealed class GetAllRolesQueryHandler : IRequestHandler<GetAllRolesQuery, Result<IEnumerable<RoleDto>>>
     {
         private readonly IRoleReadRepository _roleReadRepository;
 
@@ -15,9 +16,11 @@ namespace Body4uHUB.Identity.Application.Queries.GetAllRoles
             _roleReadRepository = roleReadRepository;
         }
 
-        public async Task<IEnumerable<RoleDto>> Handle(GetAllRolesQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<RoleDto>>> Handle(GetAllRolesQuery request, CancellationToken cancellationToken)
         {
-            return await _roleReadRepository.GetAllAsync(cancellationToken);
+            var roles = await _roleReadRepository.GetAllAsync(cancellationToken);
+
+            return Result.Success(roles);
         }
     }
 }
