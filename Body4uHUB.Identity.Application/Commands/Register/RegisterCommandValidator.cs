@@ -18,11 +18,11 @@ namespace Body4uHUB.Identity.Application.Commands.Register
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage(FirstNameRequired)
-                .Length(MinNameLength, MaxNameLength).WithMessage(FirstNameLength);
+                .Length(MinNameLength, MaxNameLength).WithMessage(string.Format(FirstNameLength, MinNameLength, MaxNameLength));
 
             RuleFor(x => x.LastName)
                 .NotEmpty().WithMessage(LastNameRequired)
-                .Length(MinNameLength, MaxNameLength).WithMessage(LastNameLength);
+                .Length(MinNameLength, MaxNameLength).WithMessage(string.Format(LastNameLength, MinNameLength, MaxNameLength));
 
             RuleFor(x => x.PhoneNumber)
                 .Matches(PhoneNumberRegex)
