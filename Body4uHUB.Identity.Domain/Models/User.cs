@@ -99,23 +99,24 @@ namespace Body4uHUB.Identity.Domain.Models
 
         public void ConfirmEmail(string token)
         {
-            if (IsEmailConfirmed)
+            var tokenMatches = !string.IsNullOrWhiteSpace(token)
+                && string.Equals(token, EmailConfirmationToken, StringComparison.Ordinal);
+
+            // Repeating a successful confirmation with the same token is a no-op. The token is kept so that
+            // any other token fails the same way for confirmed and unconfirmed users alike.
+            if (IsEmailConfirmed && tokenMatches)
             {
                 return;
             }
 
-            var isTokenValid = !string.IsNullOrWhiteSpace(token)
-                && string.Equals(token, EmailConfirmationToken, StringComparison.Ordinal)
-                && EmailConfirmationTokenExpiry > DateTime.UtcNow;
+            var isTokenExpired = !(EmailConfirmationTokenExpiry > DateTime.UtcNow);
 
-            if (!isTokenValid)
+            if (IsEmailConfirmed || !tokenMatches || isTokenExpired)
             {
                 throw new InvalidUserException(EmailConfirmationTokenInvalid);
             }
 
             IsEmailConfirmed = true;
-            EmailConfirmationToken = null;
-            EmailConfirmationTokenExpiry = null;
         }
 
         public void EnsureIsTrainer(Role trainerRole)

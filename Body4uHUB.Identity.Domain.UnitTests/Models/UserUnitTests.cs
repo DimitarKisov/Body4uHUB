@@ -250,15 +250,13 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         }
 
         [Test]
-        public void ConfirmEmail_ShouldConfirmEmailAndClearToken_WhenTokenIsValid()
+        public void ConfirmEmail_ShouldConfirmEmail_WhenTokenIsValid()
         {
             Assert.That(_user.IsEmailConfirmed, Is.False);
 
             _user.ConfirmEmail(_user.EmailConfirmationToken);
 
             Assert.That(_user.IsEmailConfirmed, Is.True);
-            Assert.That(_user.EmailConfirmationToken, Is.Null);
-            Assert.That(_user.EmailConfirmationTokenExpiry, Is.Null);
         }
 
         [TestCase(null)]
@@ -282,12 +280,23 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         }
 
         [Test]
-        public void ConfirmEmail_ShouldNotThrow_WhenEmailIsAlreadyConfirmed()
+        public void ConfirmEmail_ShouldNotThrow_WhenAlreadyConfirmedWithSameToken()
+        {
+            var token = _user.EmailConfirmationToken;
+            _user.ConfirmEmail(token);
+
+            Assert.DoesNotThrow(() => _user.ConfirmEmail(token));
+            Assert.That(_user.IsEmailConfirmed, Is.True);
+        }
+
+        [Test]
+        public void ConfirmEmail_ShouldThrowInvalidUserException_WhenAlreadyConfirmedWithDifferentToken()
         {
             _user.ConfirmEmail(_user.EmailConfirmationToken);
 
-            Assert.DoesNotThrow(() => _user.ConfirmEmail("any-token"));
-            Assert.That(_user.IsEmailConfirmed, Is.True);
+            var ex = Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail("any-token"));
+
+            Assert.That(ex.Error, Is.EqualTo(EmailConfirmationTokenInvalid));
         }
 
         [Test]

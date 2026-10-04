@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Identity.Application.Commands.Login;
+﻿using Body4uHUB.Identity.Application.Commands.ConfirmEmail;
+using Body4uHUB.Identity.Application.Commands.Login;
 using Body4uHUB.Identity.Application.Commands.Register;
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Shared.Api;
@@ -32,6 +33,19 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Login(LoginCommand command, CancellationToken cancellationToken)
+        {
+            var result = await Mediator.Send(command, cancellationToken);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Confirm email address with the token from the confirmation email
+        /// </summary>
+        [HttpPost("confirm-email")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> ConfirmEmail(ConfirmEmailCommand command, CancellationToken cancellationToken)
         {
             var result = await Mediator.Send(command, cancellationToken);
             return HandleResult(result);
