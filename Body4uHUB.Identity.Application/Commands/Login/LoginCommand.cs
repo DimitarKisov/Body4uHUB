@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Identity.Application.DTOs;
+using Body4uHUB.Identity.Application.Mappings;
 using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
@@ -52,23 +53,7 @@ namespace Body4uHUB.Identity.Application.Commands.Login
             var response = new AuthResponseDto
             {
                 AccessToken = accessToken,
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    Email = user.ContactInfo.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    PhoneNumber = user.ContactInfo.PhoneNumber,
-                    CreatedAt = user.CreatedAt,
-                    IsEmailConfirmed = user.IsEmailConfirmed,
-                    Roles = user.Roles
-                        .Select(r => new RoleDto
-                        {
-                            Id = r.Id,
-                            Name = r.Name
-                        })
-                        .ToList()
-                }
+                User = user.ToDto()
             };
 
             return Result.Success(response);

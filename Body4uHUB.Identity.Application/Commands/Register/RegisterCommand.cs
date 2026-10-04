@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Identity.Application.DTOs;
+using Body4uHUB.Identity.Application.Mappings;
 using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Application.Settings;
 using Body4uHUB.Identity.Domain.Models;
@@ -106,16 +107,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
             var response = new AuthResponseDto
             {
                 AccessToken = jwtToken,
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    Email = user.ContactInfo.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    PhoneNumber = user.ContactInfo.PhoneNumber,
-                    CreatedAt = user.CreatedAt,
-                    IsEmailConfirmed = user.IsEmailConfirmed
-                }
+                User = user.ToDto()
             };
 
             return Result.Success(response);
