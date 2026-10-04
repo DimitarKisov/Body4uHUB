@@ -6,6 +6,7 @@
         {
             public const int MinNameLength = 2;
             public const int MaxNameLength = 20;
+            public const int EmailConfirmationTokenLifetimeHours = 24;
 
             public const string EmailRequired = "Email is required";
             public const string EmailInvalid = "Invalid email format";
@@ -23,6 +24,7 @@
             public const string PhoneNumberInvalid = "Invalid phone number format";
 
             public const string EmailNotConfirmed = "Email is not confirmed.";
+            public const string EmailConfirmationTokenInvalid = "Email confirmation token is invalid or has expired.";
             public const string InvalidCredentials = "Invalid email or password.";
             public const string UserEmailExists = "User with the given email already exists.";
             public const string UserNotFound = "User not found.";

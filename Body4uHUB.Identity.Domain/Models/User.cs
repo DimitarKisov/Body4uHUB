@@ -25,24 +25,23 @@ namespace Body4uHUB.Identity.Domain.Models
         //За EF Core
         private User() : base(Guid.NewGuid()) { }
 
-        internal User(Guid id, string passwordHash, string firstName, string lastName, ContactInfo contactInfo, string confirmationToken)
+        internal User(Guid id, string passwordHash, string firstName, string lastName, ContactInfo contactInfo)
             : base(id)
         {
             PasswordHash = passwordHash;
             FirstName = firstName;
             LastName = lastName;
             ContactInfo = contactInfo;
-            EmailConfirmationToken = confirmationToken;
-            EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(24);
+            GenerateEmailConfirmationToken();
         }
 
-        public static User Create(string passwordHash, string firstName, string lastName, string email, string phoneNumber, string confirmationToken)
+        public static User Create(string passwordHash, string firstName, string lastName, string email, string phoneNumber)
         {
             Validate(passwordHash, firstName, lastName);
 
             var contactInfo = ContactInfo.Create(email, phoneNumber);
 
-            return new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo, confirmationToken);
+            return new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo);
         }
 
         public void AddRole(Role role)
@@ -98,9 +97,25 @@ namespace Body4uHUB.Identity.Domain.Models
             LastLoginAt = DateTime.UtcNow;
         }
 
-        public void ConfirmEmail()
+        public void ConfirmEmail(string token)
         {
+            if (IsEmailConfirmed)
+            {
+                return;
+            }
+
+            var isTokenValid = !string.IsNullOrWhiteSpace(token)
+                && string.Equals(token, EmailConfirmationToken, StringComparison.Ordinal)
+                && EmailConfirmationTokenExpiry > DateTime.UtcNow;
+
+            if (!isTokenValid)
+            {
+                throw new InvalidUserException(EmailConfirmationTokenInvalid);
+            }
+
             IsEmailConfirmed = true;
+            EmailConfirmationToken = null;
+            EmailConfirmationTokenExpiry = null;
         }
 
         public void EnsureIsTrainer(Role trainerRole)
@@ -116,6 +131,12 @@ namespace Body4uHUB.Identity.Domain.Models
             {
                 throw new InvalidUserException(UserNotInRole);
             }
+        }
+
+        private void GenerateEmailConfirmationToken()
+        {
+            EmailConfirmationToken = Guid.NewGuid().ToString();
+            EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(EmailConfirmationTokenLifetimeHours);
         }
 
         private static void Validate(string passwordHash, string firstName, string lastName)

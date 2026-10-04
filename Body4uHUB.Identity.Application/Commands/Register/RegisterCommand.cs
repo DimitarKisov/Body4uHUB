@@ -60,15 +60,12 @@ namespace Body4uHUB.Identity.Application.Commands.Register
 
             var passwordHash = _passwordHasherService.HashPassword(request.Password);
 
-            var emailConfirmationToken = Guid.NewGuid().ToString();
-
             var user = User.Create(
                 passwordHash,
                 request.FirstName,
                 request.LastName,
                 request.Email,
-                request.PhoneNumber,
-                emailConfirmationToken);
+                request.PhoneNumber);
 
             _userRepository.Add(user);
 
@@ -77,7 +74,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
             try
             {
                 var frontendUrl = _appSettings.FrontendUrl.TrimEnd('/');
-                var confirmationLink = $"{frontendUrl}/confirm-email?token={emailConfirmationToken}&email={Uri.EscapeDataString(request.Email)}";
+                var confirmationLink = $"{frontendUrl}/confirm-email?token={user.EmailConfirmationToken}&email={Uri.EscapeDataString(request.Email)}";
 
                 _ = Task.Run(async () =>
                 {

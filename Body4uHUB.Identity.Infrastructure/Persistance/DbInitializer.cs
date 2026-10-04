@@ -74,10 +74,9 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
                 adminFirstName,
                 adminLastName,
                 adminEmail,
-                null,
                 null);
 
-            adminUser.ConfirmEmail();
+            adminUser.ConfirmEmail(adminUser.EmailConfirmationToken);
 
             var adminRole = await _roleRepository.FindByNameAsync(adminRoleName);
             if (adminRole != null)

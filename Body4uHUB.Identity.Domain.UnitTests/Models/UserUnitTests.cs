@@ -15,7 +15,6 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         private const string ValidLastName = "User";
         private const string ValidEmail = "test@mail.com";
         private const string ValidPhone = "0884787878";
-        private const string ValidToken = "someRandomConfirmationToken";
 
         [SetUp]
         public void Setup()
@@ -25,19 +24,17 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
                 ValidFirstName,
                 ValidLastName,
                 ValidEmail,
-                ValidPhone,
-                ValidToken);
+                ValidPhone);
         }
 
-        [TestCase(ValidPasswordHash, ValidFirstName, ValidLastName, ValidEmail, ValidPhone, ValidToken)]
-        [TestCase(ValidPasswordHash, ValidFirstName, ValidLastName, ValidEmail, "+359884787878", ValidToken)]
+        [TestCase(ValidPasswordHash, ValidFirstName, ValidLastName, ValidEmail, ValidPhone)]
+        [TestCase(ValidPasswordHash, ValidFirstName, ValidLastName, ValidEmail, "+359884787878")]
         public void Create_ShouldCreateUser_WhenAllParametersAreValid(
             string passwordHash,
             string firstName,
             string lastName,
             string email,
-            string phoneNumber,
-            string confirmationToken)
+            string phoneNumber)
         {
             var before = DateTime.UtcNow;
 
@@ -46,8 +43,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
                 firstName,
                 lastName,
                 email,
-                phoneNumber,
-                confirmationToken);
+                phoneNumber);
 
             var after = DateTime.UtcNow;
 
@@ -57,9 +53,12 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
             Assert.That(result.LastName, Is.EqualTo(lastName));
             Assert.That(result.ContactInfo.Email, Is.EqualTo(email));
             Assert.That(result.ContactInfo.PhoneNumber, Is.EqualTo(phoneNumber));
-            Assert.That(result.EmailConfirmationToken, Is.EqualTo(confirmationToken));
+            Assert.That(result.IsEmailConfirmed, Is.False);
+            Assert.That(Guid.TryParse(result.EmailConfirmationToken, out _), Is.True);
             Assert.That(result.EmailConfirmationTokenExpiry, Is.Not.Null);
-            Assert.That(result.EmailConfirmationTokenExpiry.Value, Is.InRange(before.AddHours(24), after.AddHours(24)));
+            Assert.That(
+                result.EmailConfirmationTokenExpiry.Value,
+                Is.InRange(before.AddHours(EmailConfirmationTokenLifetimeHours), after.AddHours(EmailConfirmationTokenLifetimeHours)));
         }
 
         [TestCase(null)]
@@ -73,8 +72,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
                     ValidFirstName,
                     ValidLastName,
                     ValidEmail,
-                    ValidPhone,
-                    ValidToken));
+                    ValidPhone));
 
             Assert.That(ex.Error, Is.EqualTo($"{nameof(passwordHash)} cannot be null or empty."));
         }
@@ -252,12 +250,43 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         }
 
         [Test]
-        public void ConfirmEmail_ShouldSetIsEmailConfirmedToTrue_WhenCalled()
+        public void ConfirmEmail_ShouldConfirmEmailAndClearToken_WhenTokenIsValid()
         {
             Assert.That(_user.IsEmailConfirmed, Is.False);
 
-            _user.ConfirmEmail();
+            _user.ConfirmEmail(_user.EmailConfirmationToken);
 
+            Assert.That(_user.IsEmailConfirmed, Is.True);
+            Assert.That(_user.EmailConfirmationToken, Is.Null);
+            Assert.That(_user.EmailConfirmationTokenExpiry, Is.Null);
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("wrong-token")]
+        public void ConfirmEmail_ShouldThrowInvalidUserException_WhenTokenIsInvalid(string token)
+        {
+            var ex = Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(token));
+
+            Assert.That(ex.Error, Is.EqualTo(EmailConfirmationTokenInvalid));
+            Assert.That(_user.IsEmailConfirmed, Is.False);
+        }
+
+        [Test]
+        public void ConfirmEmail_ShouldThrowInvalidUserException_WhenTokenDiffersOnlyByCase()
+        {
+            var token = _user.EmailConfirmationToken.ToUpperInvariant();
+
+            Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(token));
+        }
+
+        [Test]
+        public void ConfirmEmail_ShouldNotThrow_WhenEmailIsAlreadyConfirmed()
+        {
+            _user.ConfirmEmail(_user.EmailConfirmationToken);
+
+            Assert.DoesNotThrow(() => _user.ConfirmEmail("any-token"));
             Assert.That(_user.IsEmailConfirmed, Is.True);
         }
 
