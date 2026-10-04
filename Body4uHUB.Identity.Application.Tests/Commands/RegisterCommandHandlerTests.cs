@@ -1,10 +1,11 @@
 ﻿using Body4uHUB.Identity.Application.Commands.Register;
 using Body4uHUB.Identity.Application.Services;
+using Body4uHUB.Identity.Application.Settings;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Domain.Abstractions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
@@ -21,13 +22,13 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         private const string ValidEmail = "test@mail.com";
         private const string ValidPhone = "0884787878";
         private const string ValidJwtToken = "valid.jwt.token";
+        private const string ValidFrontendUrl = "https://body4uhub.com";
 
         private Mock<IUserRepository> _userRepository;
         private Mock<IPasswordHasherService> _passwordHasherService;
         private Mock<IJwtTokenService> _jwtTokenService;
         private Mock<IUnitOfWork> _unitOfWork;
         private Mock<IEmailService> _emailService;
-        private Mock<IHttpContextAccessor> _httpContextAccessor;
         private Mock<ILogger<RegisterCommandHandler>> _logger;
 
         private RegisterCommandHandler _handler;
@@ -40,7 +41,6 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             _jwtTokenService = new Mock<IJwtTokenService>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _emailService = new Mock<IEmailService>();
-            _httpContextAccessor = new Mock<IHttpContextAccessor>();
             _logger = new Mock<ILogger<RegisterCommandHandler>>();
 
             _handler = new RegisterCommandHandler(
@@ -49,7 +49,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
                 _jwtTokenService.Object,
                 _unitOfWork.Object,
                 _emailService.Object,
-                _httpContextAccessor.Object,
+                Options.Create(new AppSettings { FrontendUrl = ValidFrontendUrl }),
                 _logger.Object
             );
         }
@@ -107,10 +107,6 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
                     command.Email,
                     It.IsAny<IReadOnlyCollection<Role>>()))
                 .Returns(ValidJwtToken);
-
-            _httpContextAccessor
-                .SetupGet(x => x.HttpContext)
-                .Returns((HttpContext)null);
 
             _emailService
                 .Setup(x => x.SendEmailConfirmation(

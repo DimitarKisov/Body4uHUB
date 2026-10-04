@@ -1,11 +1,16 @@
-﻿using Body4uHUB.Shared.Api.Extensions;
+﻿using Body4uHUB.Identity.Application.Settings;
+using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.HealthChecks;
+using Body4uHUB.Shared.Application.Commons;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
+using System.Text;
 
 namespace Body4uHUB.Identity.Api.Extensions
 {
@@ -21,6 +26,59 @@ namespace Body4uHUB.Identity.Api.Extensions
             services.AddHttpsConfiguration(configuration);
             services.AddSwaggerOptions(configuration);
             services.ConfigureSwagger();
+            services.AddJwtAuthentication(configuration);
+            services.AddAuthorizationPolicies();
+            services.AddAppSettings(configuration);
+
+            return services;
+        }
+
+        private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtIssuer = configuration["JwtSettings:Issuer"];
+            var jwtAudience = configuration["JwtSettings:Audience"];
+            var jwtSecret = configuration["JwtSettings:Secret"];
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtIssuer,
+                    ValidAudience = jwtAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+                };
+            });
+
+            return services;
+        }
+
+        private static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(AuthorizationPolicies.AdminOnly, policy =>
+                    policy.RequireRole("Administrator", "Admin"));
+            });
+
+            return services;
+        }
+
+        private static IServiceCollection AddAppSettings(this IServiceCollection services, IConfiguration configuration)
+        {
+            services
+                .AddOptions<AppSettings>()
+                .Bind(configuration.GetSection(AppSettings.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
 
             return services;
         }

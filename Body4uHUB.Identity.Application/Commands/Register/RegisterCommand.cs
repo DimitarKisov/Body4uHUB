@@ -1,12 +1,13 @@
 ﻿using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Services;
+using Body4uHUB.Identity.Application.Settings;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 using static Body4uHUB.Shared.Domain.Constants.ModelConstants.Common;
@@ -28,7 +29,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly AppSettings _appSettings;
         private readonly ILogger<RegisterCommandHandler> _logger;
 
         public RegisterCommandHandler(
@@ -37,7 +38,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
             IJwtTokenService jwtTokenService,
             IUnitOfWork unitOfWork,
             IEmailService emailService,
-            IHttpContextAccessor httpContextAccessor,
+            IOptions<AppSettings> appSettings,
             ILogger<RegisterCommandHandler> logger)
         {
             _userRepository = userRepository;
@@ -45,7 +46,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
             _jwtTokenService = jwtTokenService;
             _unitOfWork = unitOfWork;
             _emailService = emailService;
-            _httpContextAccessor = httpContextAccessor;
+            _appSettings = appSettings.Value;
             _logger = logger;
         }
 
@@ -84,9 +85,8 @@ namespace Body4uHUB.Identity.Application.Commands.Register
 
             try
             {
-                var httpcContextRequest = _httpContextAccessor.HttpContext?.Request;
-                var baseUrl = $"{httpcContextRequest?.Scheme}://{httpcContextRequest?.Host}";
-                var confirmationLink = $"{baseUrl}/Auth/ConfirmEmail?token={emailConfirmationToken}&email={Uri.EscapeDataString(request.Email)}";
+                var frontendUrl = _appSettings.FrontendUrl.TrimEnd('/');
+                var confirmationLink = $"{frontendUrl}/confirm-email?token={emailConfirmationToken}&email={Uri.EscapeDataString(request.Email)}";
 
                 _ = Task.Run(async () =>
                 {

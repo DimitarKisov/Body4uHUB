@@ -19,8 +19,7 @@ try
 
     services
         .AddApiServices(configuration, builder.Environment)
-        .AddHttpContextAccessor()
-        .AddApplication(configuration)
+        .AddApplication()
         .AddInfrastructure(configuration)
         .AddSingleton<StartupHealthCheck>()
         .AddCustomHealthChecks()
