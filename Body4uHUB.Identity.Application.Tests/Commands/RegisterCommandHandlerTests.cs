@@ -1,11 +1,9 @@
 ﻿using Body4uHUB.Identity.Application.Commands.Register;
 using Body4uHUB.Identity.Application.Services;
-using Body4uHUB.Identity.Application.Settings;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
+using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain.Abstractions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
@@ -20,15 +18,11 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         private const string ValidLastName = "User";
         private const string ValidEmail = "test@mail.com";
         private const string ValidPhone = "0884787878";
-        private const string ValidJwtToken = "valid.jwt.token";
-        private const string ValidFrontendUrl = "https://body4uhub.com";
 
         private Mock<IUserRepository> _userRepository;
         private Mock<IPasswordHasherService> _passwordHasherService;
-        private Mock<IJwtTokenService> _jwtTokenService;
+        private Mock<IEventBus> _eventBus;
         private Mock<IUnitOfWork> _unitOfWork;
-        private Mock<IEmailService> _emailService;
-        private Mock<ILogger<RegisterCommandHandler>> _logger;
 
         private RegisterCommandHandler _handler;
 
@@ -37,20 +31,14 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         {
             _userRepository = new Mock<IUserRepository>();
             _passwordHasherService = new Mock<IPasswordHasherService>();
-            _jwtTokenService = new Mock<IJwtTokenService>();
+            _eventBus = new Mock<IEventBus>();
             _unitOfWork = new Mock<IUnitOfWork>();
-            _emailService = new Mock<IEmailService>();
-            _logger = new Mock<ILogger<RegisterCommandHandler>>();
 
             _handler = new RegisterCommandHandler(
                 _userRepository.Object,
                 _passwordHasherService.Object,
-                _jwtTokenService.Object,
-                _unitOfWork.Object,
-                _emailService.Object,
-                Options.Create(new AppSettings { FrontendUrl = ValidFrontendUrl }),
-                _logger.Object
-            );
+                _eventBus.Object,
+                _unitOfWork.Object);
         }
 
         [Test]
@@ -66,6 +54,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
 
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.Error, Is.EqualTo(UserEmailExists));
+            _eventBus.Verify(x => x.PublishAsync(It.IsAny<UserRegisteredEvent>()), Times.Never);
         }
 
         [Test]
@@ -86,9 +75,11 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         }
 
         [Test]
-        public async Task Handle_ShouldReturnSuccess_WhenEmailServiceThrows()
+        public async Task Handle_ShouldCreateUserAndPublishEventBeforeSaving_WhenRegistrationIsValid()
         {
             var command = new RegisterCommand(ValidEmail, ValidPasswordHash, ValidFirstName, ValidLastName, ValidPhone);
+            var calls = new List<string>();
+            User addedUser = null;
 
             _userRepository
                 .Setup(x => x.ExistsByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
@@ -98,56 +89,32 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
                 .Setup(x => x.HashPassword(command.Password))
                 .Returns(ValidPasswordHash);
 
-            _jwtTokenService
-                .Setup(x => x.GenerateAccessToken(
-                    It.IsAny<Guid>(),
-                    command.Email,
-                    It.IsAny<IReadOnlyCollection<Role>>()))
-                .Returns(ValidJwtToken);
-
-            _emailService
-                .Setup(x => x.SendEmailConfirmation(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>()))
-                .ThrowsAsync(new Exception("SMTP failure"));
-
-            // Act
-            var result = await _handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            Assert.That(result.IsSuccess, Is.True);
-            Assert.That(result.Value.AccessToken, Is.EqualTo(ValidJwtToken));
-        }
-
-        [Test]
-        public async Task Handle_ShouldReturnSuccess_WhenRegistrationIsValid()
-        {
-            var command = new RegisterCommand(ValidEmail, ValidPasswordHash, ValidFirstName, ValidLastName, ValidPhone);
-
             _userRepository
-                .Setup(x => x.ExistsByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+                .Setup(x => x.Add(It.IsAny<User>()))
+                .Callback<User>(user => addedUser = user);
 
-            _passwordHasherService
-                .Setup(x => x.HashPassword(command.Password))
-                .Returns(ValidPasswordHash);
+            _eventBus
+                .Setup(x => x.PublishAsync(It.IsAny<UserRegisteredEvent>()))
+                .Callback(() => calls.Add("publish"))
+                .Returns(Task.CompletedTask);
 
-            _jwtTokenService
-                .Setup(x => x.GenerateAccessToken(It.IsAny<Guid>(), command.Email, It.IsAny<IReadOnlyCollection<Role>>()))
-                .Returns(ValidJwtToken);
+            _unitOfWork
+                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .Callback(() => calls.Add("save"));
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.That(result.IsSuccess, Is.True);
-            Assert.That(result.Value, Is.Not.Null);
-            Assert.That(result.Value.AccessToken, Is.EqualTo(ValidJwtToken));
-            Assert.That(result.Value.User, Is.Not.Null);
-            Assert.That(result.Value.User.Email, Is.EqualTo(ValidEmail));
+            Assert.That(result.Value.Email, Is.EqualTo(ValidEmail));
+            Assert.That(result.Value.IsEmailConfirmed, Is.False);
+            Assert.That(addedUser, Is.Not.Null);
+            Assert.That(result.Value.Id, Is.EqualTo(addedUser.Id));
 
-            _userRepository.Verify(x => x.Add(It.IsAny<User>()), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            _jwtTokenService.Verify(x => x.GenerateAccessToken(It.IsAny<Guid>(), command.Email, It.IsAny<IReadOnlyCollection<Role>>()), Times.Once);
+            // The outbox only stores the message if it is published before SaveChanges.
+            Assert.That(calls, Is.EqualTo(new[] { "publish", "save" }));
+            _eventBus.Verify(
+                x => x.PublishAsync(It.Is<UserRegisteredEvent>(e => e.UserId == addedUser.Id)),
+                Times.Once);
         }
     }
 }

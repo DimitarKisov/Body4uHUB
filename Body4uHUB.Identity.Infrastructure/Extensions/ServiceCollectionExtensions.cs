@@ -2,6 +2,7 @@
 using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Identity.Infrastructure.Messaging;
+using Body4uHUB.Identity.Infrastructure.Messaging.Consumers;
 using Body4uHUB.Identity.Infrastructure.Persistance;
 using Body4uHUB.Identity.Infrastructure.Repositories;
 using Body4uHUB.Identity.Infrastructure.Services;
@@ -63,6 +64,8 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
 
             services.AddMassTransit(x =>
             {
+                x.AddConsumer<SendEmailConfirmationConsumer>();
+
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(host, virtualHost, h =>
@@ -72,6 +75,8 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
                     });
 
                     cfg.UseMessageRetry(r => r.Interval(retryCount, TimeSpan.FromSeconds(retryIntervalSeconds)));
+
+                    cfg.ConfigureEndpoints(context);
                 });
 
                 x.AddEntityFrameworkOutbox<IdentityDbContext>(o =>

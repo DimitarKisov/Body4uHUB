@@ -11,10 +11,10 @@ namespace Body4uHUB.Identity.Api.Controllers
     public class AuthController : ApiController
     {
         /// <summary>
-        /// Register a new user
+        /// Register a new user. A confirmation email is sent; the user can log in after confirming it.
         /// </summary>
         [HttpPost("register")]
-        [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Register(RegisterCommand command, CancellationToken cancellationToken)
