@@ -33,14 +33,17 @@ namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
                 return Result.ResourceNotFound(UserNotFound);
             }
 
-            foreach (var roleId in request.RoleIds)
-            {
-                var role = await _roleRepository.FindByIdAsync(roleId, cancellationToken);
-                if (role == null)
-                {
-                    return Result.ResourceNotFound($"Role '{roleId}' does not exist.");
-                }
+            var roleIds = request.RoleIds.Distinct().ToList();
+            var roles = await _roleRepository.FindByIdsAsync(roleIds, cancellationToken);
 
+            var missingRoleIds = roleIds.Except(roles.Select(r => r.Id)).ToList();
+            if (missingRoleIds.Count > 0)
+            {
+                return Result.ResourceNotFound($"Roles do not exist: {string.Join(", ", missingRoleIds)}.");
+            }
+
+            foreach (var role in roles)
+            {
                 user.AddRole(role);
             }
 
