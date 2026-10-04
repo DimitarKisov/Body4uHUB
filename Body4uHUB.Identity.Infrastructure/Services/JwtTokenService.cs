@@ -59,51 +59,5 @@ namespace Body4uHUB.Identity.Infrastructure.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-        public Guid? ValidateToken(string token)
-        {
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                return null;
-            }
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_secretKey);
-
-            try
-            {
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = _issuer,
-                    ValidateAudience = true,
-                    ValidAudience = _audience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
-
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-
-                var jwtToken = validatedToken as JwtSecurityToken;
-                if (jwtToken == null || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return null;
-                }
-
-                var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-                if (string.IsNullOrEmpty(userIdClaim))
-                {
-                    return null;
-                }
-
-                return Guid.Parse(userIdClaim);
-            }
-            catch
-            {
-                return null;
-            }
-        }
     }
 }
