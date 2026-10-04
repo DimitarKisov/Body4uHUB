@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
-using static Body4uHUB.Shared.Domain.Constants.ModelConstants.Common;
 
 namespace Body4uHUB.Identity.Application.Tests.Commands
 {
@@ -70,7 +69,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         }
 
         [Test]
-        public async Task Handle_ShouldReturnInternalServerError_WhenPasswordHashThrowsAnError()
+        public void Handle_ShouldPropagateException_WhenPasswordHashThrows()
         {
             var command = new RegisterCommand(ValidEmail, ValidPasswordHash, ValidFirstName, ValidLastName, ValidPhone);
 
@@ -80,12 +79,10 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
 
             _passwordHasherService
                 .Setup(x => x.HashPassword(It.IsAny<string>()))
-                .Throws(new Exception());
+                .Throws(new InvalidOperationException());
 
-            var result = await _handler.Handle(command, CancellationToken.None);
-
-            Assert.That(result.IsSuccess, Is.False);
-            Assert.That(result.Error, Is.EqualTo(SomethingWentWrong));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
+            _userRepository.Verify(x => x.Add(It.IsAny<User>()), Times.Never);
         }
 
         [Test]

@@ -40,10 +40,6 @@ namespace Body4uHUB.Identity.Application.Commands.ChangePassword
             }
 
             var newPasswordHash = _passwordHasherService.HashPassword(request.NewPassword);
-            if (string.IsNullOrWhiteSpace(newPasswordHash))
-            {
-                return Result.ResourceNotFound(PasswordInvalid);
-            }
 
             user.UpdatePasswordHash(newPasswordHash);
 

@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
-using static Body4uHUB.Shared.Domain.Constants.ModelConstants.Common;
 
 namespace Body4uHUB.Identity.Application.Commands.Register
 {
@@ -59,16 +58,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 return Result.Conflict<AuthResponseDto>(UserEmailExists);
             }
 
-            var passwordHash = string.Empty;
-            try
-            {
-                passwordHash = _passwordHasherService.HashPassword(request.Password);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Password hashing failed for email {Email}", request.Email);
-                return Result.InternalServerError<AuthResponseDto>(SomethingWentWrong);
-            }
+            var passwordHash = _passwordHasherService.HashPassword(request.Password);
 
             var emailConfirmationToken = Guid.NewGuid().ToString();
 
