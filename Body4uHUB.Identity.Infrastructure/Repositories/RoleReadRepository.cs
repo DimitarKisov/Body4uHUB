@@ -17,11 +17,7 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
         public async Task<IEnumerable<RoleDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _dbContext.Roles
-                .Select(x => new RoleDto
-                {
-                    Id = x.Id,
-                    Name = x.Name
-                })
+                .Select(x => new RoleDto(x.Id, x.Name))
                 .ToListAsync(cancellationToken);
         }
     }

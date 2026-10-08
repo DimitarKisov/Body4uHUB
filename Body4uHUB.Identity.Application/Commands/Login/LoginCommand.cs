@@ -43,11 +43,7 @@ namespace Body4uHUB.Identity.Application.Commands.Login
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            var response = new AuthResponseDto
-            {
-                AccessToken = accessToken,
-                User = user.ToDto()
-            };
+            var response = new AuthResponseDto(accessToken, user.ToDto());
 
             return Result.Success(response);
         }

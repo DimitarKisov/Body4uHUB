@@ -41,21 +41,15 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
         {
             return await _dbContext.Users
                 .Where(x => x.Id == userId)
-                .Select(x => new UserDto
-                {
-                    Id = x.Id,
-                    Email = x.ContactInfo.Email,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    PhoneNumber = x.ContactInfo.PhoneNumber,
-                    CreatedAt = x.CreatedAt,
-                    IsEmailConfirmed = x.IsEmailConfirmed,
-                    Roles = x.Roles.Select(y => new RoleDto
-                    {
-                        Id = y.Id,
-                        Name = y.Name
-                    }).ToList()
-                })
+                .Select(x => new UserDto(
+                    x.Id,
+                    x.ContactInfo.Email,
+                    x.FirstName,
+                    x.LastName,
+                    x.ContactInfo.PhoneNumber,
+                    x.CreatedAt,
+                    x.IsEmailConfirmed,
+                    x.Roles.Select(y => new RoleDto(y.Id, y.Name)).ToList()))
                 .FirstOrDefaultAsync(cancellationToken);
         }
     }
