@@ -7,7 +7,8 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.EditUser
 {
-    public record EditUserCommand(Guid Id, string FirstName, string LastName, string PhoneNumber) : IRequest<Result>;
+    public record EditUserCommand(Guid UserId, string FirstName, string LastName, string PhoneNumber) : IRequest<Result>;
+
     internal sealed class EditUserCommandHandler(
         IUserRepository userRepository,
         IUnitOfWork unitOfWork)
@@ -18,7 +19,7 @@ namespace Body4uHUB.Identity.Application.Commands.EditUser
 
         public async Task<Result> Handle(EditUserCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
+            var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
             if (user == null)
             {
                 return Result.ResourceNotFound(UserNotFound);
