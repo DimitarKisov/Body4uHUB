@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace Body4uHUB.Identity.Api.Extensions
 {
@@ -29,6 +30,29 @@ namespace Body4uHUB.Identity.Api.Extensions
             services.AddJwtAuthentication(configuration);
             services.AddAuthorizationPolicies();
             services.AddAppSettings(configuration);
+            services.AddRateLimitPolicies();
+
+            return services;
+        }
+
+        private static IServiceCollection AddRateLimitPolicies(this IServiceCollection services)
+        {
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                // Partitioned by client IP, so the limit does not depend on whether the email exists.
+                // The limiter is in memory, so with several replicas each one counts separately.
+                options.AddPolicy(RateLimitPolicies.ResendEmailConfirmation, context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 3,
+                            Window = TimeSpan.FromMinutes(15),
+                            QueueLimit = 0
+                        }));
+            });
 
             return services;
         }

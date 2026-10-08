@@ -17,18 +17,23 @@ namespace Body4uHUB.Identity.Infrastructure.Messaging.Consumers
         IEmailService emailService,
         IOptions<AppSettings> appSettings,
         ILogger<SendEmailConfirmationConsumer> logger)
-        : IConsumer<UserRegisteredEvent>
+        : IConsumer<UserRegisteredEvent>,
+          IConsumer<EmailConfirmationResendRequestedEvent>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IEmailService _emailService = emailService;
         private readonly AppSettings _appSettings = appSettings.Value;
         private readonly ILogger<SendEmailConfirmationConsumer> _logger = logger;
 
-        public async Task Consume(ConsumeContext<UserRegisteredEvent> context)
-        {
-            var userId = context.Message.UserId;
+        public Task Consume(ConsumeContext<UserRegisteredEvent> context)
+            => SendEmailConfirmation(context.Message.UserId, context.CancellationToken);
 
-            var user = await _userRepository.GetByIdAsync(userId, context.CancellationToken);
+        public Task Consume(ConsumeContext<EmailConfirmationResendRequestedEvent> context)
+            => SendEmailConfirmation(context.Message.UserId, context.CancellationToken);
+
+        private async Task SendEmailConfirmation(Guid userId, CancellationToken cancellationToken)
+        {
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
             if (user == null)
             {
                 _logger.LogWarning("Email confirmation skipped: user {UserId} not found", userId);

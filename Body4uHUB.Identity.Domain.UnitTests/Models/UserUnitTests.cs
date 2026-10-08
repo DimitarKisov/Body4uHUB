@@ -300,6 +300,47 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         }
 
         [Test]
+        public void RegenerateEmailConfirmationToken_ShouldReplaceTokenAndExtendExpiry_WhenEmailIsNotConfirmed()
+        {
+            var oldToken = _user.EmailConfirmationToken;
+
+            var before = DateTime.UtcNow;
+            _user.RegenerateEmailConfirmationToken();
+            var after = DateTime.UtcNow;
+
+            Assert.That(_user.EmailConfirmationToken, Is.Not.EqualTo(oldToken));
+            Assert.That(Guid.TryParse(_user.EmailConfirmationToken, out _), Is.True);
+            Assert.That(
+                _user.EmailConfirmationTokenExpiry,
+                Is.InRange(before.AddHours(EmailConfirmationTokenLifetimeHours), after.AddHours(EmailConfirmationTokenLifetimeHours)));
+        }
+
+        [Test]
+        public void RegenerateEmailConfirmationToken_ShouldInvalidateOldToken()
+        {
+            var oldToken = _user.EmailConfirmationToken;
+
+            _user.RegenerateEmailConfirmationToken();
+
+            Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(oldToken));
+            Assert.DoesNotThrow(() => _user.ConfirmEmail(_user.EmailConfirmationToken));
+        }
+
+        [Test]
+        public void RegenerateEmailConfirmationToken_ShouldDoNothing_WhenEmailIsAlreadyConfirmed()
+        {
+            var token = _user.EmailConfirmationToken;
+            var expiry = _user.EmailConfirmationTokenExpiry;
+            _user.ConfirmEmail(token);
+
+            _user.RegenerateEmailConfirmationToken();
+
+            Assert.That(_user.EmailConfirmationToken, Is.EqualTo(token));
+            Assert.That(_user.EmailConfirmationTokenExpiry, Is.EqualTo(expiry));
+            Assert.That(_user.IsEmailConfirmed, Is.True);
+        }
+
+        [Test]
         public void EnsureIsTrainer_ShouldNotThrow_WhenUserHasTrainerRole()
         {
             var trainerRole = Role.Create(TrainerRoleName);

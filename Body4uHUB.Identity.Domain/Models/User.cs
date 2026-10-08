@@ -119,6 +119,17 @@ namespace Body4uHUB.Identity.Domain.Models
             IsEmailConfirmed = true;
         }
 
+        public void RegenerateEmailConfirmationToken()
+        {
+            // A confirmed user keeps the token that confirmed them, so ConfirmEmail with it stays a no-op.
+            if (IsEmailConfirmed)
+            {
+                return;
+            }
+
+            GenerateEmailConfirmationToken();
+        }
+
         public void EnsureIsTrainer(Role trainerRole)
         {
             Guard.AgainstDefault<InvalidUserException, Role>(trainerRole, nameof(trainerRole));

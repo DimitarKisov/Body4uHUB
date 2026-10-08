@@ -1,9 +1,12 @@
 ﻿using Body4uHUB.Identity.Application.Commands.ConfirmEmail;
 using Body4uHUB.Identity.Application.Commands.Login;
 using Body4uHUB.Identity.Application.Commands.Register;
+using Body4uHUB.Identity.Application.Commands.ResendEmailConfirmation;
 using Body4uHUB.Identity.Application.DTOs;
+using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Shared.Api;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Body4uHUB.Identity.Api.Controllers
 {
@@ -46,6 +49,20 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> ConfirmEmail(ConfirmEmailCommand command, CancellationToken cancellationToken)
+        {
+            var result = await Mediator.Send(command, cancellationToken);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Send a new email confirmation link. Always returns 204, whether or not the email is registered or already confirmed.
+        /// </summary>
+        [HttpPost("resend-confirmation")]
+        [EnableRateLimiting(RateLimitPolicies.ResendEmailConfirmation)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+        public async Task<IActionResult> ResendEmailConfirmation(ResendEmailConfirmationCommand command, CancellationToken cancellationToken)
         {
             var result = await Mediator.Send(command, cancellationToken);
             return HandleResult(result);
