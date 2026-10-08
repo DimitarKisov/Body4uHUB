@@ -12,24 +12,17 @@ namespace Body4uHUB.Identity.Application.Commands.Login
 {
     public record LoginCommand(string Email, string Password) : IRequest<Result<AuthResponseDto>>;
 
-    internal sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
+    internal sealed class LoginCommandHandler(
+        IUserRepository userRepository,
+        IJwtTokenService jwtTokenService,
+        IPasswordHasherService passwordHasherService,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IJwtTokenService _jwtTokenService;
-        private readonly IPasswordHasherService _passwordHasherService;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public LoginCommandHandler(
-            IUserRepository userRepository,
-            IJwtTokenService jwtTokenService,
-            IPasswordHasherService passwordHasherService,
-            IUnitOfWork unitOfWork)
-        {
-            _userRepository = userRepository;
-            _jwtTokenService = jwtTokenService;
-            _passwordHasherService = passwordHasherService;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IJwtTokenService _jwtTokenService = jwtTokenService;
+        private readonly IPasswordHasherService _passwordHasherService = passwordHasherService;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<AuthResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {

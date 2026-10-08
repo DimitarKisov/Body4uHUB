@@ -8,18 +8,13 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 namespace Body4uHUB.Identity.Application.Commands.EditUser
 {
     public record EditUserCommand(Guid Id, string FirstName, string LastName, string PhoneNumber) : IRequest<Result>;
-    internal sealed class EditUserCommandHandler : IRequestHandler<EditUserCommand, Result>
+    internal sealed class EditUserCommandHandler(
+        IUserRepository userRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<EditUserCommand, Result>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public EditUserCommandHandler(
-            IUserRepository userRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _userRepository = userRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(EditUserCommand request, CancellationToken cancellationToken)
         {

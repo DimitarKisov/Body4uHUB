@@ -9,21 +9,15 @@ namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
 {
     public record AddUserRolesCommand(Guid UserId, List<Guid> RoleIds) : IRequest<Result>;
 
-    internal sealed class AddUserRolesCommandHandler : IRequestHandler<AddUserRolesCommand, Result>
+    internal sealed class AddUserRolesCommandHandler(
+        IUserRepository userRepository,
+        IRoleRepository roleRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<AddUserRolesCommand, Result>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IRoleRepository _roleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public AddUserRolesCommandHandler(
-            IUserRepository userRepository,
-            IRoleRepository roleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IRoleRepository _roleRepository = roleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(AddUserRolesCommand request, CancellationToken cancellationToken)
         {

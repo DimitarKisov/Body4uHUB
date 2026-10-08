@@ -11,24 +11,17 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
 {
     public record DeleteTrainerCommand(Guid UserId) : IRequest<Result>;
 
-    internal sealed class DeleteTrainerCommandHandler : IRequestHandler<DeleteTrainerCommand, Result>
+    internal sealed class DeleteTrainerCommandHandler(
+        IUserRepository userRepository,
+        IRoleRepository roleRepository,
+        IEventBus eventBus,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<DeleteTrainerCommand, Result>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IRoleRepository _roleRepository;
-        private readonly IEventBus _eventBus;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public DeleteTrainerCommandHandler(
-            IUserRepository userRepository,
-            IRoleRepository roleRepository,
-            IEventBus eventBus,
-            IUnitOfWork unitOfWork)
-        {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-            _eventBus = eventBus;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IRoleRepository _roleRepository = roleRepository;
+        private readonly IEventBus _eventBus = eventBus;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(DeleteTrainerCommand request, CancellationToken cancellationToken)
         {

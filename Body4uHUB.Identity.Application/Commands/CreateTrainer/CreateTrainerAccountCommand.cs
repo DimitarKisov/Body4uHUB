@@ -11,24 +11,17 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
 {
     public record CreateTrainerAccountCommand(Guid UserId, string Bio, int YearsOfExperience) : IRequest<Result<CreateTrainerAccountResponse>>;
 
-    internal sealed class CreateTrainerAccountCommandHandler : IRequestHandler<CreateTrainerAccountCommand, Result<CreateTrainerAccountResponse>>
+    internal sealed class CreateTrainerAccountCommandHandler(
+        IUserRepository userRepository,
+        IRoleRepository roleRepository,
+        IEventBus eventBus,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<CreateTrainerAccountCommand, Result<CreateTrainerAccountResponse>>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IRoleRepository _roleRepository;
-        private readonly IEventBus _eventBus;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CreateTrainerAccountCommandHandler(
-            IUserRepository userRepository,
-            IRoleRepository roleRepository,
-            IEventBus eventBus,
-            IUnitOfWork unitOfWork)
-        {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-            _eventBus = eventBus;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IRoleRepository _roleRepository = roleRepository;
+        private readonly IEventBus _eventBus = eventBus;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<CreateTrainerAccountResponse>> Handle(CreateTrainerAccountCommand request, CancellationToken cancellationToken)
         {

@@ -10,21 +10,15 @@ namespace Body4uHUB.Identity.Application.Commands.ChangePassword
 {
     public record ChangePasswordCommand(Guid UserId, string CurrentPassword, string NewPassword) : IRequest<Result>;
 
-    internal sealed class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result>
+    internal sealed class ChangePasswordCommandHandler(
+        IUserRepository userRepository,
+        IPasswordHasherService passwordHasherService,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<ChangePasswordCommand, Result>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IPasswordHasherService _passwordHasherService;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public ChangePasswordCommandHandler(
-            IUserRepository userRepository,
-            IPasswordHasherService passwordHasherService,
-            IUnitOfWork unitOfWork)
-        {
-            _userRepository = userRepository;
-            _passwordHasherService = passwordHasherService;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IPasswordHasherService _passwordHasherService = passwordHasherService;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {

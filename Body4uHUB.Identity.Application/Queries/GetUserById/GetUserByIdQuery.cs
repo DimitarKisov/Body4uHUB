@@ -9,14 +9,11 @@ namespace Body4uHUB.Identity.Application.Queries.GetUserById
 {
     public record GetUserByIdQuery(Guid Id) : IRequest<Result<UserDto>>;
 
-    internal sealed class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
+    internal sealed class GetUserByIdQueryHandler(
+        IUserReadRepository userReadRepository)
+        : IRequestHandler<GetUserByIdQuery, Result<UserDto>>
     {
-        private readonly IUserReadRepository _userReadRepository;
-
-        public GetUserByIdQueryHandler(IUserReadRepository userReadRepository)
-        {
-            _userReadRepository = userReadRepository;
-        }
+        private readonly IUserReadRepository _userReadRepository = userReadRepository;
 
         public async Task<Result<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
