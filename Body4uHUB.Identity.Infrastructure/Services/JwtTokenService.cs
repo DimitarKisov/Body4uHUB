@@ -1,6 +1,7 @@
 ﻿using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Models;
-using Microsoft.Extensions.Configuration;
+using Body4uHUB.Shared.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,22 +12,9 @@ namespace Body4uHUB.Identity.Infrastructure.Services
     /// <summary>
     /// JWT Token Service implementation using System.IdentityModel.Tokens.Jwt
     /// </summary>
-    internal class JwtTokenService : IJwtTokenService
+    internal sealed class JwtTokenService(IOptions<JwtSettings> jwtSettings) : IJwtTokenService
     {
-        private readonly IConfiguration _configuration;
-        private readonly string _secretKey;
-        private readonly string _issuer;
-        private readonly string _audience;
-        private readonly int _expirationMinutes;
-
-        public JwtTokenService(IConfiguration configuration)
-        {
-            _configuration = configuration;
-            _secretKey = _configuration["JwtSettings:Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
-            _issuer = _configuration["JwtSettings:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is not configured");
-            _audience = _configuration["JwtSettings:Audience"] ?? throw new InvalidOperationException("JWT Audience is not configured");
-            _expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationMinutes"] ?? "60");
-        }
+        private readonly JwtSettings _jwtSettings = jwtSettings.Value;
 
         public string GenerateAccessToken(Guid userId, string email, IReadOnlyCollection<Role> roles)
         {
@@ -46,14 +34,14 @@ namespace Body4uHUB.Identity.Infrastructure.Services
                 }
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _issuer,
-                audience: _audience,
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_expirationMinutes),
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
                 signingCredentials: credentials
             );
 

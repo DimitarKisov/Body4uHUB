@@ -1,35 +1,21 @@
 ﻿using Body4uHUB.Shared.Domain.Abstractions;
-using Microsoft.Extensions.Configuration;
+using Body4uHUB.Shared.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 
 namespace Body4uHUB.Shared.Infrastructure.Email
 {
-    internal class EmailService : IEmailService
+    internal sealed class EmailService(IOptions<EmailSettings> emailSettings) : IEmailService
     {
-        private readonly string _smtpHost;
-        private readonly int _smtpPort;
-        private readonly string _smtpUsername;
-        private readonly string _smtpPassword;
-        private readonly string _fromEmail;
-        private readonly string _fromName;
-
-        public EmailService(IConfiguration configuration)
-        {
-            _smtpHost = configuration["EmailSettings:SmtpServer"];
-            _smtpPort = int.Parse(configuration["EmailSettings:SmtpPort"]);
-            _smtpUsername = configuration["EmailSettings:Username"];
-            _smtpPassword = configuration["EmailSettings:Password"];
-            _fromEmail = configuration["EmailSettings:FromEmail"];
-            _fromName = configuration["EmailSettings:FromName"];
-        }
+        private readonly EmailSettings _emailSettings = emailSettings.Value;
 
         public async Task SendEmailConfirmation(string receiverEmail, string receiverName, string confirmationLink)
         {
-            using var client = new SmtpClient(_smtpHost, _smtpPort)
+            using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.SmtpPort)
             {
-                EnableSsl = true,
-                Credentials = new NetworkCredential(_smtpUsername, _smtpPassword)
+                EnableSsl = _emailSettings.EnableSsl,
+                Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password)
             };
 
             var body = $@"
@@ -51,7 +37,7 @@ namespace Body4uHUB.Shared.Infrastructure.Email
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(_fromEmail, _fromName),
+                From = new MailAddress(_emailSettings.FromEmail, _emailSettings.FromName),
                 Subject = "Email Confirmation",
                 IsBodyHtml = true,
                 Body = body

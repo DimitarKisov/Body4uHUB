@@ -12,10 +12,12 @@ using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Infrastructure.Extensions;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Body4uHUB.Shared.Infrastructure.Persistence;
+using Body4uHUB.Shared.Infrastructure.Settings;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.Reflection;
 
 namespace Body4uHUB.Identity.Infrastructure.Extensions
@@ -42,9 +44,12 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
                 .AddScoped<IDbInitializer, DbInitializer>()
                 .AddScoped<IEventBus, EventBus>();
 
-            services.AddSeedDataSettings(configuration);
+            services
+                .AddValidatedOptions<SeedDataSettings>(configuration, SeedDataSettings.SectionName)
+                .AddValidatedOptions<JwtSettings>(configuration, JwtSettings.SectionName)
+                .AddValidatedOptions<PasswordHashingSettings>(configuration, PasswordHashingSettings.SectionName);
 
-            services.AddEmailService();
+            services.AddEmailService(configuration);
 
             services
                 .AddSingleton<IJwtTokenService, JwtTokenService>()
@@ -55,40 +60,14 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
             return services;
         }
 
-        private static IServiceCollection AddSeedDataSettings(this IServiceCollection services, IConfiguration configuration)
-        {
-            services
-                .AddOptions<SeedDataSettings>()
-                .Bind(configuration.GetSection(SeedDataSettings.SectionName))
-                .ValidateDataAnnotations()
-                .Validate(
-                    x => !IsUnreplacedToken(x.AdminUserEmail) && !IsUnreplacedToken(x.AdminUserPassword),
-                    "SeedData:AdminUserEmail and SeedData:AdminUserPassword must be set. " +
-                    "A '#{...}#' value means the deploy pipeline variable is missing.")
-                .ValidateOnStart();
-
-            return services;
-        }
-
-        // Deploy pipeline replaces '#{Name}#' tokens in appsettings.json; an unreplaced token means a missing variable
-        private static bool IsUnreplacedToken(string value)
-        {
-            return value is not null && value.StartsWith("#{") && value.EndsWith("}#");
-        }
-
         private static IServiceCollection AddMassTransitWithRabbitMq(this IServiceCollection services, IConfiguration configuration)
         {
-            var massTransitSection = configuration.GetSection("MassTransit");
+            services.AddValidatedOptions<MassTransitSettings>(configuration, MassTransitSettings.SectionName);
 
-            var host = massTransitSection["Host"] ?? throw new InvalidOperationException("MassTransit:Host is required");
-            var virtualHost = massTransitSection["VirtualHost"] ?? "/";
-            var username = massTransitSection["Username"] ?? throw new InvalidOperationException("MassTransit:Username is required");
-            var password = massTransitSection["Password"] ?? throw new InvalidOperationException("MassTransit:Password is required");
-
-            var retryCount = int.Parse(massTransitSection["RetryCount"] ?? "5");
-            var retryIntervalSeconds = int.Parse(massTransitSection["RetryIntervalSeconds"] ?? "5");
-            var outboxQueryMessageLimit = int.Parse(massTransitSection["OutboxQueryMessageLimit"] ?? "100");
-            var outboxQueryDelaySeconds = int.Parse(massTransitSection["OutboxQueryDelaySeconds"] ?? "1");
+            // The outbox is configured during registration, before options can be resolved, so this read is not
+            // validated. The same section is validated by ValidateOnStart before the bus starts.
+            var outboxSettings = configuration.GetSection(MassTransitSettings.SectionName).Get<MassTransitSettings>()
+                ?? new MassTransitSettings();
 
             services.AddMassTransit(x =>
             {
@@ -96,13 +75,15 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                    cfg.Host(host, virtualHost, h =>
+                    var settings = context.GetRequiredService<IOptions<MassTransitSettings>>().Value;
+
+                    cfg.Host(settings.Host, (ushort)settings.Port, settings.VirtualHost, h =>
                     {
-                        h.Username(username);
-                        h.Password(password);
+                        h.Username(settings.Username);
+                        h.Password(settings.Password);
                     });
 
-                    cfg.UseMessageRetry(r => r.Interval(retryCount, TimeSpan.FromSeconds(retryIntervalSeconds)));
+                    cfg.UseMessageRetry(r => r.Interval(settings.RetryCount, TimeSpan.FromSeconds(settings.RetryIntervalSeconds)));
 
                     cfg.ConfigureEndpoints(context);
                 });
@@ -116,10 +97,10 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
                     o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30);
 
                     // Query delay - how often to check for new messages
-                    o.QueryDelay = TimeSpan.FromSeconds(outboxQueryDelaySeconds);
+                    o.QueryDelay = TimeSpan.FromSeconds(outboxSettings.OutboxQueryDelaySeconds);
 
                     // Query message limit - how many messages to process at once
-                    o.QueryMessageLimit = outboxQueryMessageLimit;
+                    o.QueryMessageLimit = outboxSettings.OutboxQueryMessageLimit;
 
                     o.DisableInboxCleanupService();
                 });

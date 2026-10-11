@@ -2,10 +2,12 @@
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Application.Commons;
+using Body4uHUB.Shared.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -27,7 +29,7 @@ namespace Body4uHUB.Identity.Api.Extensions
             services.AddHttpsConfiguration(configuration);
             services.AddSwaggerOptions(configuration);
             services.ConfigureSwagger();
-            services.AddJwtAuthentication(configuration);
+            services.AddJwtAuthentication();
             services.AddAuthorizationPolicies();
             services.AddAppSettings(configuration);
             services.AddRateLimitPolicies();
@@ -57,30 +59,33 @@ namespace Body4uHUB.Identity.Api.Extensions
             return services;
         }
 
-        private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddJwtAuthentication(this IServiceCollection services)
         {
-            var jwtIssuer = configuration["JwtSettings:Issuer"];
-            var jwtAudience = configuration["JwtSettings:Audience"];
-            var jwtSecret = configuration["JwtSettings:Secret"];
-
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
+            .AddJwtBearer();
+
+            // Configured from the validated JwtSettings (registered in AddInfrastructure) when the options are first resolved
+            services
+                .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+                .Configure<IOptions<JwtSettings>>((options, jwtSettings) =>
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtIssuer,
-                    ValidAudience = jwtAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
-                };
-            });
+                    var settings = jwtSettings.Value;
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = settings.Issuer,
+                        ValidAudience = settings.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Secret))
+                    };
+                });
 
             return services;
         }

@@ -1,25 +1,21 @@
 ﻿using BCrypt.Net;
 using Body4uHUB.Identity.Application.Services;
-using Microsoft.Extensions.Configuration;
+using Body4uHUB.Identity.Infrastructure.Settings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Body4uHUB.Identity.Infrastructure.Services
 {
     /// <summary>
     /// Password Hasher Service implementation using BCrypt
     /// </summary>
-    internal class PasswordHasherService : IPasswordHasherService
+    internal sealed class PasswordHasherService(
+        IOptions<PasswordHashingSettings> passwordHashingSettings,
+        ILogger<PasswordHasherService> logger)
+        : IPasswordHasherService
     {
-        private readonly int _workFactor;
-        private readonly ILogger<PasswordHasherService> _logger;
-
-        public PasswordHasherService(
-            IConfiguration configuration,
-            ILogger<PasswordHasherService> logger)
-        {
-            _workFactor = configuration.GetValue<int>("Security:Hashing:WorkFactor", defaultValue: 12);
-            _logger = logger;
-        }
+        private readonly PasswordHashingSettings _passwordHashingSettings = passwordHashingSettings.Value;
+        private readonly ILogger<PasswordHasherService> _logger = logger;
 
         public string HashPassword(string password)
         {
@@ -28,7 +24,7 @@ namespace Body4uHUB.Identity.Infrastructure.Services
                 throw new ArgumentException("Password cannot be null or whitespace.", nameof(password));
             }
 
-            return BCrypt.Net.BCrypt.HashPassword(password, _workFactor);
+            return BCrypt.Net.BCrypt.HashPassword(password, _passwordHashingSettings.WorkFactor);
         }
 
         public bool VerifyPassword(string password, string passwordHash)

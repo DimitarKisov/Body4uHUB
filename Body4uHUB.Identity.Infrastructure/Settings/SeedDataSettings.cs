@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Body4uHUB.Shared.Infrastructure.Settings;
+using System.ComponentModel.DataAnnotations;
 
 namespace Body4uHUB.Identity.Infrastructure.Settings
 {
@@ -8,9 +9,11 @@ namespace Body4uHUB.Identity.Infrastructure.Settings
 
         [Required]
         [EmailAddress]
+        [NoPipelineToken]
         public string AdminUserEmail { get; init; }
 
         [Required]
+        [NoPipelineToken]
         public string AdminUserPassword { get; init; }
 
         [Required]
