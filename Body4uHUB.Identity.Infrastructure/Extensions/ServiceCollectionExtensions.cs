@@ -6,6 +6,7 @@ using Body4uHUB.Identity.Infrastructure.Messaging.Consumers;
 using Body4uHUB.Identity.Infrastructure.Persistance;
 using Body4uHUB.Identity.Infrastructure.Repositories;
 using Body4uHUB.Identity.Infrastructure.Services;
+using Body4uHUB.Identity.Infrastructure.Settings;
 using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Infrastructure.Extensions;
@@ -41,6 +42,8 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
                 .AddScoped<IDbInitializer, DbInitializer>()
                 .AddScoped<IEventBus, EventBus>();
 
+            services.AddSeedDataSettings(configuration);
+
             services.AddEmailService();
 
             services
@@ -50,6 +53,27 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
             services.AddMassTransitWithRabbitMq(configuration);
 
             return services;
+        }
+
+        private static IServiceCollection AddSeedDataSettings(this IServiceCollection services, IConfiguration configuration)
+        {
+            services
+                .AddOptions<SeedDataSettings>()
+                .Bind(configuration.GetSection(SeedDataSettings.SectionName))
+                .ValidateDataAnnotations()
+                .Validate(
+                    x => !IsUnreplacedToken(x.AdminUserEmail) && !IsUnreplacedToken(x.AdminUserPassword),
+                    "SeedData:AdminUserEmail and SeedData:AdminUserPassword must be set. " +
+                    "A '#{...}#' value means the deploy pipeline variable is missing.")
+                .ValidateOnStart();
+
+            return services;
+        }
+
+        // Deploy pipeline replaces '#{Name}#' tokens in appsettings.json; an unreplaced token means a missing variable
+        private static bool IsUnreplacedToken(string value)
+        {
+            return value is not null && value.StartsWith("#{") && value.EndsWith("}#");
         }
 
         private static IServiceCollection AddMassTransitWithRabbitMq(this IServiceCollection services, IConfiguration configuration)

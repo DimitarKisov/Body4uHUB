@@ -1,44 +1,36 @@
 ﻿using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
+using Body4uHUB.Identity.Infrastructure.Settings;
 using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Body4uHUB.Identity.Infrastructure.Persistance
 {
-    internal class DbInitializer : IDbInitializer
+    internal sealed class DbInitializer(
+        IdentityDbContext dbContext,
+        IOptions<SeedDataSettings> seedDataSettings,
+        IPasswordHasherService passwordHasherService,
+        IUserRepository userRepository,
+        IRoleRepository roleRepository,
+        IUnitOfWork unitOfWork,
+        ILogger<DbInitializer> logger)
+        : IDbInitializer
     {
-        private readonly IdentityDbContext _dbContext;
-        private readonly IConfiguration _configuration;
-        private readonly IPasswordHasherService _passwordHasherService;
-        private readonly IUserRepository _userRepository;
-        private readonly IRoleRepository _roleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<DbInitializer> _logger;
-
-        public DbInitializer(
-            IdentityDbContext dbContext,
-            IConfiguration configuration,
-            IPasswordHasherService passwordHasherService,
-            IUserRepository userRepository,
-            IRoleRepository roleRepository,
-            IUnitOfWork unitOfWork,
-            ILogger<DbInitializer> logger)
-        {
-            _dbContext = dbContext;
-            _configuration = configuration;
-            _passwordHasherService = passwordHasherService;
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-            _unitOfWork = unitOfWork;
-            _logger = logger;
-        }
+        private readonly IdentityDbContext _dbContext = dbContext;
+        private readonly SeedDataSettings _seedDataSettings = seedDataSettings.Value;
+        private readonly IPasswordHasherService _passwordHasherService = passwordHasherService;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IRoleRepository _roleRepository = roleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger<DbInitializer> _logger = logger;
 
         public async Task InitializeAsync()
         {
+
             _logger.LogInformation("Starting database migration");
             await _dbContext.Database.MigrateAsync();
             _logger.LogInformation("Database migration completed");
@@ -54,31 +46,24 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
 
         private async Task SeedUsersAsync()
         {
-            var adminEmail = _configuration["SeedData:AdminUserEmail"];
-
-            var adminExists = await _userRepository.ExistsByEmailAsync(adminEmail);
+            var adminExists = await _userRepository.ExistsByEmailAsync(_seedDataSettings.AdminUserEmail);
             if (adminExists)
             {
                 return;
             }
 
-            var password = _configuration["SeedData:AdminUserPassword"] ?? "SomeRandomPassword";
-            var adminFirstName = _configuration["SeedData:AdminUserFirstName"] ?? "SomeRandomFirstName";
-            var adminLastName = _configuration["SeedData:AdminUserLastName"] ?? "SomeRandomLastName";
-            var adminRoleName = _configuration["SeedData:AdminRoleName"] ?? "Administrator";
-
-            var hashedPassword = _passwordHasherService.HashPassword(password);
+            var hashedPassword = _passwordHasherService.HashPassword(_seedDataSettings.AdminUserPassword);
 
             var adminUser = User.Create(
                 hashedPassword,
-                adminFirstName,
-                adminLastName,
-                adminEmail,
+                _seedDataSettings.AdminUserFirstName,
+                _seedDataSettings.AdminUserLastName,
+                _seedDataSettings.AdminUserEmail,
                 null);
 
             adminUser.ConfirmEmail(adminUser.EmailConfirmationToken);
 
-            var adminRole = await _roleRepository.FindByNameAsync(adminRoleName);
+            var adminRole = await _roleRepository.FindByNameAsync(_seedDataSettings.AdminRoleName);
             if (adminRole != null)
             {
                 adminUser.AddRole(adminRole);
@@ -90,17 +75,14 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
 
         private async Task SeedRolesAsync()
         {
-            var adminRoleName = _configuration["SeedData:AdminRoleName"] ?? "Administrator";
-            var userRoles = _configuration.GetSection("SeedData:UserRoles").Get<List<string>>();
-
-            var adminRoleExists = await _roleRepository.ExistsByNameAsync(adminRoleName);
+            var adminRoleExists = await _roleRepository.ExistsByNameAsync(_seedDataSettings.AdminRoleName);
             if (!adminRoleExists)
             {
-                var adminRole = Role.Create(adminRoleName);
+                var adminRole = Role.Create(_seedDataSettings.AdminRoleName);
                 _roleRepository.Add(adminRole);
             }
 
-            foreach (var roleName in userRoles)
+            foreach (var roleName in _seedDataSettings.UserRoles)
             {
                 var roleExists = await _roleRepository.ExistsByNameAsync(roleName);
                 if (roleExists)
