@@ -1,5 +1,4 @@
 ﻿using Body4uHUB.Identity.Domain.Models;
-using Body4uHUB.Shared.Domain.Base;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,21 +23,6 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
             modelBuilder.AddOutboxMessageEntity();
 
             base.OnModelCreating(modelBuilder);
-        }
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var modifiedEntries = ChangeTracker.Entries()
-                .Where(x => x.State == EntityState.Modified &&
-                            x.Entity is Entity<Guid>);
-
-            foreach (var entry in modifiedEntries)
-            {
-                var entity = (Entity<Guid>)entry.Entity;
-                entity.SetModifiedAt();
-            }
-
-            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

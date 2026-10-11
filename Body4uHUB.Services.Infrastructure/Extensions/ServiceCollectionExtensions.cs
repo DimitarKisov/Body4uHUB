@@ -7,6 +7,7 @@ using Body4uHUB.Services.Infrastructure.Repositories;
 using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
+using Body4uHUB.Shared.Infrastructure.Persistence;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,11 +20,14 @@ namespace Body4uHUB.Services.Infrastructure.Extensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSingleton<ModifiedAtInterceptor>();
+
             services
-                .AddDbContext<ServicesDbContext>(options =>
+                .AddDbContext<ServicesDbContext>((serviceProvider, options) =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName)));
+                b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName))
+                .AddInterceptors(serviceProvider.GetRequiredService<ModifiedAtInterceptor>()));
 
             services
                 .AddScoped<IServiceOrderRepository, ServiceOrderRepository>()

@@ -1,5 +1,4 @@
 ﻿using Body4uHUB.Content.Domain.Models;
-using Body4uHUB.Shared.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Persistence
@@ -34,20 +33,5 @@ namespace Body4uHUB.Content.Infrastructure.Persistence
 
         //    base.ConfigureConventions(configurationBuilder);
         //}
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var modifiedEntries = ChangeTracker.Entries()
-                .Where(x => x.State == EntityState.Modified &&
-                            x.Entity is IModifiableEntity);
-
-            foreach (var entry in modifiedEntries)
-            {
-                var entity = (IModifiableEntity)entry.Entity;
-                entity.SetModifiedAt();
-            }
-
-            return await base.SaveChangesAsync(cancellationToken);
-        }
     }
 }

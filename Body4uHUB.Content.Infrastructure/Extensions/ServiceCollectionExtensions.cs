@@ -4,6 +4,7 @@ using Body4uHUB.Content.Infrastructure.Persistence;
 using Body4uHUB.Content.Infrastructure.Repositories;
 using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
+using Body4uHUB.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,11 +16,14 @@ namespace Body4uHUB.Content.Infrastructure.Extensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSingleton<ModifiedAtInterceptor>();
+
             services
-                .AddDbContext<ContentDbContext>(options =>
+                .AddDbContext<ContentDbContext>((serviceProvider, options) =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName)));
+                b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName))
+                .AddInterceptors(serviceProvider.GetRequiredService<ModifiedAtInterceptor>()));
 
             services.AddScoped<IArticleRepository, ArticleRepository>();
             services.AddScoped<IArticleReadRepository, ArticleReadRepository>();
