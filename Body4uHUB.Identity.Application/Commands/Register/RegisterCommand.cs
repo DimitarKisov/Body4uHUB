@@ -53,7 +53,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
 
             // With the bus outbox, publishing only stages the message in the DbContext;
             // SaveChanges then stores the user and the message in one transaction.
-            await _eventBus.PublishAsync(new UserRegisteredEvent { UserId = user.Id });
+            await _eventBus.PublishAsync(new UserRegisteredEvent { UserId = user.Id }, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

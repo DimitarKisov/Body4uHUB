@@ -54,7 +54,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
 
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.Error, Is.EqualTo(UserEmailExists));
-            _eventBus.Verify(x => x.PublishAsync(It.IsAny<UserRegisteredEvent>()), Times.Never);
+            _eventBus.Verify(x => x.PublishAsync(It.IsAny<UserRegisteredEvent>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
                 .Callback<User>(user => addedUser = user);
 
             _eventBus
-                .Setup(x => x.PublishAsync(It.IsAny<UserRegisteredEvent>()))
+                .Setup(x => x.PublishAsync(It.IsAny<UserRegisteredEvent>(), It.IsAny<CancellationToken>()))
                 .Callback(() => calls.Add("publish"))
                 .Returns(Task.CompletedTask);
 
@@ -113,7 +113,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             // The outbox only stores the message if it is published before SaveChanges.
             Assert.That(calls, Is.EqualTo(new[] { "publish", "save" }));
             _eventBus.Verify(
-                x => x.PublishAsync(It.Is<UserRegisteredEvent>(e => e.UserId == addedUser.Id)),
+                x => x.PublishAsync(It.Is<UserRegisteredEvent>(e => e.UserId == addedUser.Id), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
     }

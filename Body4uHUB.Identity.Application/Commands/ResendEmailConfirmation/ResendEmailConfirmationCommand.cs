@@ -31,7 +31,7 @@ namespace Body4uHUB.Identity.Application.Commands.ResendEmailConfirmation
             user.RegenerateEmailConfirmationToken();
 
             // Published before SaveChanges so the outbox stores the message in the same transaction as the new token.
-            await _eventBus.PublishAsync(new EmailConfirmationResendRequestedEvent { UserId = user.Id });
+            await _eventBus.PublishAsync(new EmailConfirmationResendRequestedEvent { UserId = user.Id }, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

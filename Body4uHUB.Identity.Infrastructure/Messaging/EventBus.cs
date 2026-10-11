@@ -4,32 +4,25 @@ using Microsoft.Extensions.Logging;
 
 namespace Body4uHUB.Identity.Infrastructure.Messaging
 {
-    internal class EventBus : IEventBus
+    internal sealed class EventBus(
+        IPublishEndpoint publishEndpoint,
+        ILogger<EventBus> logger)
+        : IEventBus
     {
-        private readonly IPublishEndpoint _publishEndpoint;
-        private readonly ILogger<EventBus> _logger;
+        private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+        private readonly ILogger<EventBus> _logger = logger;
 
-        public EventBus(
-            IPublishEndpoint publishEndpoint,
-            ILogger<EventBus> logger)
+        public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken)
+            where TEvent : IntegrationEvent
         {
-            _publishEndpoint = publishEndpoint;
-            _logger = logger;
-        }
+            // With UseBusOutbox() this only adds the message to the DbContext. It is stored by SaveChanges
+            // and sent to RabbitMQ later by the outbox delivery service.
+            await _publishEndpoint.Publish(@event, cancellationToken);
 
-        public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : IntegrationEvent
-        {
-            try
-            {
-                await _publishEndpoint.Publish(@event);
-
-                _logger.LogInformation("Event published: {EventId} at {OccurredAt} of type {EventType}", @event.EventId, @event.OccurredAt, @event.EventType);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error publishing event: {EventId} of type {EventType}", @event.EventId, @event.EventType);
-                throw;
-            }
+            _logger.LogInformation(
+                "Event {EventType} {EventId} added to the outbox",
+                @event.EventType,
+                @event.EventId);
         }
     }
 }

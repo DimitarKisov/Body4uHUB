@@ -41,7 +41,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
                 .ReturnsAsync(_user);
 
             _eventBus
-                .Setup(x => x.PublishAsync(It.IsAny<EmailConfirmationResendRequestedEvent>()))
+                .Setup(x => x.PublishAsync(It.IsAny<EmailConfirmationResendRequestedEvent>(), It.IsAny<CancellationToken>()))
                 .Callback(() => calls.Add("publish"))
                 .Returns(Task.CompletedTask);
 
@@ -57,7 +57,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             // The outbox only stores the message if it is published before SaveChanges.
             Assert.That(calls, Is.EqualTo(new[] { "publish", "save" }));
             _eventBus.Verify(
-                x => x.PublishAsync(It.Is<EmailConfirmationResendRequestedEvent>(e => e.UserId == _user.Id)),
+                x => x.PublishAsync(It.Is<EmailConfirmationResendRequestedEvent>(e => e.UserId == _user.Id), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
@@ -71,7 +71,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             var result = await _handler.Handle(new ResendEmailConfirmationCommand(ValidEmail), CancellationToken.None);
 
             Assert.That(result.IsSuccess, Is.True);
-            _eventBus.Verify(x => x.PublishAsync(It.IsAny<EmailConfirmationResendRequestedEvent>()), Times.Never);
+            _eventBus.Verify(x => x.PublishAsync(It.IsAny<EmailConfirmationResendRequestedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
             _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -89,7 +89,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
 
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(_user.EmailConfirmationToken, Is.EqualTo(token));
-            _eventBus.Verify(x => x.PublishAsync(It.IsAny<EmailConfirmationResendRequestedEvent>()), Times.Never);
+            _eventBus.Verify(x => x.PublishAsync(It.IsAny<EmailConfirmationResendRequestedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
             _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
     }

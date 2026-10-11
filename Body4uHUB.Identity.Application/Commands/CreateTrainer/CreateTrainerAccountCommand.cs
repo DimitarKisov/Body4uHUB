@@ -46,7 +46,7 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
                 YearsOfExperience = request.YearsOfExperience
             };
 
-            await _eventBus.PublishAsync(@event);
+            await _eventBus.PublishAsync(@event, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

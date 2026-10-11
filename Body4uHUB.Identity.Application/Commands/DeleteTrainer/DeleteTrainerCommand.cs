@@ -44,7 +44,7 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
                 UserId = user.Id
             };
 
-            await _eventBus.PublishAsync(@event);
+            await _eventBus.PublishAsync(@event, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
