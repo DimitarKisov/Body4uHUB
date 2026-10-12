@@ -2,8 +2,10 @@
 using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
+using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Exceptions;
 using Moq;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
@@ -55,6 +57,30 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.Error, Is.EqualTo(UserEmailExists));
             _eventBus.Verify(x => x.PublishAsync(It.IsAny<UserRegisteredEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Handle_ShouldReturnConflict_WhenConcurrentRegistrationViolatesUniqueEmail()
+        {
+            var command = new RegisterCommand(ValidEmail, ValidPasswordHash, ValidFirstName, ValidLastName, ValidPhone);
+
+            _userRepository
+                .Setup(x => x.ExistsByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            _passwordHasherService
+                .Setup(x => x.HashPassword(command.Password))
+                .Returns(ValidPasswordHash);
+
+            _unitOfWork
+                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new UniqueConstraintViolationException(new Exception()));
+
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
+            Assert.That(result.Error, Is.EqualTo(UserEmailExists));
         }
 
         [Test]

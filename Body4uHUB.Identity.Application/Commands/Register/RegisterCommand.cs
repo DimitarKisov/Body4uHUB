@@ -6,6 +6,7 @@ using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Exceptions;
 using MediatR;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
@@ -55,7 +56,15 @@ namespace Body4uHUB.Identity.Application.Commands.Register
             // SaveChanges then stores the user and the message in one transaction.
             await _eventBus.PublishAsync(new UserRegisteredEvent { UserId = user.Id }, cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            catch (UniqueConstraintViolationException)
+            {
+                // A concurrent registration with the same email passed the ExistsByEmailAsync check first.
+                return Result.Conflict<UserDto>(UserEmailExists);
+            }
 
             return Result.Success(user.ToDto());
         }
