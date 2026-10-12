@@ -33,6 +33,7 @@
         {
             Guard.AgainstEmptyString<InvalidContactInfoException>(email, nameof(email));
             Guard.AgainstWrongEmailFormat<InvalidContactInfoException>(email);
+            Guard.ForStringLength<InvalidContactInfoException>(email, MinEmailLength, MaxEmailLength, nameof(email));
 
             if (!string.IsNullOrWhiteSpace(phoneNumber))
             {

@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
+
 namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
 {
     internal class UserConfiguration : IEntityTypeConfiguration<User>
@@ -16,11 +18,11 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
                 .IsRequired();
 
             builder.Property(x => x.FirstName)
-                .HasMaxLength(100)
+                .HasMaxLength(MaxNameLength)
                 .IsRequired();
 
             builder.Property(x => x.LastName)
-                .HasMaxLength(100)
+                .HasMaxLength(MaxNameLength)
                 .IsRequired();
 
             builder.Property(x => x.PasswordHash)
@@ -45,17 +47,17 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
             {
                 contact.Property(y => y.Email)
                     .HasColumnName("Email")
-                    .HasMaxLength(200)
+                    .HasMaxLength(MaxEmailLength)
                     .IsRequired();
 
                 contact.Property(y => y.PhoneNumber)
                     .HasColumnName("PhoneNumber")
-                    .HasMaxLength(20);
+                    .HasMaxLength(MaxPhoneNumberLength);
 
                 // Index
                 contact.HasIndex(x => x.Email)
                     .IsUnique()
-                    .HasDatabaseName("IX_Members_Email");
+                    .HasDatabaseName("IX_Users_Email");
             });
 
             var rolesNavigation = builder.Metadata.FindNavigation(nameof(User.Roles))!;

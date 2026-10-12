@@ -10,7 +10,8 @@ namespace Body4uHUB.Identity.Application.Commands.Register
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage(EmailRequired)
-                .EmailAddress().WithMessage(EmailInvalid);
+                .EmailAddress().WithMessage(EmailInvalid)
+                .MaximumLength(MaxEmailLength).WithMessage(string.Format(EmailLength, MaxEmailLength));
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage(PasswordRequired)

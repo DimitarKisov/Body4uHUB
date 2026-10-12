@@ -6,11 +6,14 @@
         {
             public const int MinNameLength = 2;
             public const int MaxNameLength = 20;
+            public const int MinEmailLength = 6;
+            public const int MaxEmailLength = 200;
+            public const int MaxPhoneNumberLength = 20;
             public const int EmailConfirmationTokenLifetimeHours = 24;
 
             public const string EmailRequired = "Email is required";
             public const string EmailInvalid = "Invalid email format";
-            public const string EmailLength = "Email cannot exceed 200 characters";
+            public const string EmailLength = "Email cannot exceed {0} characters";
             public const string FirstNameRequired = "First name is required";
             public const string FirstNameLength = "First name must be between {0} and {1} characters long";
             public const string LastNameRequired = "Last name is required";
@@ -33,6 +36,9 @@
 
         public class RoleConstants
         {
+            public const int MinRoleNameLength = 2;
+            public const int MaxRoleNameLength = 50;
+
             public const string TrainerRoleName = "Trainer";
             public const string RoleNotFound = "Role not found.";
             public const string UserNotInRole = "User is not assigned to the required role.";

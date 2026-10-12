@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
+
 namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
 {
     internal class RoleConfiguration : IEntityTypeConfiguration<Role>
@@ -14,7 +16,7 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
 
             builder.Property(x => x.Name)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(MaxRoleNameLength);
         }
     }
 }

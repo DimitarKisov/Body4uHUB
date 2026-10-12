@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Identity.Domain.Exceptions;
 using Body4uHUB.Identity.Domain.ValueObjects;
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Domain.UnitTests.ValueObjects
 {
@@ -47,6 +48,16 @@ namespace Body4uHUB.Identity.Domain.UnitTests.ValueObjects
             var ex = Assert.Throws<InvalidContactInfoException>(() => ContactInfo.Create(email, ValidPhoneNumber));
 
             Assert.That(ex.Error, Is.EqualTo($"{nameof(email)} is not in a valid email format."));
+        }
+
+        [Test]
+        public void Create_ShouldThrowInvalidContactInfoExceptionForStringLength_WhenEmailIsTooLong()
+        {
+            var email = new string('a', MaxEmailLength - "@mail.com".Length + 1) + "@mail.com";
+
+            var ex = Assert.Throws<InvalidContactInfoException>(() => ContactInfo.Create(email, ValidPhoneNumber));
+
+            Assert.That(ex.Error, Is.EqualTo($"{nameof(email)} must have between {MinEmailLength} and {MaxEmailLength} symbols."));
         }
 
         [TestCase(ValidEmail, "088748484")]

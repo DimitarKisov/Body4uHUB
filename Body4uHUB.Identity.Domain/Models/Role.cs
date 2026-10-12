@@ -2,6 +2,8 @@
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
 
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
+
 namespace Body4uHUB.Identity.Domain.Models
 {
     public class Role : AggregateRoot<Guid>
@@ -27,6 +29,7 @@ namespace Body4uHUB.Identity.Domain.Models
         private static void Validate(string name)
         {
             Guard.AgainstEmptyString<InvalidRoleException>(name, nameof(Name));
+            Guard.ForStringLength<InvalidRoleException>(name, MinRoleNameLength, MaxRoleNameLength, nameof(Name));
         }
     }
 }

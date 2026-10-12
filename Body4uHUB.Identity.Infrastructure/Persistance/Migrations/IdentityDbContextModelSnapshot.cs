@@ -62,8 +62,8 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("bit");
@@ -73,8 +73,8 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
@@ -296,7 +296,7 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Migrations
 
                             b1.HasIndex("Email")
                                 .IsUnique()
-                                .HasDatabaseName("IX_Members_Email")
+                                .HasDatabaseName("IX_Users_Email")
                                 .HasFilter("[Email] IS NOT NULL");
 
                             b1.ToTable("Users");
