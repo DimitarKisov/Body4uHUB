@@ -7,14 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Identity.Infrastructure.Repositories
 {
-    internal class UserReadRepository : IUserReadRepository
+    internal sealed class UserReadRepository(IdentityDbContext dbContext) : IUserReadRepository
     {
-        private readonly IdentityDbContext _dbContext;
-
-        public UserReadRepository(IdentityDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly IdentityDbContext _dbContext = dbContext;
 
         public async Task<PagedResult<GetAllUsersResponse>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Body4uHUB.Identity.Infrastructure.Settings
 {
-    public class SeedDataSettings
+    public sealed class SeedDataSettings
     {
         public const string SectionName = "SeedData";
 

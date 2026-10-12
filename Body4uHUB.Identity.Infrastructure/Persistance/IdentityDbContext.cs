@@ -4,13 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Identity.Infrastructure.Persistance
 {
-    internal class IdentityDbContext : DbContext
+    internal sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : DbContext(options)
     {
-        public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
 

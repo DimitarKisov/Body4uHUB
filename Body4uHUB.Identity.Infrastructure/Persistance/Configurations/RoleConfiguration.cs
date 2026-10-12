@@ -6,7 +6,7 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
 
 namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
 {
-    internal class RoleConfiguration : IEntityTypeConfiguration<Role>
+    internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
     {
         public void Configure(EntityTypeBuilder<Role> builder)
         {

@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Identity.Infrastructure.Repositories
 {
-    internal class RoleReadRepository : IRoleReadRepository
+    internal sealed class RoleReadRepository(IdentityDbContext dbContext) : IRoleReadRepository
     {
-        private readonly IdentityDbContext _dbContext;
-
-        public RoleReadRepository(IdentityDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly IdentityDbContext _dbContext = dbContext;
 
         public async Task<IEnumerable<RoleDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {

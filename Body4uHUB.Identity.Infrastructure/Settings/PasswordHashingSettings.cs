@@ -2,7 +2,7 @@
 
 namespace Body4uHUB.Identity.Infrastructure.Settings
 {
-    public class PasswordHashingSettings
+    public sealed class PasswordHashingSettings
     {
         public const string SectionName = "Security:Hashing";
 

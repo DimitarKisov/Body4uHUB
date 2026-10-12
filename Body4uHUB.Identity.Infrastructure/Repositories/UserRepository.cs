@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Identity.Infrastructure.Repositories
 {
-    internal class UserRepository : IUserRepository
+    internal sealed class UserRepository(IdentityDbContext dbContext) : IUserRepository
     {
-        private readonly IdentityDbContext _dbContext;
-
-        public UserRepository(IdentityDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly IdentityDbContext _dbContext = dbContext;
 
         public void Add(User user)
         {

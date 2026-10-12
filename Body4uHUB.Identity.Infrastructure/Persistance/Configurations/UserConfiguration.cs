@@ -6,7 +6,7 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
 {
-    internal class UserConfiguration : IEntityTypeConfiguration<User>
+    internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {

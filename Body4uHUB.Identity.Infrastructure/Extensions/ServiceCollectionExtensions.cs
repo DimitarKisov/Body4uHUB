@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Reflection;
 
 namespace Body4uHUB.Identity.Infrastructure.Extensions
 {
@@ -31,8 +30,7 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
             services
                 .AddDbContext<IdentityDbContext>((serviceProvider, options) =>
                 options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName))
+                    configuration.GetConnectionString("DefaultConnection"))
                 .AddInterceptors(serviceProvider.GetRequiredService<ModifiedAtInterceptor>()));
 
             services

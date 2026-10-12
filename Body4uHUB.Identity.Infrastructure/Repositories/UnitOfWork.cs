@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Identity.Infrastructure.Repositories
 {
-    internal class UnitOfWork(IdentityDbContext dbContext) : IUnitOfWork
+    internal sealed class UnitOfWork(IdentityDbContext dbContext) : IUnitOfWork
     {
         // SQL Server error numbers for duplicate key in a unique index / unique constraint.
         private const int UniqueIndexViolation = 2601;

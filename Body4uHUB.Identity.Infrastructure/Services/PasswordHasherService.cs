@@ -48,7 +48,7 @@ namespace Body4uHUB.Identity.Infrastructure.Services
                 _logger.LogWarning(ex, "BCrypt verification failed due to invalid hash format.");
                 return false;
             }
-            catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+            catch (Exception ex) when (ex is not OutOfMemoryException)
             {
                 _logger.LogError(ex, "Unexpected error during password verification.");
                 return false;

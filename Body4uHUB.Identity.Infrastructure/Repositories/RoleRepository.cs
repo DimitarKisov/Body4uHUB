@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Identity.Infrastructure.Repositories
 {
-    internal class RoleRepository : IRoleRepository
+    internal sealed class RoleRepository(IdentityDbContext dbContext) : IRoleRepository
     {
-        private readonly IdentityDbContext _dbContext;
-
-        public RoleRepository(IdentityDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly IdentityDbContext _dbContext = dbContext;
 
         public void Add(Role role)
         {
