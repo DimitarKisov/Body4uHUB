@@ -98,6 +98,15 @@ namespace Body4uHUB.Services.Domain.Models
             IsActive = false;
         }
 
+        // A user who becomes a trainer again keeps their existing profile (services, reviews, rating)
+        // and gets the bio and experience from the new trainer account.
+        public void Reactivate(string bio, int yearsOfExperience)
+        {
+            UpdateBio(bio);
+            UpdateYearsOfExperience(yearsOfExperience);
+            IsActive = true;
+        }
+
         public void AddSpecialization(string specialization)
         {
             ValidateSpecialization(specialization);

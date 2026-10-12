@@ -33,6 +33,7 @@
 
             public const string TrainerProfileNotFoundDetailed = "Trainer profile not found for UserId: {UserId}";
             public const string TrainerProfileDeactivatedDetailed = "Trainer profile deactivated for UserId: {UserId}";
+            public const string TrainerProfileReactivatedDetailed = "Trainer profile reactivated for UserId: {UserId}";
             public const string TrainerProfileAlreadyExists = "Trainer profile already exists for UserId: {0}";
             public const string TrainerProfileCreatedSuccessfully = "Trainer profile created successfully for UserId: {0}";
         }

@@ -31,17 +31,27 @@ namespace Body4uHUB.Services.Infrastructure.Messaging.Consumers
 
             try
             {
-                var trainerProfileExists = await _trainerProfileRepository.ExistsByUserId(message.UserId);
-                if (trainerProfileExists)
+                var existingProfile = await _trainerProfileRepository.GetByUserIdAsync(message.UserId, context.CancellationToken);
+                if (existingProfile != null)
                 {
-                    _logger.LogInformation(string.Format(TrainerProfileAlreadyExists, message.UserId));
+                    // An active profile means this message was already handled (redelivery).
+                    if (existingProfile.IsActive)
+                    {
+                        _logger.LogInformation(string.Format(TrainerProfileAlreadyExists, message.UserId));
+                        return;
+                    }
+
+                    existingProfile.Reactivate(message.Bio, message.YearsOfExperience);
+                    await _unitOfWork.SaveChangesAsync(context.CancellationToken);
+
+                    _logger.LogInformation(TrainerProfileReactivatedDetailed, message.UserId);
                     return;
                 }
 
                 var trainerProfile = TrainerProfile.Create(message.UserId, message.Bio, message.YearsOfExperience);
                 _trainerProfileRepository.Add(trainerProfile);
 
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync(context.CancellationToken);
 
                 _logger.LogInformation(string.Format(TrainerProfileCreatedSuccessfully, message.UserId));
             }

@@ -30,7 +30,7 @@ namespace Body4uHUB.Services.Infrastructure.Messaging.Consumers
 
             try
             {
-                var trainerProfile = await _trainerProfileRepository.GetByIdAsync(message.UserId);
+                var trainerProfile = await _trainerProfileRepository.GetByUserIdAsync(message.UserId, context.CancellationToken);
                 if (trainerProfile == null)
                 {
                     _logger.LogWarning(TrainerProfileNotFoundDetailed, message.UserId);
@@ -38,7 +38,7 @@ namespace Body4uHUB.Services.Infrastructure.Messaging.Consumers
                 }
 
                 trainerProfile.DeactivateProfile();
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync(context.CancellationToken);
 
                 _logger.LogInformation(TrainerProfileDeactivatedDetailed, message.UserId);
             }
