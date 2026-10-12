@@ -37,7 +37,7 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
                 return Result.ResourceNotFound(RoleNotFound);
             }
 
-            user.EnsureIsTrainer(trainerRole);
+            user.RevokeTrainerRole(trainerRole);
 
             var @event = new TrainerAccountDeletedEvent
             {

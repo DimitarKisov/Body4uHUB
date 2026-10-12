@@ -341,41 +341,79 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         }
 
         [Test]
-        public void EnsureIsTrainer_ShouldNotThrow_WhenUserHasTrainerRole()
+        public void AssignTrainerRole_ShouldAddTrainerRole_WhenUserIsNotTrainer()
         {
             var trainerRole = Role.Create(TrainerRoleName);
-            _user.AddRole(trainerRole);
 
-            Assert.DoesNotThrow(() => _user.EnsureIsTrainer(trainerRole));
+            _user.AssignTrainerRole(trainerRole);
+
+            Assert.That(_user.IsTrainer, Is.True);
+            Assert.That(_user.Roles, Does.Contain(trainerRole));
         }
 
         [Test]
-        public void EnsureIsTrainer_ShouldThrowInvalidUserException_WhenRoleIsNull()
+        public void AssignTrainerRole_ShouldThrowInvalidUserException_WhenUserIsAlreadyTrainer()
         {
-            var ex = Assert.Throws<InvalidUserException>(() => _user.EnsureIsTrainer(null));
+            var trainerRole = Role.Create(TrainerRoleName);
+            _user.AssignTrainerRole(trainerRole);
+
+            var ex = Assert.Throws<InvalidUserException>(() => _user.AssignTrainerRole(trainerRole));
+
+            Assert.That(ex.Error, Is.EqualTo(UserAlreadyTrainer));
+            Assert.That(_user.Roles, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void AssignTrainerRole_ShouldThrowInvalidUserException_WhenRoleIsNull()
+        {
+            var ex = Assert.Throws<InvalidUserException>(() => _user.AssignTrainerRole(null));
 
             Assert.That(ex.Error, Is.EqualTo("trainerRole cannot be the default value."));
         }
 
         [Test]
-        public void EnsureIsTrainer_ShouldThrowInvalidUserException_WhenRoleIsNotTrainer()
+        public void AssignTrainerRole_ShouldThrowInvalidUserException_WhenRoleIsNotTrainer()
+        {
+            var nonTrainerRole = Role.Create("Administrator");
+
+            var ex = Assert.Throws<InvalidUserException>(() => _user.AssignTrainerRole(nonTrainerRole));
+
+            Assert.That(ex.Error, Is.EqualTo(RoleIsNotTrainer));
+            Assert.That(_user.Roles, Is.Empty);
+        }
+
+        [Test]
+        public void RevokeTrainerRole_ShouldRemoveTrainerRole_WhenUserIsTrainer()
+        {
+            var trainerRole = Role.Create(TrainerRoleName);
+            _user.AssignTrainerRole(trainerRole);
+
+            _user.RevokeTrainerRole(trainerRole);
+
+            Assert.That(_user.IsTrainer, Is.False);
+            Assert.That(_user.Roles, Is.Empty);
+        }
+
+        [Test]
+        public void RevokeTrainerRole_ShouldThrowInvalidUserException_WhenUserIsNotInTrainerRole()
+        {
+            var trainerRole = Role.Create(TrainerRoleName);
+
+            var ex = Assert.Throws<InvalidUserException>(() => _user.RevokeTrainerRole(trainerRole));
+
+            Assert.That(ex.Error, Is.EqualTo(UserNotInRole));
+        }
+
+        [Test]
+        public void RevokeTrainerRole_ShouldThrowInvalidUserException_WhenRoleIsNotTrainer()
         {
             var nonTrainerRole = Role.Create("Administrator");
             _user.AddRole(nonTrainerRole);
 
-            var ex = Assert.Throws<InvalidUserException>(() => _user.EnsureIsTrainer(nonTrainerRole));
+            var ex = Assert.Throws<InvalidUserException>(() => _user.RevokeTrainerRole(nonTrainerRole));
 
             Assert.That(ex.Error, Is.EqualTo(RoleIsNotTrainer));
-        }
-
-        [Test]
-        public void EnsureIsTrainer_ShouldThrowInvalidUserException_WhenUserIsNotInTrainerRole()
-        {
-            var trainerRole = Role.Create(TrainerRoleName);
-
-            var ex = Assert.Throws<InvalidUserException>(() => _user.EnsureIsTrainer(trainerRole));
-
-            Assert.That(ex.Error, Is.EqualTo(UserNotInRole));
+            Assert.That(_user.Roles, Does.Contain(nonTrainerRole));
         }
     }
 }

@@ -130,18 +130,42 @@ namespace Body4uHUB.Identity.Domain.Models
             GenerateEmailConfirmationToken();
         }
 
-        public void EnsureIsTrainer(Role trainerRole)
+        public bool IsTrainer => _roles.Any(x => x.Name == TrainerRoleName);
+
+        // The Trainer role and the trainer account go together: the role is granted when the account is
+        // created and revoked when it is deleted, so a user cannot keep trainer access without a profile.
+        public void AssignTrainerRole(Role trainerRole)
+        {
+            ValidateTrainerRole(trainerRole);
+
+            if (IsTrainer)
+            {
+                throw new InvalidUserException(UserAlreadyTrainer);
+            }
+
+            _roles.Add(trainerRole);
+        }
+
+        public void RevokeTrainerRole(Role trainerRole)
+        {
+            ValidateTrainerRole(trainerRole);
+
+            var existingRole = _roles.FirstOrDefault(x => x.Id == trainerRole.Id);
+            if (existingRole == null)
+            {
+                throw new InvalidUserException(UserNotInRole);
+            }
+
+            _roles.Remove(existingRole);
+        }
+
+        private static void ValidateTrainerRole(Role trainerRole)
         {
             Guard.AgainstDefault<InvalidUserException, Role>(trainerRole, nameof(trainerRole));
 
             if (trainerRole.Name != TrainerRoleName)
             {
                 throw new InvalidUserException(RoleIsNotTrainer);
-            }
-
-            if (!_roles.Any(x => x.Id == trainerRole.Id))
-            {
-                throw new InvalidUserException(UserNotInRole);
             }
         }
 

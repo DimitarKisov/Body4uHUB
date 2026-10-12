@@ -43,6 +43,7 @@
             public const string RoleNotFound = "Role not found.";
             public const string UserNotInRole = "User is not assigned to the required role.";
             public const string RoleIsNotTrainer = "Provided role is not the Trainer role.";
+            public const string UserAlreadyTrainer = "User is already a trainer.";
         }
     }
 }

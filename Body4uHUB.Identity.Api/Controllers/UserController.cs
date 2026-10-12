@@ -40,13 +40,14 @@ namespace Body4uHUB.Identity.Api.Controllers
         }
 
         /// <summary>
-        /// Create a new trainer account
+        /// Create a new trainer account and assign the Trainer role
         /// </summary>
         [HttpPost("trainers")]
         [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [ProducesResponseType(typeof(CreateTrainerAccountResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CreateTrainerAccount(CreateTrainerAccountCommand command, CancellationToken cancellationToken)
         {
@@ -55,7 +56,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         }
 
         /// <summary>
-        /// Delete trainer account (Admin only)
+        /// Delete trainer account and revoke the Trainer role (Admin only)
         /// </summary>
         [HttpDelete("trainers/{userId:Guid}")]
         [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
