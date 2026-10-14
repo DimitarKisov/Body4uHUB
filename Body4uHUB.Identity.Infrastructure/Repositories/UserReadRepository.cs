@@ -44,7 +44,10 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
                     x.ContactInfo.PhoneNumber,
                     x.CreatedAt,
                     x.IsEmailConfirmed,
-                    x.Roles.Select(y => new RoleDto(y.Id, y.Name)).ToList()))
+                    _dbContext.Roles
+                        .Where(r => x.Roles.Any(ur => ur.RoleId == r.Id))
+                        .Select(r => new RoleDto(r.Id, r.Name))
+                        .ToList()))
                 .FirstOrDefaultAsync(cancellationToken);
         }
     }

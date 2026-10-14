@@ -14,12 +14,14 @@ namespace Body4uHUB.Identity.Application.Commands.Login
 
     internal sealed class LoginCommandHandler(
         IUserRepository userRepository,
+        IRoleRepository roleRepository,
         IJwtTokenService jwtTokenService,
         IPasswordHasherService passwordHasherService,
         IUnitOfWork unitOfWork)
         : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
     {
         private readonly IUserRepository _userRepository = userRepository;
+        private readonly IRoleRepository _roleRepository = roleRepository;
         private readonly IJwtTokenService _jwtTokenService = jwtTokenService;
         private readonly IPasswordHasherService _passwordHasherService = passwordHasherService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -37,13 +39,16 @@ namespace Body4uHUB.Identity.Application.Commands.Login
                 return Result.Forbidden<AuthResponseDto>(EmailNotConfirmed);
             }
 
-            var accessToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, user.Roles);
+            var roleIds = user.Roles.Select(x => x.RoleId).ToList();
+            var roles = await _roleRepository.FindByIdsAsync(roleIds, cancellationToken);
+
+            var accessToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, roles);
 
             user.UpdateLastLogin();
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            var response = new AuthResponseDto(accessToken, user.ToDto());
+            var response = new AuthResponseDto(accessToken, user.ToDto(roles));
 
             return Result.Success(response);
         }

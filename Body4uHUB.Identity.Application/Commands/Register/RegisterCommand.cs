@@ -66,7 +66,7 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 return Result.Conflict<UserDto>(UserEmailExists);
             }
 
-            return Result.Success(user.ToDto());
+            return Result.Success(user.ToDto([]));
         }
     }
 }

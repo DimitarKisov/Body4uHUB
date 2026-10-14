@@ -37,7 +37,7 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
                 return Result.ResourceNotFound<CreateTrainerAccountResponse>(RoleNotFound);
             }
 
-            if (user.IsTrainer)
+            if (user.HasRole(trainerRole.Id))
             {
                 return Result.Conflict<CreateTrainerAccountResponse>(UserAlreadyTrainer);
             }

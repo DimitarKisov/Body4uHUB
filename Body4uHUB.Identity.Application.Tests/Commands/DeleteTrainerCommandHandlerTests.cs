@@ -56,7 +56,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             var result = await _handler.Handle(new DeleteTrainerCommand(_user.Id), CancellationToken.None);
 
             Assert.That(result.IsSuccess, Is.True);
-            Assert.That(_user.IsTrainer, Is.False);
+            Assert.That(_user.HasRole(_trainerRole.Id), Is.False);
             _eventBus.Verify(
                 x => x.PublishAsync(It.Is<TrainerAccountDeletedEvent>(e => e.UserId == _user.Id), It.IsAny<CancellationToken>()),
                 Times.Once);

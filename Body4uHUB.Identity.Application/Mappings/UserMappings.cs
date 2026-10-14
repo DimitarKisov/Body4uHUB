@@ -5,7 +5,8 @@ namespace Body4uHUB.Identity.Application.Mappings
 {
     internal static class UserMappings
     {
-        public static UserDto ToDto(this User user)
+        // User keeps only role Ids, so the caller loads the Role aggregates for their names.
+        public static UserDto ToDto(this User user, IEnumerable<Role> roles)
             => new(
                 user.Id,
                 user.ContactInfo.Email,
@@ -14,7 +15,7 @@ namespace Body4uHUB.Identity.Application.Mappings
                 user.ContactInfo.PhoneNumber,
                 user.CreatedAt,
                 user.IsEmailConfirmed,
-                [.. user.Roles.Select(r => r.ToDto())]);
+                [.. roles.Select(r => r.ToDto())]);
 
         public static RoleDto ToDto(this Role role)
             => new(role.Id, role.Name);

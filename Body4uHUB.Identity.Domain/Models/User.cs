@@ -10,7 +10,7 @@ namespace Body4uHUB.Identity.Domain.Models
 {
     public class User : AggregateRoot<Guid>
     {
-        private readonly List<Role> _roles = new();
+        private readonly List<UserRole> _roles = new();
 
         public string PasswordHash { get; private set; }
         public string FirstName { get; private set; }
@@ -20,7 +20,7 @@ namespace Body4uHUB.Identity.Domain.Models
         public bool IsEmailConfirmed { get; private set; }
         public string EmailConfirmationToken { get; private set; }
         public DateTime? EmailConfirmationTokenExpiry { get; private set; }
-        public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
+        public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
 
         //За EF Core
         private User() : base(Guid.NewGuid()) { }
@@ -48,25 +48,19 @@ namespace Body4uHUB.Identity.Domain.Models
         {
             Guard.AgainstDefault<InvalidUserException, Role>(role, nameof(role));
 
-            if (_roles.Any(x => x.Id == role.Id))
+            if (HasRole(role.Id))
             {
                 return;
             }
 
-            _roles.Add(role);
+            _roles.Add(new UserRole(role.Id));
         }
 
         public void RemoveRole(Role role)
         {
             Guard.AgainstDefault<InvalidUserException, Role>(role, nameof(role));
 
-            var existingRole = _roles.FirstOrDefault(x => x.Id == role.Id);
-            if (existingRole == null)
-            {
-                return;
-            }
-
-            _roles.Remove(existingRole);
+            _roles.RemoveAll(x => x.RoleId == role.Id);
         }
 
         public void UpdateFirstName(string firstName)
@@ -130,7 +124,7 @@ namespace Body4uHUB.Identity.Domain.Models
             GenerateEmailConfirmationToken();
         }
 
-        public bool IsTrainer => _roles.Any(x => x.Name == TrainerRoleName);
+        public bool HasRole(Guid roleId) => _roles.Any(x => x.RoleId == roleId);
 
         // The Trainer role and the trainer account go together: the role is granted when the account is
         // created and revoked when it is deleted, so a user cannot keep trainer access without a profile.
@@ -138,25 +132,22 @@ namespace Body4uHUB.Identity.Domain.Models
         {
             ValidateTrainerRole(trainerRole);
 
-            if (IsTrainer)
+            if (HasRole(trainerRole.Id))
             {
                 throw new InvalidUserException(UserAlreadyTrainer);
             }
 
-            _roles.Add(trainerRole);
+            _roles.Add(new UserRole(trainerRole.Id));
         }
 
         public void RevokeTrainerRole(Role trainerRole)
         {
             ValidateTrainerRole(trainerRole);
 
-            var existingRole = _roles.FirstOrDefault(x => x.Id == trainerRole.Id);
-            if (existingRole == null)
+            if (_roles.RemoveAll(x => x.RoleId == trainerRole.Id) == 0)
             {
                 throw new InvalidUserException(UserNotInRole);
             }
-
-            _roles.Remove(existingRole);
         }
 
         private static void ValidateTrainerRole(Role trainerRole)

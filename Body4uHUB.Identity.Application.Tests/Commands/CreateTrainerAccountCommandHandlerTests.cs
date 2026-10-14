@@ -58,7 +58,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             var result = await _handler.Handle(new CreateTrainerAccountCommand(_user.Id, Bio, YearsOfExperience), CancellationToken.None);
 
             Assert.That(result.IsSuccess, Is.True);
-            Assert.That(_user.IsTrainer, Is.True);
+            Assert.That(_user.HasRole(_trainerRole.Id), Is.True);
             _eventBus.Verify(
                 x => x.PublishAsync(It.Is<TrainerAccountCreatedEvent>(e => e.UserId == _user.Id), It.IsAny<CancellationToken>()),
                 Times.Once);

@@ -21,12 +21,12 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
 
         public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Users.Include(x => x.Roles).FirstOrDefaultAsync(x => x.ContactInfo.Email == email, cancellationToken);
+            return await _dbContext.Users.FirstOrDefaultAsync(x => x.ContactInfo.Email == email, cancellationToken);
         }
 
         public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Users.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            return await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
     }
 }

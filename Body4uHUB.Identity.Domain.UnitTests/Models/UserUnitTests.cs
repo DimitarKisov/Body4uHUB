@@ -84,7 +84,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
 
             _user.AddRole(role);
 
-            Assert.That(_user.Roles, Has.Member(role));
+            Assert.That(_user.HasRole(role.Id), Is.True);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
             _user.AddRole(role);
             _user.RemoveRole(role);
 
-            Assert.That(_user.Roles, Has.No.Member(role));
+            Assert.That(_user.HasRole(role.Id), Is.False);
         }
 
         [Test]
@@ -135,8 +135,8 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
 
             _user.RemoveRole(missingRole);
 
-            Assert.That(_user.Roles, Has.Member(existingRole));
-            Assert.That(_user.Roles, Has.No.Member(missingRole));
+            Assert.That(_user.HasRole(existingRole.Id), Is.True);
+            Assert.That(_user.HasRole(missingRole.Id), Is.False);
         }
 
         [TestCase("John")]
@@ -347,8 +347,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
 
             _user.AssignTrainerRole(trainerRole);
 
-            Assert.That(_user.IsTrainer, Is.True);
-            Assert.That(_user.Roles, Does.Contain(trainerRole));
+            Assert.That(_user.HasRole(trainerRole.Id), Is.True);
         }
 
         [Test]
@@ -390,7 +389,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
 
             _user.RevokeTrainerRole(trainerRole);
 
-            Assert.That(_user.IsTrainer, Is.False);
+            Assert.That(_user.HasRole(trainerRole.Id), Is.False);
             Assert.That(_user.Roles, Is.Empty);
         }
 
@@ -413,7 +412,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
             var ex = Assert.Throws<InvalidUserException>(() => _user.RevokeTrainerRole(nonTrainerRole));
 
             Assert.That(ex.Error, Is.EqualTo(RoleIsNotTrainer));
-            Assert.That(_user.Roles, Does.Contain(nonTrainerRole));
+            Assert.That(_user.HasRole(nonTrainerRole.Id), Is.True);
         }
     }
 }

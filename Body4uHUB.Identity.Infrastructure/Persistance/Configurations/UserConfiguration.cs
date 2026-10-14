@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Identity.Domain.Models;
+using Body4uHUB.Identity.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -60,17 +61,25 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
                     .HasDatabaseName("IX_Users_Email");
             });
 
-            var rolesNavigation = builder.Metadata.FindNavigation(nameof(User.Roles))!;
-            rolesNavigation.SetPropertyAccessMode(PropertyAccessMode.Field);
+            // User references Role by Id only; the UserRoles table keeps the FK to Roles
+            builder.OwnsMany(x => x.Roles, roles =>
+            {
+                roles.ToTable("UserRoles");
 
-            // Конфигурация на Many-to-Many релацията
-            builder.HasMany(u => u.Roles)
-                .WithMany()
-                .UsingEntity(
-                    "UserRoles",
-                    x => x.HasOne(typeof(Role)).WithMany().HasForeignKey("RoleId"),
-                    y => y.HasOne(typeof(User)).WithMany().HasForeignKey("UserId"),
-                    z => z.HasKey("UserId", "RoleId"));
+                roles.WithOwner().HasForeignKey("UserId");
+
+                roles.Property(y => y.RoleId)
+                    .IsRequired();
+
+                roles.HasKey("UserId", nameof(UserRole.RoleId));
+
+                roles.HasOne<Role>()
+                    .WithMany()
+                    .HasForeignKey(y => y.RoleId);
+            });
+
+            builder.Navigation(x => x.Roles)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
             // Ignore domain events
             builder.Ignore(x => x.DomainEvents);
