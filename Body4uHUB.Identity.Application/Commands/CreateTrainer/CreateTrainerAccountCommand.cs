@@ -9,7 +9,7 @@ using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
 {
-    public record CreateTrainerAccountCommand(Guid UserId, string Bio, int YearsOfExperience) : IRequest<Result<CreateTrainerAccountResponse>>;
+    public record CreateTrainerAccountCommand(Guid UserId) : IRequest<Result<CreateTrainerAccountResponse>>;
 
     internal sealed class CreateTrainerAccountCommandHandler(
         IUserRepository userRepository,
@@ -46,9 +46,7 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
 
             var @event = new TrainerAccountCreatedEvent
             {
-                UserId = user.Id,
-                Bio = request.Bio,
-                YearsOfExperience = request.YearsOfExperience
+                UserId = user.Id
             };
 
             await _eventBus.PublishAsync(@event, cancellationToken);

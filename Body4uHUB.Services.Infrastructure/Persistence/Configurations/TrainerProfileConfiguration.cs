@@ -170,6 +170,7 @@ namespace Body4uHUB.Services.Infrastructure.Persistence.Configurations
 
             builder.HasIndex(x => x.AverageRating);
 
+            builder.Ignore(x => x.IsComplete);
             builder.Ignore(x => x.DomainEvents);
         }
     }

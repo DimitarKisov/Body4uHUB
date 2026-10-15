@@ -27,27 +27,28 @@ namespace Body4uHUB.Services.Domain.Models
         public IReadOnlyCollection<string> Certifications => _certifications.AsReadOnly();
         public IReadOnlyCollection<ServiceOffering> Services => _services.AsReadOnly();
 
+        // The trainer fills in the bio and experience; until then the profile is incomplete.
+        public bool IsComplete => Bio != null;
+
         private TrainerProfile()
             : base(Guid.NewGuid())
         {
         }
 
-        private TrainerProfile(Guid userId, string bio, int yearsOfExperience)
+        private TrainerProfile(Guid userId)
             : base(Guid.NewGuid())
         {
             UserId = userId;
-            Bio = bio;
-            YearsOfExperience = yearsOfExperience;
             AverageRating = 0;
             TotalReviews = 0;
             IsActive = true;
         }
 
-        public static TrainerProfile Create(Guid userId, string bio, int yearsOfExperience)
+        public static TrainerProfile Create(Guid userId)
         {
-            Validate(userId, bio, yearsOfExperience);
+            ValidateUserId(userId);
 
-            return new TrainerProfile(userId, bio, yearsOfExperience);
+            return new TrainerProfile(userId);
         }
 
         public void UpdateProfile(string bio, int yearsOfExperience, Guid requesterId, bool isAdmin)
@@ -98,12 +99,9 @@ namespace Body4uHUB.Services.Domain.Models
             IsActive = false;
         }
 
-        // A user who becomes a trainer again keeps their existing profile (services, reviews, rating)
-        // and gets the bio and experience from the new trainer account.
-        public void Reactivate(string bio, int yearsOfExperience)
+        // A user who becomes a trainer again keeps their existing profile (bio, services, reviews, rating).
+        public void Reactivate()
         {
-            UpdateBio(bio);
-            UpdateYearsOfExperience(yearsOfExperience);
             IsActive = true;
         }
 
@@ -163,6 +161,11 @@ namespace Body4uHUB.Services.Domain.Models
             DateTime? startDate,
             DateTime? endDate)
         {
+            if (!IsComplete)
+            {
+                throw new InvalidTrainerProfileException(TrainerProfileIncomplete);
+            }
+
             if (_services.Any(x => x.Name.Equals(title, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidServiceOfferingException(ServiceOfferingAlreadyExists);
@@ -252,13 +255,6 @@ namespace Body4uHUB.Services.Domain.Models
             }
 
             return service;
-        }
-
-        private static void Validate(Guid userId, string bio, int yearsOfExperience)
-        {
-            ValidateUserId(userId);
-            ValidateBio(bio);
-            ValidateYearsOfExperience(yearsOfExperience);
         }
 
         private static void ValidateUserId(Guid userId)

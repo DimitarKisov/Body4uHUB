@@ -10,6 +10,7 @@ using Body4uHUB.Services.Application.Commands.TrainerProfiles.Update;
 using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Queries.ServiceOfferings.GetServiceOfferingsByTrainer;
 using Body4uHUB.Services.Application.Queries.TrainerProfiles.GetAllActiveTrainers;
+using Body4uHUB.Services.Application.Queries.TrainerProfiles.GetMyTrainerProfile;
 using Body4uHUB.Services.Application.Queries.TrainerProfiles.GetTrainerProfile;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Api.Extensions;
@@ -33,6 +34,21 @@ namespace Body4uHUB.Services.Api.Controllers
         public async Task<IActionResult> GetAllActiveTrainerProfiles([FromQuery] int skip, [FromQuery] int take)
         {
             var result = await Mediator.Send(new GetAllActiveTrainersQuery(skip, take));
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Get the current trainer's own profile, including an incomplete one
+        /// </summary>
+        [HttpGet("me")]
+        [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+        [ProducesResponseType(typeof(TrainerProfileDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMyTrainerProfile()
+        {
+            var result = await Mediator.Send(new GetMyTrainerProfileQuery(User.GetUserId()));
             return HandleResult(result);
         }
 

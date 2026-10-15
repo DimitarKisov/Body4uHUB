@@ -6,6 +6,7 @@ namespace Body4uHUB.Services.Application.Repositories
     {
         Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<TrainerProfileDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<TrainerProfileDto> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<IEnumerable<TrainerProfileDto>> GetAllActiveAsync(int skip, int take, CancellationToken cancellationToken = default);
         Task<IEnumerable<ServiceOfferingDto>> GetServiceOfferingsByTrainerIdAsync(Guid trainerId, int skip, int take, CancellationToken cancellationToken = default);
     }

@@ -14,9 +14,6 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
     [TestFixture]
     public class CreateTrainerAccountCommandHandlerTests
     {
-        private const string Bio = "Certified strength coach with ten years of experience in personal training.";
-        private const int YearsOfExperience = 10;
-
         private Mock<IUserRepository> _userRepository;
         private Mock<IRoleRepository> _roleRepository;
         private Mock<IEventBus> _eventBus;
@@ -55,7 +52,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         [Test]
         public async Task Handle_ShouldAssignTrainerRoleAndPublishEvent_WhenUserIsNotTrainer()
         {
-            var result = await _handler.Handle(new CreateTrainerAccountCommand(_user.Id, Bio, YearsOfExperience), CancellationToken.None);
+            var result = await _handler.Handle(new CreateTrainerAccountCommand(_user.Id), CancellationToken.None);
 
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(_user.HasRole(_trainerRole.Id), Is.True);
@@ -70,7 +67,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         {
             _user.AssignTrainerRole(_trainerRole);
 
-            var result = await _handler.Handle(new CreateTrainerAccountCommand(_user.Id, Bio, YearsOfExperience), CancellationToken.None);
+            var result = await _handler.Handle(new CreateTrainerAccountCommand(_user.Id), CancellationToken.None);
 
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));

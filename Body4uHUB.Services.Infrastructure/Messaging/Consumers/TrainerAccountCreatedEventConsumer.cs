@@ -9,21 +9,15 @@ using static Body4uHUB.Shared.Domain.Constants.ModelConstants.TrainerProfileCons
 
 namespace Body4uHUB.Services.Infrastructure.Messaging.Consumers
 {
-    internal class TrainerAccountCreatedEventConsumer : IConsumer<TrainerAccountCreatedEvent>
+    internal class TrainerAccountCreatedEventConsumer(
+        ITrainerProfileRepository trainerProfileRepository,
+        IUnitOfWork unitOfWork,
+        ILogger<TrainerAccountCreatedEventConsumer> logger)
+        : IConsumer<TrainerAccountCreatedEvent>
     {
-        private readonly ITrainerProfileRepository _trainerProfileRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<TrainerAccountCreatedEventConsumer> _logger;
-
-        public TrainerAccountCreatedEventConsumer(
-            ITrainerProfileRepository trainerProfileRepository,
-            IUnitOfWork unitOfWork,
-            ILogger<TrainerAccountCreatedEventConsumer> logger)
-        {
-            _trainerProfileRepository = trainerProfileRepository;
-            _unitOfWork = unitOfWork;
-            _logger = logger;
-        }
+        private readonly ITrainerProfileRepository _trainerProfileRepository = trainerProfileRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger<TrainerAccountCreatedEventConsumer> _logger = logger;
 
         public async Task Consume(ConsumeContext<TrainerAccountCreatedEvent> context)
         {
@@ -41,14 +35,14 @@ namespace Body4uHUB.Services.Infrastructure.Messaging.Consumers
                         return;
                     }
 
-                    existingProfile.Reactivate(message.Bio, message.YearsOfExperience);
+                    existingProfile.Reactivate();
                     await _unitOfWork.SaveChangesAsync(context.CancellationToken);
 
                     _logger.LogInformation(TrainerProfileReactivatedDetailed, message.UserId);
                     return;
                 }
 
-                var trainerProfile = TrainerProfile.Create(message.UserId, message.Bio, message.YearsOfExperience);
+                var trainerProfile = TrainerProfile.Create(message.UserId);
                 _trainerProfileRepository.Add(trainerProfile);
 
                 await _unitOfWork.SaveChangesAsync(context.CancellationToken);

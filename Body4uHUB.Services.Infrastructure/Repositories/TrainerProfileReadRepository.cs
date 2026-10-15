@@ -1,19 +1,16 @@
-﻿using Body4uHUB.Services.Application.DTOs;
+﻿using System.Linq.Expressions;
+using Body4uHUB.Services.Application.DTOs;
 using Body4uHUB.Services.Application.Repositories;
+using Body4uHUB.Services.Domain.Models;
 using Body4uHUB.Services.Infrastructure.Persistence;
 using Body4uHUB.Shared.Application;
 using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Services.Infrastructure.Repositories
 {
-    internal class TrainerProfileReadRepository : ITrainerProfileReadRepository
+    internal class TrainerProfileReadRepository(ServicesDbContext dbContext) : ITrainerProfileReadRepository
     {
-        private readonly ServicesDbContext _dbContext;
-
-        public TrainerProfileReadRepository(ServicesDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly ServicesDbContext _dbContext = dbContext;
 
         public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
@@ -22,32 +19,13 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
 
         public async Task<IEnumerable<TrainerProfileDto>> GetAllActiveAsync(int skip, int take, CancellationToken cancellationToken = default)
         {
+            // Incomplete profiles are hidden from the public list until the trainer fills them in.
             return await _dbContext.TrainerProfiles
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive && x.Bio != null)
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip(skip)
                 .Take(take)
-                .Select(x => new TrainerProfileDto
-                {
-                    Id = x.Id,
-                    UserId = x.UserId,
-                    Bio = x.Bio,
-                    Specializations = x.Specializations.ToList(),
-                    Certifications = x.Certifications.ToList(),
-                    YearsOfExperience = x.YearsOfExperience,
-                    AverageRating = x.AverageRating,
-                    TotalReviews = x.TotalReviews,
-                    CreatedAt = x.CreatedAt,
-                    ModifiedAt = x.ModifiedAt,
-                    ServiceOfferings = x.Services.Select(y => new ServiceOfferingDto
-                    {
-                        Id = y.Id,
-                        ServiceName = y.Name,
-                        Description = y.Description,
-                        Price = y.Price.Amount,
-                        DurationInMinutes = y.DurationInMinutes
-                    }).ToList()
-                })
+                .Select(ToDto)
                 .ToListAsync(cancellationToken);
         }
 
@@ -55,28 +33,15 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
         {
             return await _dbContext.TrainerProfiles
                 .Where(x => x.Id == id)
-                .Select(x => new TrainerProfileDto
-                {
-                    Id = x.Id,
-                    UserId = x.UserId,
-                    Bio = x.Bio,
-                    Specializations = x.Specializations.ToList(),
-                    Certifications = x.Certifications.ToList(),
-                    YearsOfExperience = x.YearsOfExperience,
-                    AverageRating = x.AverageRating,
-                    TotalReviews = x.TotalReviews,
-                    CreatedAt = x.CreatedAt,
-                    ModifiedAt = x.ModifiedAt,
-                    ServiceOfferings = x.Services.Select(y => new ServiceOfferingDto
-                    {
-                        Id = y.Id,
-                        ServiceName = y.Name,
-                        Description = y.Description,
-                        Price = y.Price.Amount,
-                        DurationInMinutes = y.DurationInMinutes
-                    }).ToList()
-                })
-                .OrderByDescending(x => x.AverageRating)
+                .Select(ToDto)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<TrainerProfileDto> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.TrainerProfiles
+                .Where(x => x.UserId == userId)
+                .Select(ToDto)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
@@ -103,5 +68,29 @@ namespace Body4uHUB.Services.Infrastructure.Repositories
                 })
                 .ToListAsync(cancellationToken);
         }
+
+        // IsComplete is not mapped, so queries use Bio != null directly.
+        private static readonly Expression<Func<TrainerProfile, TrainerProfileDto>> ToDto = x => new TrainerProfileDto
+        {
+            Id = x.Id,
+            UserId = x.UserId,
+            Bio = x.Bio,
+            Specializations = x.Specializations.ToList(),
+            Certifications = x.Certifications.ToList(),
+            YearsOfExperience = x.YearsOfExperience,
+            AverageRating = x.AverageRating,
+            TotalReviews = x.TotalReviews,
+            IsComplete = x.Bio != null,
+            CreatedAt = x.CreatedAt,
+            ModifiedAt = x.ModifiedAt,
+            ServiceOfferings = x.Services.Select(y => new ServiceOfferingDto
+            {
+                Id = y.Id,
+                ServiceName = y.Name,
+                Description = y.Description,
+                Price = y.Price.Amount,
+                DurationInMinutes = y.DurationInMinutes
+            }).ToList()
+        };
     }
 }

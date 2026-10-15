@@ -10,6 +10,7 @@
         public int YearsOfExperience { get; set; }
         public decimal AverageRating { get; set; }
         public int TotalReviews { get; set; }
+        public bool IsComplete { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
         public List<ServiceOfferingDto> ServiceOfferings { get; set; }
