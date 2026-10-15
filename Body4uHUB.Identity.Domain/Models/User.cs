@@ -48,19 +48,18 @@ namespace Body4uHUB.Identity.Domain.Models
         {
             Guard.AgainstDefault<InvalidUserException, Role>(role, nameof(role));
 
+            // The Trainer role goes only through AssignTrainerRole, together with the trainer account.
+            if (role.Name == TrainerRoleName)
+            {
+                throw new InvalidUserException(TrainerRoleRequiresTrainerAccount);
+            }
+
             if (HasRole(role.Id))
             {
                 return;
             }
 
             _roles.Add(new UserRole(role.Id));
-        }
-
-        public void RemoveRole(Role role)
-        {
-            Guard.AgainstDefault<InvalidUserException, Role>(role, nameof(role));
-
-            _roles.RemoveAll(x => x.RoleId == role.Id);
         }
 
         public void UpdateFirstName(string firstName)

@@ -107,36 +107,14 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         }
 
         [Test]
-        public void RemoveRole_ShouldRemoveRole_WhenRoleExists()
+        public void AddRole_ShouldThrowInvalidUserException_WhenRoleIsTrainer()
         {
-            var role = Role.Create("TestRole");
+            var trainerRole = Role.Create(TrainerRoleName);
 
-            _user.AddRole(role);
-            _user.RemoveRole(role);
+            var ex = Assert.Throws<InvalidUserException>(() => _user.AddRole(trainerRole));
 
-            Assert.That(_user.HasRole(role.Id), Is.False);
-        }
-
-        [Test]
-        public void RemoveRole_ShouldThrowInvalidaUserException_WhenRoleIsNull()
-        {
-            var ex = Assert.Throws<InvalidUserException>(() => _user.RemoveRole(null));
-
-            Assert.That(ex.Error, Is.EqualTo($"role cannot be the default value."));
-        }
-
-        [Test]
-        public void RemoveRole_ShouldDoNothing_WhenRoleDoesNotExist()
-        {
-            var existingRole = Role.Create("Existing");
-            var missingRole = Role.Create("Missing");
-
-            _user.AddRole(existingRole);
-
-            _user.RemoveRole(missingRole);
-
-            Assert.That(_user.HasRole(existingRole.Id), Is.True);
-            Assert.That(_user.HasRole(missingRole.Id), Is.False);
+            Assert.That(ex.Error, Is.EqualTo(TrainerRoleRequiresTrainerAccount));
+            Assert.That(_user.HasRole(trainerRole.Id), Is.False);
         }
 
         [TestCase("John")]

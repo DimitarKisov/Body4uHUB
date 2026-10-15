@@ -3,6 +3,7 @@ using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
@@ -34,6 +35,11 @@ namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
             if (missingRoleIds.Count > 0)
             {
                 return Result.ResourceNotFound($"Roles do not exist: {string.Join(", ", missingRoleIds)}.");
+            }
+
+            if (roles.Any(r => r.Name == TrainerRoleName))
+            {
+                return Result.BusinessRuleViolation(TrainerRoleRequiresTrainerAccount);
             }
 
             foreach (var role in roles)

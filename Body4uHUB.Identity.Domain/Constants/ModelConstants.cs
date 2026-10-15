@@ -44,6 +44,7 @@
             public const string UserNotInRole = "User is not assigned to the required role.";
             public const string RoleIsNotTrainer = "Provided role is not the Trainer role.";
             public const string UserAlreadyTrainer = "User is already a trainer.";
+            public const string TrainerRoleRequiresTrainerAccount = "The Trainer role is granted only by creating a trainer account.";
         }
     }
 }
