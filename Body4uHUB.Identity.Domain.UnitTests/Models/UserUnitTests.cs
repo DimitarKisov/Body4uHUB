@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Identity.Domain.Exceptions;
+﻿using Body4uHUB.Identity.Domain.Events;
+using Body4uHUB.Identity.Domain.Exceptions;
 using Body4uHUB.Identity.Domain.Models;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
@@ -391,6 +392,69 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
 
             Assert.That(ex.Error, Is.EqualTo(RoleIsNotTrainer));
             Assert.That(_user.HasRole(nonTrainerRole.Id), Is.True);
+        }
+
+        [Test]
+        public void Create_ShouldRaiseUserRegisteredDomainEvent()
+        {
+            Assert.That(_user.DomainEvents, Has.Count.EqualTo(1));
+            Assert.That(_user.DomainEvents[0], Is.TypeOf<UserRegisteredDomainEvent>().And.Property("UserId").EqualTo(_user.Id));
+        }
+
+        [Test]
+        public void RegenerateEmailConfirmationToken_ShouldRaiseDomainEvent_WhenEmailIsNotConfirmed()
+        {
+            _user.ClearDomainEvents();
+
+            _user.RegenerateEmailConfirmationToken();
+
+            Assert.That(_user.DomainEvents, Has.Count.EqualTo(1));
+            Assert.That(_user.DomainEvents[0], Is.TypeOf<EmailConfirmationTokenRegeneratedDomainEvent>().And.Property("UserId").EqualTo(_user.Id));
+        }
+
+        [Test]
+        public void RegenerateEmailConfirmationToken_ShouldNotRaiseDomainEvent_WhenEmailIsAlreadyConfirmed()
+        {
+            _user.ConfirmEmail(_user.EmailConfirmationToken);
+            _user.ClearDomainEvents();
+
+            _user.RegenerateEmailConfirmationToken();
+
+            Assert.That(_user.DomainEvents, Is.Empty);
+        }
+
+        [Test]
+        public void AssignTrainerRole_ShouldRaiseDomainEvent()
+        {
+            _user.ClearDomainEvents();
+
+            _user.AssignTrainerRole(Role.Create(TrainerRoleName));
+
+            Assert.That(_user.DomainEvents, Has.Count.EqualTo(1));
+            Assert.That(_user.DomainEvents[0], Is.TypeOf<TrainerRoleAssignedDomainEvent>().And.Property("UserId").EqualTo(_user.Id));
+        }
+
+        [Test]
+        public void RevokeTrainerRole_ShouldRaiseDomainEvent()
+        {
+            var trainerRole = Role.Create(TrainerRoleName);
+            _user.AssignTrainerRole(trainerRole);
+            _user.ClearDomainEvents();
+
+            _user.RevokeTrainerRole(trainerRole);
+
+            Assert.That(_user.DomainEvents, Has.Count.EqualTo(1));
+            Assert.That(_user.DomainEvents[0], Is.TypeOf<TrainerRoleRevokedDomainEvent>().And.Property("UserId").EqualTo(_user.Id));
+        }
+
+        [Test]
+        public void RevokeTrainerRole_ShouldNotRaiseDomainEvent_WhenUserIsNotInTrainerRole()
+        {
+            _user.ClearDomainEvents();
+
+            Assert.Throws<InvalidUserException>(() => _user.RevokeTrainerRole(Role.Create(TrainerRoleName)));
+
+            Assert.That(_user.DomainEvents, Is.Empty);
         }
     }
 }

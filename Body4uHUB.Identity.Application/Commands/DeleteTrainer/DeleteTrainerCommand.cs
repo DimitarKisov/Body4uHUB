@@ -1,6 +1,5 @@
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
-using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
@@ -14,13 +13,11 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
     internal sealed class DeleteTrainerCommandHandler(
         IUserRepository userRepository,
         IRoleRepository roleRepository,
-        IEventBus eventBus,
         IUnitOfWork unitOfWork)
         : IRequestHandler<DeleteTrainerCommand, Result>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IRoleRepository _roleRepository = roleRepository;
-        private readonly IEventBus _eventBus = eventBus;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(DeleteTrainerCommand request, CancellationToken cancellationToken)
@@ -38,13 +35,6 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
             }
 
             user.RevokeTrainerRole(trainerRole);
-
-            var @event = new TrainerAccountDeletedEvent
-            {
-                UserId = user.Id
-            };
-
-            await _eventBus.PublishAsync(@event, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

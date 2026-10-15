@@ -1,6 +1,5 @@
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
-using Body4uHUB.Shared.Application.Events;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
@@ -14,13 +13,11 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
     internal sealed class CreateTrainerAccountCommandHandler(
         IUserRepository userRepository,
         IRoleRepository roleRepository,
-        IEventBus eventBus,
         IUnitOfWork unitOfWork)
         : IRequestHandler<CreateTrainerAccountCommand, Result<CreateTrainerAccountResponse>>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IRoleRepository _roleRepository = roleRepository;
-        private readonly IEventBus _eventBus = eventBus;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<CreateTrainerAccountResponse>> Handle(CreateTrainerAccountCommand request, CancellationToken cancellationToken)
@@ -43,13 +40,6 @@ namespace Body4uHUB.Identity.Application.Commands.CreateTrainer
             }
 
             user.AssignTrainerRole(trainerRole);
-
-            var @event = new TrainerAccountCreatedEvent
-            {
-                UserId = user.Id
-            };
-
-            await _eventBus.PublishAsync(@event, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

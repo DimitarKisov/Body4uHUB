@@ -63,6 +63,9 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
 
             adminUser.ConfirmEmail(adminUser.EmailConfirmationToken);
 
+            // Seeding is not a registration: no confirmation email or other integration events for the admin.
+            adminUser.ClearDomainEvents();
+
             var adminRole = await _roleRepository.FindByNameAsync(_seedDataSettings.AdminRoleName);
             if (adminRole != null)
             {

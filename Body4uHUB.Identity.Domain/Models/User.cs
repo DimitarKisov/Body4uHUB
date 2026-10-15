@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Identity.Domain.Exceptions;
+﻿using Body4uHUB.Identity.Domain.Events;
+using Body4uHUB.Identity.Domain.Exceptions;
 using Body4uHUB.Identity.Domain.ValueObjects;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
@@ -41,7 +42,10 @@ namespace Body4uHUB.Identity.Domain.Models
 
             var contactInfo = ContactInfo.Create(email, phoneNumber);
 
-            return new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo);
+            var user = new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo);
+            user.AddDomainEvent(new UserRegisteredDomainEvent(user.Id));
+
+            return user;
         }
 
         public void AddRole(Role role)
@@ -121,6 +125,7 @@ namespace Body4uHUB.Identity.Domain.Models
             }
 
             GenerateEmailConfirmationToken();
+            AddDomainEvent(new EmailConfirmationTokenRegeneratedDomainEvent(Id));
         }
 
         public bool HasRole(Guid roleId) => _roles.Any(x => x.RoleId == roleId);
@@ -137,6 +142,7 @@ namespace Body4uHUB.Identity.Domain.Models
             }
 
             _roles.Add(new UserRole(trainerRole.Id));
+            AddDomainEvent(new TrainerRoleAssignedDomainEvent(Id));
         }
 
         public void RevokeTrainerRole(Role trainerRole)
@@ -147,6 +153,8 @@ namespace Body4uHUB.Identity.Domain.Models
             {
                 throw new InvalidUserException(UserNotInRole);
             }
+
+            AddDomainEvent(new TrainerRoleRevokedDomainEvent(Id));
         }
 
         private static void ValidateTrainerRole(Role trainerRole)
