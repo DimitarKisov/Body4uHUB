@@ -1,0 +1,85 @@
+using Body4uHUB.Identity.Application.Commands.ChangePassword;
+using Body4uHUB.Identity.Application.Services;
+using Body4uHUB.Identity.Domain.Models;
+using Body4uHUB.Identity.Domain.Repositories;
+using Body4uHUB.Shared.Application;
+using Body4uHUB.Shared.Domain.Abstractions;
+using Moq;
+
+using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
+
+namespace Body4uHUB.Identity.Application.Tests.Commands
+{
+    [TestFixture]
+    public class ChangePasswordCommandHandlerTests
+    {
+        private const string CurrentPassword = "Password1!";
+        private const string NewPassword = "NewPassword1!";
+        private const string CurrentHash = "AQAAAAEAACcQAAAAEDummyHashValue==";
+        private const string NewHash = "AQAAAAEAACcQAAAAENewDummyHashValue==";
+
+        private Mock<IUserRepository> _userRepository;
+        private Mock<IPasswordHasherService> _passwordHasherService;
+        private Mock<IUnitOfWork> _unitOfWork;
+        private User _user;
+
+        private ChangePasswordCommandHandler _handler;
+
+        [SetUp]
+        public void Setup()
+        {
+            _userRepository = new Mock<IUserRepository>();
+            _passwordHasherService = new Mock<IPasswordHasherService>();
+            _unitOfWork = new Mock<IUnitOfWork>();
+            _user = User.Create(CurrentHash, "Test", "User", "test@mail.com", "0884787878", DateTime.UtcNow);
+
+            _userRepository
+                .Setup(x => x.GetByIdAsync(_user.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_user);
+
+            _passwordHasherService
+                .Setup(x => x.VerifyPassword(CurrentPassword, CurrentHash))
+                .Returns(true);
+
+            _passwordHasherService
+                .Setup(x => x.HashPassword(NewPassword))
+                .Returns(NewHash);
+
+            _handler = new ChangePasswordCommandHandler(_userRepository.Object, _passwordHasherService.Object, _unitOfWork.Object);
+        }
+
+        [Test]
+        public async Task Handle_ShouldReplacePasswordHashAndSave_WhenCurrentPasswordIsCorrect()
+        {
+            var result = await _handler.Handle(new ChangePasswordCommand(_user.Id, CurrentPassword, NewPassword), CancellationToken.None);
+
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(_user.PasswordHash, Is.EqualTo(NewHash));
+            _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Handle_ShouldReturnUnauthorizedAndKeepPassword_WhenCurrentPasswordIsWrong()
+        {
+            var result = await _handler.Handle(new ChangePasswordCommand(_user.Id, "WrongPassword1!", NewPassword), CancellationToken.None);
+
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Unauthorized));
+            Assert.That(result.Error, Is.EqualTo(InvalidCredentials));
+            Assert.That(_user.PasswordHash, Is.EqualTo(CurrentHash));
+            _passwordHasherService.Verify(x => x.HashPassword(It.IsAny<string>()), Times.Never);
+            _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Handle_ShouldReturnNotFound_WhenUserDoesNotExist()
+        {
+            var result = await _handler.Handle(new ChangePasswordCommand(Guid.NewGuid(), CurrentPassword, NewPassword), CancellationToken.None);
+
+            Assert.That(result.IsSuccess, Is.False);
+            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
+            Assert.That(result.Error, Is.EqualTo(UserNotFound));
+            _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+    }
+}
