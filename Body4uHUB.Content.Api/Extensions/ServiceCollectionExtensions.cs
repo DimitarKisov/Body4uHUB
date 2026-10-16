@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System;
@@ -19,11 +20,12 @@ namespace Body4uHUB.Content.Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
-            services.AddCorsPolicy(configuration);
+            services.AddDataProtectionConfiguration(configuration);
+            services.AddCorsPolicy(configuration, environment);
             services.AddForwardedHeadersConfiguration();
             services.AddHttpsConfiguration(configuration);
             services.AddSwaggerOptions(configuration);
@@ -31,40 +33,6 @@ namespace Body4uHUB.Content.Api.Extensions
             services.AddValidatedOptions<JwtSettings>(configuration, JwtSettings.SectionName);
             services.AddJwtAuthentication();
             services.AddAuthorizationPolicies();
-
-            return services;
-        }
-
-        private static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
-        {
-            var allowedOrigins = configuration
-                .GetSection("Cors:AllowedOrigins")
-                .Get<string[]>();
-
-            if (allowedOrigins == null || allowedOrigins.Length == 0)
-            {
-                throw new InvalidOperationException("Cors:AllowedOrigins must be configured in appsettings.json");
-            }
-
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policy =>
-                {
-#if DEBUG
-                    policy.WithOrigins(allowedOrigins)
-                          .AllowAnyMethod()
-                          .AllowAnyHeader()
-                          .AllowCredentials();
-#else
-                    policy.WithOrigins(allowedOrigins)
-                          .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                          .WithHeaders("Authorization", "Content-Type", "Accept")
-                          .AllowCredentials()
-                          .SetPreflightMaxAge(TimeSpan.FromHours(1));
-
-#endif
-                });
-            });
 
             return services;
         }

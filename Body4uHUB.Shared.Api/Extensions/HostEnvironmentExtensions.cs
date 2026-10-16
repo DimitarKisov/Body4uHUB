@@ -1,4 +1,6 @@
-namespace Body4uHUB.Identity.Api.Extensions
+using Microsoft.Extensions.Hosting;
+
+namespace Body4uHUB.Shared.Api.Extensions
 {
     public static class HostEnvironmentExtensions
     {

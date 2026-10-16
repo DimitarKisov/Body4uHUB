@@ -5,19 +5,10 @@ using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.Handlers;
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-
-#if DEBUG
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/home/app/.aspnet/DataProtection-Keys"))
-    .SetApplicationName("Body4uHUB");
-#else
-// THIS WILL BE FOR PRODUCTION
-#endif
 
 builder.ConfigureSerilog();
 
@@ -25,7 +16,7 @@ var services = builder.Services;
 var configuration = builder.Configuration;
 
 services
-    .AddApiServices(configuration)
+    .AddApiServices(configuration, builder.Environment)
     .AddApplication()
     .AddInfrastructure(configuration)
     .AddSingleton<StartupHealthCheck>()
@@ -37,7 +28,7 @@ var app = builder.Build();
 app.UseExceptionHandler(options => { });
 app.UseForwardedHeaders();
 
-var isLocalLikeEnvironment = app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Equals("Local", StringComparison.OrdinalIgnoreCase);
+var isLocalLikeEnvironment = app.Environment.IsLocalLike();
 
 if (app.IsSwaggerEnabled())
 {

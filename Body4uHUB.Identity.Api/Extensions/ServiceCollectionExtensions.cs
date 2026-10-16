@@ -66,57 +66,6 @@ namespace Body4uHUB.Identity.Api.Extensions
             return services;
         }
 
-        private static IServiceCollection AddDataProtectionConfiguration(this IServiceCollection services, IConfiguration configuration)
-        {
-            var dataProtectionBuilder = services
-                .AddDataProtection()
-                .SetApplicationName("Body4uHUB");
-
-            var keysPath = configuration["DataProtection:KeysPath"];
-            if (!string.IsNullOrWhiteSpace(keysPath))
-            {
-                dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
-            }
-
-            return services;
-        }
-
-        private static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
-        {
-            var allowedOrigins = configuration
-                .GetSection("Cors:AllowedOrigins")
-                .Get<string[]>();
-
-            if (allowedOrigins == null || allowedOrigins.Length == 0)
-            {
-                throw new InvalidOperationException("Cors:AllowedOrigins must be configured in appsettings.json");
-            }
-
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policy =>
-                {
-                    if (environment.IsLocalLike())
-                    {
-                        policy.WithOrigins(allowedOrigins)
-                              .AllowAnyMethod()
-                              .AllowAnyHeader()
-                              .AllowCredentials();
-
-                        return;
-                    }
-
-                    policy.WithOrigins(allowedOrigins)
-                          .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                          .WithHeaders("Authorization", "Content-Type", "Accept")
-                          .AllowCredentials()
-                          .SetPreflightMaxAge(TimeSpan.FromHours(1));
-                });
-            });
-
-            return services;
-        }
-
         private static IServiceCollection AddForwardedHeadersConfiguration(this IServiceCollection services)
         {
             services.Configure<ForwardedHeadersOptions>(options =>
