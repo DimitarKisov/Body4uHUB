@@ -8,6 +8,10 @@ trigger:
       - Body4uHUB.Content.Application/**
       - Body4uHUB.Content.Domain/**
       - Body4uHUB.Content.Infrastructure/**
+      - Body4uHUB.Shared/**
+      - Body4uHUB.Shared.Api/**
+      - Body4uHUB.Shared.Application/**
+      - Body4uHUB.Shared.Infrastructure/**
       - Directory.Build.props
       - Directory.Packages.props
 

@@ -10,6 +10,10 @@ trigger:
       - Body4uHUB.Identity.Infrastructure/**
       - Body4uHUB.Identity.Application.Tests/**
       - Body4uHUB.Identity.Domain.UnitTests/**
+      - Body4uHUB.Shared/**
+      - Body4uHUB.Shared.Api/**
+      - Body4uHUB.Shared.Application/**
+      - Body4uHUB.Shared.Infrastructure/**
       - Directory.Build.props
       - Directory.Packages.props
 
