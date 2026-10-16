@@ -1,4 +1,6 @@
-﻿namespace Body4uHUB.Identity.Domain.Constants;
+﻿using Body4uHUB.Shared.Domain.Constants;
+
+namespace Body4uHUB.Identity.Domain.Constants;
 
 public static class ModelConstants
 {
@@ -39,7 +41,7 @@ public static class ModelConstants
         public const int MinRoleNameLength = 2;
         public const int MaxRoleNameLength = 50;
 
-        public const string TrainerRoleName = "Trainer";
+        public const string TrainerRoleName = RoleNames.Trainer;
         public const string RoleNotFound = "Role not found.";
         public const string UserNotInRole = "User is not assigned to the required role.";
         public const string RoleIsNotTrainer = "Provided role is not the Trainer role.";

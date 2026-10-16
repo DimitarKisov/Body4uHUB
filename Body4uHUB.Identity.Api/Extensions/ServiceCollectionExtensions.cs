@@ -2,6 +2,7 @@
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Application.Commons;
+using Body4uHUB.Shared.Domain.Constants;
 using Body4uHUB.Shared.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -95,7 +96,7 @@ namespace Body4uHUB.Identity.Api.Extensions
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(AuthorizationPolicies.AdminOnly, policy =>
-                    policy.RequireRole("Administrator", "Admin"));
+                    policy.RequireRole(RoleNames.Administrator));
             });
 
             return services;

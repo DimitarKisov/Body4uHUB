@@ -1,3 +1,4 @@
+using Body4uHUB.Shared.Domain.Constants;
 using Body4uHUB.Shared.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -32,7 +33,7 @@ namespace Body4uHUB.Shared.Api.Extensions
 
         public static bool IsAdmin(this ClaimsPrincipal principal)
         {
-            return principal.IsInRole("Administrator") || principal.IsInRole("Admin");
+            return principal.IsInRole(RoleNames.Administrator);
         }
     }
 }

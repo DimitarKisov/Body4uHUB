@@ -1,5 +1,6 @@
 ﻿using Body4uHUB.Shared.Application.Behaviours;
 using Body4uHUB.Shared.Application.Commons;
+using Body4uHUB.Shared.Domain.Constants;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,9 +31,9 @@ namespace Body4uHUB.Services.Application.Extensions
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(AuthorizationPolicies.TrainerOrAdmin, policy =>
-                    policy.RequireRole("Trainer", "Administrator"));
+                    policy.RequireRole(RoleNames.Trainer, RoleNames.Administrator));
                 options.AddPolicy(AuthorizationPolicies.AdminOnly, policy =>
-                    policy.RequireRole("Administrator"));
+                    policy.RequireRole(RoleNames.Administrator));
             });
 
             return services;

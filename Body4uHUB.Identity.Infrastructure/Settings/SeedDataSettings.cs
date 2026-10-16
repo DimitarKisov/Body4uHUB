@@ -21,11 +21,5 @@ namespace Body4uHUB.Identity.Infrastructure.Settings
 
         [Required]
         public string AdminUserLastName { get; init; }
-
-        [Required]
-        public string AdminRoleName { get; init; }
-
-        [Required]
-        public List<string> UserRoles { get; init; }
     }
 }

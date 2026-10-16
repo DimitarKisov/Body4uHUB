@@ -3,6 +3,7 @@ using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Identity.Infrastructure.Settings;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Domain.Constants;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -70,7 +71,7 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
             // Seeding is not a registration: no confirmation email or other integration events for the admin.
             adminUser.ClearDomainEvents();
 
-            var adminRole = await _roleRepository.FindByNameAsync(_seedDataSettings.AdminRoleName);
+            var adminRole = await _roleRepository.FindByNameAsync(RoleNames.Administrator);
             if (adminRole != null)
             {
                 adminUser.AddRole(adminRole);
@@ -82,14 +83,8 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
 
         private async Task SeedRolesAsync()
         {
-            var adminRoleExists = await _roleRepository.ExistsByNameAsync(_seedDataSettings.AdminRoleName);
-            if (!adminRoleExists)
-            {
-                var adminRole = Role.Create(_seedDataSettings.AdminRoleName);
-                _roleRepository.Add(adminRole);
-            }
-
-            foreach (var roleName in _seedDataSettings.UserRoles)
+            // The authorization policies depend on these exact names, so they come from code rather than config.
+            foreach (var roleName in RoleNames.All)
             {
                 var roleExists = await _roleRepository.ExistsByNameAsync(roleName);
                 if (roleExists)
