@@ -1,50 +1,49 @@
-﻿namespace Body4uHUB.Identity.Domain.Constants
+﻿namespace Body4uHUB.Identity.Domain.Constants;
+
+public static class ModelConstants
 {
-    public static class ModelConstants
+    public static class UserConstants
     {
-        public static class UserConstants
-        {
-            public const int MinNameLength = 2;
-            public const int MaxNameLength = 20;
-            public const int MinEmailLength = 6;
-            public const int MaxEmailLength = 200;
-            public const int MaxPhoneNumberLength = 20;
-            public const int EmailConfirmationTokenLifetimeHours = 24;
+        public const int MinNameLength = 2;
+        public const int MaxNameLength = 20;
+        public const int MinEmailLength = 6;
+        public const int MaxEmailLength = 200;
+        public const int MaxPhoneNumberLength = 20;
+        public const int EmailConfirmationTokenLifetimeHours = 24;
 
-            public const string EmailRequired = "Email is required";
-            public const string EmailInvalid = "Invalid email format";
-            public const string EmailLength = "Email cannot exceed {0} characters";
-            public const string FirstNameRequired = "First name is required";
-            public const string FirstNameLength = "First name must be between {0} and {1} characters long";
-            public const string LastNameRequired = "Last name is required";
-            public const string LastNameLength = "Last name must be between {0} and {1} characters long";
-            public const string UserIdRequired = "User ID cannot be empty";
-            public const string PasswordRequired = "Password is required";
-            public const string PasswordRegex = @"^(?=.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).*$";
-            public const string PasswordInvalid = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character";
-            public const string PhoneNumberRequired = "Phone number is required";
-            public const string PhoneNumberRegex = @"^(?:\+359|0)8[7-9]\d{7}$";
-            public const string PhoneNumberInvalid = "Invalid phone number format";
+        public const string EmailRequired = "Email is required";
+        public const string EmailInvalid = "Invalid email format";
+        public const string EmailLength = "Email cannot exceed {0} characters";
+        public const string FirstNameRequired = "First name is required";
+        public const string FirstNameLength = "First name must be between {0} and {1} characters long";
+        public const string LastNameRequired = "Last name is required";
+        public const string LastNameLength = "Last name must be between {0} and {1} characters long";
+        public const string UserIdRequired = "User ID cannot be empty";
+        public const string PasswordRequired = "Password is required";
+        public const string PasswordRegex = @"^(?=.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).*$";
+        public const string PasswordInvalid = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character";
+        public const string PhoneNumberRequired = "Phone number is required";
+        public const string PhoneNumberRegex = @"^(?:\+359|0)8[7-9]\d{7}$";
+        public const string PhoneNumberInvalid = "Invalid phone number format";
 
-            public const string EmailNotConfirmed = "Email is not confirmed.";
-            public const string EmailConfirmationTokenInvalid = "Email confirmation token is invalid or has expired.";
-            public const string EmailConfirmationTokenRequired = "Email confirmation token is required.";
-            public const string InvalidCredentials = "Invalid email or password.";
-            public const string UserEmailExists = "User with the given email already exists.";
-            public const string UserNotFound = "User not found.";
-        }
+        public const string EmailNotConfirmed = "Email is not confirmed.";
+        public const string EmailConfirmationTokenInvalid = "Email confirmation token is invalid or has expired.";
+        public const string EmailConfirmationTokenRequired = "Email confirmation token is required.";
+        public const string InvalidCredentials = "Invalid email or password.";
+        public const string UserEmailExists = "User with the given email already exists.";
+        public const string UserNotFound = "User not found.";
+    }
 
-        public static class RoleConstants
-        {
-            public const int MinRoleNameLength = 2;
-            public const int MaxRoleNameLength = 50;
+    public static class RoleConstants
+    {
+        public const int MinRoleNameLength = 2;
+        public const int MaxRoleNameLength = 50;
 
-            public const string TrainerRoleName = "Trainer";
-            public const string RoleNotFound = "Role not found.";
-            public const string UserNotInRole = "User is not assigned to the required role.";
-            public const string RoleIsNotTrainer = "Provided role is not the Trainer role.";
-            public const string UserAlreadyTrainer = "User is already a trainer.";
-            public const string TrainerRoleRequiresTrainerAccount = "The Trainer role is granted only by creating a trainer account.";
-        }
+        public const string TrainerRoleName = "Trainer";
+        public const string RoleNotFound = "Role not found.";
+        public const string UserNotInRole = "User is not assigned to the required role.";
+        public const string RoleIsNotTrainer = "Provided role is not the Trainer role.";
+        public const string UserAlreadyTrainer = "User is already a trainer.";
+        public const string TrainerRoleRequiresTrainerAccount = "The Trainer role is granted only by creating a trainer account.";
     }
 }
