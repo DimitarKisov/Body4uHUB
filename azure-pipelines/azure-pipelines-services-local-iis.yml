@@ -8,6 +8,8 @@ trigger:
       - Body4uHUB.Services.Application/**
       - Body4uHUB.Services.Domain/**
       - Body4uHUB.Services.Infrastructure/**
+      - Directory.Build.props
+      - Directory.Packages.props
 
 pool:
   name: Default

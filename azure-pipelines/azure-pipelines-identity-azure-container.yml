@@ -10,6 +10,8 @@ trigger:
       - Body4uHUB.Identity.Infrastructure/**
       - Body4uHUB.Identity.Application.Tests/**
       - Body4uHUB.Identity.Domain.UnitTests/**
+      - Directory.Build.props
+      - Directory.Packages.props
 
 variables:
   acrName: 'body4uhubacr'

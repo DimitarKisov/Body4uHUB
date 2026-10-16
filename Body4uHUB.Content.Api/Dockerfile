@@ -19,6 +19,7 @@ USER $APP_UID
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["Directory.Build.props", "Directory.Packages.props", "./"]
 COPY ["Body4uHUB.Content.Api/Body4uHUB.Content.Api.csproj", "Body4uHUB.Content.Api/"]
 COPY ["Body4uHUB.Content.Application/Body4uHUB.Content.Application.csproj", "Body4uHUB.Content.Application/"]
 COPY ["Body4uHUB.Content.Domain/Body4uHUB.Content.Domain.csproj", "Body4uHUB.Content.Domain/"]
