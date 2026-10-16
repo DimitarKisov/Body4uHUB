@@ -21,21 +21,17 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOfferings.Add
         int MaxParticipants,
         bool IsOnline,
         DateTime? StartDate,
-        DateTime? EndDate)
+        DateTime? EndDate,
+        AuthorizationContext AuthContext)
         : IRequest<Result<AddServiceOfferingResponse>>;
 
-    internal sealed class AddServiceOfferingCommandHandler : IRequestHandler<AddServiceOfferingCommand, Result<AddServiceOfferingResponse>>
+    internal sealed class AddServiceOfferingCommandHandler(
+        ITrainerProfileRepository trainerRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<AddServiceOfferingCommand, Result<AddServiceOfferingResponse>>
     {
-        private readonly ITrainerProfileRepository _trainerRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public AddServiceOfferingCommandHandler(
-            ITrainerProfileRepository trainerRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _trainerRepository = trainerRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly ITrainerProfileRepository _trainerRepository = trainerRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<AddServiceOfferingResponse>> Handle(AddServiceOfferingCommand request, CancellationToken cancellationToken)
         {
@@ -58,7 +54,9 @@ namespace Body4uHUB.Services.Application.Commands.ServiceOfferings.Add
                 request.MaxParticipants,
                 request.IsOnline,
                 request.StartDate,
-                request.EndDate);
+                request.EndDate,
+                request.AuthContext.CurrentUserId,
+                request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

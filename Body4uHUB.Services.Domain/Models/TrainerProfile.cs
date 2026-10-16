@@ -159,8 +159,12 @@ namespace Body4uHUB.Services.Domain.Models
             int maxParticipants,
             bool isOnline,
             DateTime? startDate,
-            DateTime? endDate)
+            DateTime? endDate,
+            Guid requesterId,
+            bool isAdmin)
         {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
             if (!IsComplete)
             {
                 throw new InvalidTrainerProfileException(TrainerProfileIncomplete);
@@ -232,8 +236,10 @@ namespace Body4uHUB.Services.Domain.Models
             service.Deactivate();
         }
 
-        public void RemoveService(int id)
+        public void RemoveService(int id, Guid requesterId, bool isAdmin)
         {
+            EnsureCanBeModifiedBy(requesterId, isAdmin);
+
             var service = GetService(id);
             _services.Remove(service);
         }

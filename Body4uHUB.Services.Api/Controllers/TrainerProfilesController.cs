@@ -133,6 +133,7 @@ namespace Body4uHUB.Services.Api.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> CreateServiceOffering(Guid trainerId, [FromBody] AddServiceOfferingRequest request)
         {
+            var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
             var command = new AddServiceOfferingCommand(
                 trainerId,
                 request.Name,
@@ -144,7 +145,8 @@ namespace Body4uHUB.Services.Api.Controllers
                 request.MaxParticipants,
                 request.IsOnline,
                 request.StartDate,
-                request.EndDate);
+                request.EndDate,
+                authContext);
 
             var result = await Mediator.Send(command);
             return HandleCreatedResult(result, response => response);
