@@ -1,19 +1,14 @@
 ﻿using Body4uHUB.Identity.Application.Settings;
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.HealthChecks;
-using Body4uHUB.Shared.Application.Commons;
-using Body4uHUB.Shared.Domain.Constants;
 using Body4uHUB.Shared.Infrastructure.Settings;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
-using System.Text;
 using System.Threading.RateLimiting;
 
 namespace Body4uHUB.Identity.Api.Extensions
@@ -55,48 +50,6 @@ namespace Body4uHUB.Identity.Api.Extensions
                             Window = TimeSpan.FromMinutes(15),
                             QueueLimit = 0
                         }));
-            });
-
-            return services;
-        }
-
-        private static IServiceCollection AddJwtAuthentication(this IServiceCollection services)
-        {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer();
-
-            // Configured from the validated JwtSettings (registered in AddInfrastructure) when the options are first resolved
-            services
-                .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-                .Configure<IOptions<JwtSettings>>((options, jwtSettings) =>
-                {
-                    var settings = jwtSettings.Value;
-
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = settings.Issuer,
-                        ValidAudience = settings.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Secret))
-                    };
-                });
-
-            return services;
-        }
-
-        private static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
-        {
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy(AuthorizationPolicies.AdminOnly, policy =>
-                    policy.RequireRole(RoleNames.Administrator));
             });
 
             return services;

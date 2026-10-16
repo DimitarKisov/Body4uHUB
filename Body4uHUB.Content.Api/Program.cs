@@ -33,7 +33,7 @@ var configuration = builder.Configuration;
 
 services
     .AddApiServices(configuration)
-    .AddApplication(configuration)
+    .AddApplication()
     .AddInfrastructure(configuration)
     .AddSingleton<StartupHealthCheck>()
     .AddCustomHealthChecks()

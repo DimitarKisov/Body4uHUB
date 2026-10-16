@@ -1,5 +1,7 @@
 ﻿using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.HealthChecks;
+using Body4uHUB.Shared.Infrastructure.Extensions;
+using Body4uHUB.Shared.Infrastructure.Settings;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
@@ -19,6 +21,9 @@ namespace Body4uHUB.Services.Api.Extensions
             services.AddHttpsConfiguration(configuration);
             services.AddSwaggerOptions(configuration);
             services.ConfigureSwagger();
+            services.AddValidatedOptions<JwtSettings>(configuration, JwtSettings.SectionName);
+            services.AddJwtAuthentication();
+            services.AddAuthorizationPolicies();
 
             return services;
         }
