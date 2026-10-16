@@ -37,7 +37,7 @@ if (app.IsSwaggerEnabled())
     app.UseSwaggerUI();
 }
 
-var shouldUseHttpsRedirection = ResolveHttpsRedirectionEnabled(configuration, isLocalLikeEnvironment);
+var shouldUseHttpsRedirection = configuration.IsHttpsRedirectionEnabled(isLocalLikeEnvironment);
 if (shouldUseHttpsRedirection)
 {
     if (!isLocalLikeEnvironment)
@@ -92,29 +92,4 @@ catch (Exception ex) when (ex is not HostAbortedException)
 finally
 {
     Log.CloseAndFlush();
-}
-
-static bool ResolveHttpsRedirectionEnabled(IConfiguration configuration, bool isLocalLikeEnvironment)
-{
-    var configuredValue = configuration.GetValue<bool?>("HttpsRedirection:Enabled");
-    if (configuredValue.HasValue)
-    {
-        return configuredValue.Value;
-    }
-
-    if (isLocalLikeEnvironment)
-    {
-        return true;
-    }
-
-    var hasHttpsPorts = !string.IsNullOrWhiteSpace(configuration["ASPNETCORE_HTTPS_PORTS"])
-        || !string.IsNullOrWhiteSpace(configuration["HTTPS_PORT"]);
-
-    var aspNetCoreUrls = configuration["ASPNETCORE_URLS"];
-    var hasHttpsUrls = !string.IsNullOrWhiteSpace(aspNetCoreUrls)
-        && aspNetCoreUrls
-            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Any(url => url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
-
-    return hasHttpsPorts || hasHttpsUrls;
 }

@@ -3,12 +3,8 @@ using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Infrastructure.Settings;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
-using Serilog;
-using System.Reflection;
 using System.Threading.RateLimiting;
 
 namespace Body4uHUB.Identity.Api.Extensions
@@ -24,7 +20,7 @@ namespace Body4uHUB.Identity.Api.Extensions
             services.AddForwardedHeadersConfiguration();
             services.AddHttpsConfiguration(configuration);
             services.AddSwaggerOptions(configuration);
-            services.ConfigureSwagger();
+            services.ConfigureSwagger("Body4uHUB Identity API");
             services.AddJwtAuthentication();
             services.AddAuthorizationPolicies();
             services.AddAppSettings(configuration);
@@ -64,99 +60,6 @@ namespace Body4uHUB.Identity.Api.Extensions
                 .ValidateOnStart();
 
             return services;
-        }
-
-        private static IServiceCollection AddForwardedHeadersConfiguration(this IServiceCollection services)
-        {
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-                options.KnownNetworks.Clear();
-                options.KnownProxies.Clear();
-            });
-
-            return services;
-        }
-
-        private static IServiceCollection AddHttpsConfiguration(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddHsts(options =>
-            {
-                options.Preload = true;
-                options.IncludeSubDomains = true;
-                options.MaxAge = TimeSpan.FromDays(1); //Later change to 60 days
-            });
-
-            services.AddHttpsRedirection(options =>
-            {
-                options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
-
-                var httpsPortValue = configuration["HTTPS_PORT"]
-                    ?? configuration["ASPNETCORE_HTTPS_PORTS"]?.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-
-                if (int.TryParse(httpsPortValue, out var httpsPort))
-                {
-                    options.HttpsPort = httpsPort;
-                }
-            });
-
-            return services;
-        }
-
-        private static IServiceCollection ConfigureSwagger(this IServiceCollection services)
-        {
-            services.AddSwaggerGen(config =>
-            {
-                config.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "Body4uHUB Identity API",
-                    Version = "v1",
-                    Description = ""
-                });
-
-                config.CustomSchemaIds(x => x.FullName);
-
-                // JWT Bearer Authentication
-                config.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    Description = "JWT Authorization header using the Bearer scheme."
-                });
-                config.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "bearerAuth" }
-                        },
-                        new string[] {}
-                    }
-                });
-
-                // Include XML comments
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                if (File.Exists(xmlPath))
-                {
-                    config.IncludeXmlComments(xmlPath);
-                }
-            });
-
-            return services;
-        }
-
-        public static WebApplicationBuilder ConfigureSerilog(this WebApplicationBuilder builder)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(builder.Configuration)
-                .Enrich.FromLogContext()
-                .CreateLogger();
-
-            builder.Host.UseSerilog();
-
-            return builder;
         }
 
         public static IServiceCollection AddCustomHealthChecks(this IServiceCollection services)
