@@ -17,7 +17,8 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         IUnitOfWork unitOfWork,
-        ILogger<DbInitializer> logger)
+        ILogger<DbInitializer> logger,
+        TimeProvider timeProvider)
         : IDbInitializer
     {
         private readonly IdentityDbContext _dbContext = dbContext;
@@ -27,6 +28,7 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
         private readonly IRoleRepository _roleRepository = roleRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ILogger<DbInitializer> _logger = logger;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task InitializeAsync()
         {
@@ -53,15 +55,17 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance
             }
 
             var hashedPassword = _passwordHasherService.HashPassword(_seedDataSettings.AdminUserPassword);
+            var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
 
             var adminUser = User.Create(
                 hashedPassword,
                 _seedDataSettings.AdminUserFirstName,
                 _seedDataSettings.AdminUserLastName,
                 _seedDataSettings.AdminUserEmail,
-                null);
+                null,
+                utcNow);
 
-            adminUser.ConfirmEmail(adminUser.EmailConfirmationToken);
+            adminUser.ConfirmEmail(adminUser.EmailConfirmationToken, utcNow);
 
             // Seeding is not a registration: no confirmation email or other integration events for the admin.
             adminUser.ClearDomainEvents();

@@ -1,4 +1,5 @@
 ﻿using Body4uHUB.Identity.Application.Commands.ConfirmEmail;
+using Body4uHUB.Identity.Application.Tests.Fakes;
 using Body4uHUB.Identity.Domain.Exceptions;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
@@ -25,9 +26,9 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         {
             _userRepository = new Mock<IUserRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
-            _user = User.Create("AQAAAAEAACcQAAAAEDummyHashValue==", "Test", "User", ValidEmail, "0884787878");
+            _user = User.Create("AQAAAAEAACcQAAAAEDummyHashValue==", "Test", "User", ValidEmail, "0884787878", DateTime.UtcNow);
 
-            _handler = new ConfirmEmailCommandHandler(_userRepository.Object, _unitOfWork.Object);
+            _handler = new ConfirmEmailCommandHandler(_userRepository.Object, _unitOfWork.Object, TimeProvider.System);
         }
 
         [Test]
@@ -68,6 +69,24 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             Assert.ThrowsAsync<InvalidUserException>(() =>
                 _handler.Handle(new ConfirmEmailCommand(ValidEmail, "wrong-token"), CancellationToken.None));
 
+            Assert.That(_user.IsEmailConfirmed, Is.False);
+            _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Test]
+        public void Handle_ShouldThrowAndNotSave_WhenTokenHasExpired()
+        {
+            _userRepository
+                .Setup(x => x.GetByEmailAsync(ValidEmail, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_user);
+
+            var afterExpiry = new FixedTimeProvider(new DateTimeOffset(_user.EmailConfirmationTokenExpiry.Value.AddMinutes(1), TimeSpan.Zero));
+            var handler = new ConfirmEmailCommandHandler(_userRepository.Object, _unitOfWork.Object, afterExpiry);
+
+            var ex = Assert.ThrowsAsync<InvalidUserException>(() =>
+                handler.Handle(new ConfirmEmailCommand(ValidEmail, _user.EmailConfirmationToken), CancellationToken.None));
+
+            Assert.That(ex.Error, Is.EqualTo(EmailConfirmationTokenInvalid));
             Assert.That(_user.IsEmailConfirmed, Is.False);
             _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }

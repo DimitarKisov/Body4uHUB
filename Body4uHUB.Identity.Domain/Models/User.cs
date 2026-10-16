@@ -26,23 +26,23 @@ namespace Body4uHUB.Identity.Domain.Models
         //За EF Core
         private User() : base(Guid.NewGuid()) { }
 
-        internal User(Guid id, string passwordHash, string firstName, string lastName, ContactInfo contactInfo)
+        internal User(Guid id, string passwordHash, string firstName, string lastName, ContactInfo contactInfo, DateTime utcNow)
             : base(id)
         {
             PasswordHash = passwordHash;
             FirstName = firstName;
             LastName = lastName;
             ContactInfo = contactInfo;
-            GenerateEmailConfirmationToken();
+            GenerateEmailConfirmationToken(utcNow);
         }
 
-        public static User Create(string passwordHash, string firstName, string lastName, string email, string phoneNumber)
+        public static User Create(string passwordHash, string firstName, string lastName, string email, string phoneNumber, DateTime utcNow)
         {
             Validate(passwordHash, firstName, lastName);
 
             var contactInfo = ContactInfo.Create(email, phoneNumber);
 
-            var user = new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo);
+            var user = new User(Guid.NewGuid(), passwordHash, firstName, lastName, contactInfo, utcNow);
             user.AddDomainEvent(new UserRegisteredDomainEvent(user.Id));
 
             return user;
@@ -89,12 +89,12 @@ namespace Body4uHUB.Identity.Domain.Models
             ContactInfo = ContactInfo.Create(email, phoneNumber);
         }
 
-        public void UpdateLastLogin()
+        public void UpdateLastLogin(DateTime utcNow)
         {
-            LastLoginAt = DateTime.UtcNow;
+            LastLoginAt = EnsureUtc(utcNow);
         }
 
-        public void ConfirmEmail(string token)
+        public void ConfirmEmail(string token, DateTime utcNow)
         {
             var tokenMatches = !string.IsNullOrWhiteSpace(token)
                 && string.Equals(token, EmailConfirmationToken, StringComparison.Ordinal);
@@ -106,7 +106,7 @@ namespace Body4uHUB.Identity.Domain.Models
                 return;
             }
 
-            var isTokenExpired = !(EmailConfirmationTokenExpiry > DateTime.UtcNow);
+            var isTokenExpired = !(EmailConfirmationTokenExpiry > EnsureUtc(utcNow));
 
             if (IsEmailConfirmed || !tokenMatches || isTokenExpired)
             {
@@ -116,7 +116,7 @@ namespace Body4uHUB.Identity.Domain.Models
             IsEmailConfirmed = true;
         }
 
-        public void RegenerateEmailConfirmationToken()
+        public void RegenerateEmailConfirmationToken(DateTime utcNow)
         {
             // A confirmed user keeps the token that confirmed them, so ConfirmEmail with it stays a no-op.
             if (IsEmailConfirmed)
@@ -124,7 +124,7 @@ namespace Body4uHUB.Identity.Domain.Models
                 return;
             }
 
-            GenerateEmailConfirmationToken();
+            GenerateEmailConfirmationToken(utcNow);
             AddDomainEvent(new EmailConfirmationTokenRegeneratedDomainEvent(Id));
         }
 
@@ -167,10 +167,21 @@ namespace Body4uHUB.Identity.Domain.Models
             }
         }
 
-        private void GenerateEmailConfirmationToken()
+        private void GenerateEmailConfirmationToken(DateTime utcNow)
         {
             EmailConfirmationToken = Guid.NewGuid().ToString();
-            EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(EmailConfirmationTokenLifetimeHours);
+            EmailConfirmationTokenExpiry = EnsureUtc(utcNow).AddHours(EmailConfirmationTokenLifetimeHours);
+        }
+
+        // The caller supplies "now", so a local time here is a programming error rather than invalid user input.
+        private static DateTime EnsureUtc(DateTime utcNow)
+        {
+            if (utcNow.Kind != DateTimeKind.Utc)
+            {
+                throw new ArgumentException("The time must be in UTC.", nameof(utcNow));
+            }
+
+            return utcNow;
         }
 
         private static void Validate(string passwordHash, string firstName, string lastName)

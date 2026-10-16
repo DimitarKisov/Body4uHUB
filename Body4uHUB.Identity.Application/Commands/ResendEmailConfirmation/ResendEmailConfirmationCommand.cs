@@ -9,11 +9,13 @@ namespace Body4uHUB.Identity.Application.Commands.ResendEmailConfirmation
 
     internal sealed class ResendEmailConfirmationCommandHandler(
         IUserRepository userRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        TimeProvider timeProvider)
         : IRequestHandler<ResendEmailConfirmationCommand, Result>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<Result> Handle(ResendEmailConfirmationCommand request, CancellationToken cancellationToken)
         {
@@ -25,7 +27,7 @@ namespace Body4uHUB.Identity.Application.Commands.ResendEmailConfirmation
                 return Result.Success();
             }
 
-            user.RegenerateEmailConfirmationToken();
+            user.RegenerateEmailConfirmationToken(_timeProvider.GetUtcNow().UtcDateTime);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

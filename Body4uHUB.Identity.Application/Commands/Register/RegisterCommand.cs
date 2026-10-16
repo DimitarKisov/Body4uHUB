@@ -23,12 +23,14 @@ namespace Body4uHUB.Identity.Application.Commands.Register
     internal sealed class RegisterCommandHandler(
         IUserRepository userRepository,
         IPasswordHasherService passwordHasherService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        TimeProvider timeProvider)
         : IRequestHandler<RegisterCommand, Result<UserDto>>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IPasswordHasherService _passwordHasherService = passwordHasherService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<Result<UserDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
@@ -45,7 +47,8 @@ namespace Body4uHUB.Identity.Application.Commands.Register
                 request.FirstName,
                 request.LastName,
                 request.Email,
-                request.PhoneNumber);
+                request.PhoneNumber,
+                _timeProvider.GetUtcNow().UtcDateTime);
 
             _userRepository.Add(user);
 

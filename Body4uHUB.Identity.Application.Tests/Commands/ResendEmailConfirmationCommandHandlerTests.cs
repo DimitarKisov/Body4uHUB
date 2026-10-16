@@ -23,10 +23,10 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         {
             _userRepository = new Mock<IUserRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
-            _user = User.Create("AQAAAAEAACcQAAAAEDummyHashValue==", "Test", "User", ValidEmail, "0884787878");
+            _user = User.Create("AQAAAAEAACcQAAAAEDummyHashValue==", "Test", "User", ValidEmail, "0884787878", DateTime.UtcNow);
             _user.ClearDomainEvents();
 
-            _handler = new ResendEmailConfirmationCommandHandler(_userRepository.Object, _unitOfWork.Object);
+            _handler = new ResendEmailConfirmationCommandHandler(_userRepository.Object, _unitOfWork.Object, TimeProvider.System);
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         public async Task Handle_ShouldSucceedWithoutRaisingEvent_WhenEmailIsAlreadyConfirmed()
         {
             var token = _user.EmailConfirmationToken;
-            _user.ConfirmEmail(token);
+            _user.ConfirmEmail(token, DateTime.UtcNow);
 
             _userRepository
                 .Setup(x => x.GetByEmailAsync(ValidEmail, It.IsAny<CancellationToken>()))

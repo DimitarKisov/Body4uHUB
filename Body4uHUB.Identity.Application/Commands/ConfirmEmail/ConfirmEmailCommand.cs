@@ -12,11 +12,13 @@ namespace Body4uHUB.Identity.Application.Commands.ConfirmEmail
 
     internal sealed class ConfirmEmailCommandHandler(
         IUserRepository userRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        TimeProvider timeProvider)
         : IRequestHandler<ConfirmEmailCommand, Result>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<Result> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
         {
@@ -28,7 +30,7 @@ namespace Body4uHUB.Identity.Application.Commands.ConfirmEmail
                 throw new InvalidUserException(EmailConfirmationTokenInvalid);
             }
 
-            user.ConfirmEmail(request.Token);
+            user.ConfirmEmail(request.Token, _timeProvider.GetUtcNow().UtcDateTime);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

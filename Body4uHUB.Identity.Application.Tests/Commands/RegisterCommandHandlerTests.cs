@@ -37,7 +37,8 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             _handler = new RegisterCommandHandler(
                 _userRepository.Object,
                 _passwordHasherService.Object,
-                _unitOfWork.Object);
+                _unitOfWork.Object,
+                TimeProvider.System);
         }
 
         [Test]

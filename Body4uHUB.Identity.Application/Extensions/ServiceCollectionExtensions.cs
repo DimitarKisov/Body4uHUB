@@ -2,6 +2,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 
 namespace Body4uHUB.Identity.Application.Extensions
@@ -14,6 +15,8 @@ namespace Body4uHUB.Identity.Application.Extensions
                 .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>))
                 .AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+            services.TryAddSingleton(TimeProvider.System);
 
             return services;
         }

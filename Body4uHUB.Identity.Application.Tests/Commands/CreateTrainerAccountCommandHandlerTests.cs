@@ -34,7 +34,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
                 _roleRepository.Object,
                 _unitOfWork.Object);
 
-            _user = User.Create("AQAAAAEAACcQAAAAEDummyHashValue==", "Test", "User", "test@mail.com", "0884787878");
+            _user = User.Create("AQAAAAEAACcQAAAAEDummyHashValue==", "Test", "User", "test@mail.com", "0884787878", DateTime.UtcNow);
             _user.ClearDomainEvents();
             _trainerRole = Role.Create(TrainerRoleName);
 

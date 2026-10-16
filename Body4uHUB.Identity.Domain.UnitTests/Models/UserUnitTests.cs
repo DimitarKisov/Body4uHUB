@@ -16,6 +16,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         private const string ValidLastName = "User";
         private const string ValidEmail = "test@mail.com";
         private const string ValidPhone = "0884787878";
+        private static readonly DateTime Now = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
 
         [SetUp]
         public void Setup()
@@ -25,7 +26,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
                 ValidFirstName,
                 ValidLastName,
                 ValidEmail,
-                ValidPhone);
+                ValidPhone, Now);
         }
 
         [TestCase(ValidPasswordHash, ValidFirstName, ValidLastName, ValidEmail, ValidPhone)]
@@ -37,16 +38,12 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
             string email,
             string phoneNumber)
         {
-            var before = DateTime.UtcNow;
-
             var result = User.Create(
                 passwordHash,
                 firstName,
                 lastName,
                 email,
-                phoneNumber);
-
-            var after = DateTime.UtcNow;
+                phoneNumber, Now);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.PasswordHash, Is.EqualTo(passwordHash));
@@ -57,9 +54,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
             Assert.That(result.IsEmailConfirmed, Is.False);
             Assert.That(Guid.TryParse(result.EmailConfirmationToken, out _), Is.True);
             Assert.That(result.EmailConfirmationTokenExpiry, Is.Not.Null);
-            Assert.That(
-                result.EmailConfirmationTokenExpiry.Value,
-                Is.InRange(before.AddHours(EmailConfirmationTokenLifetimeHours), after.AddHours(EmailConfirmationTokenLifetimeHours)));
+            Assert.That(result.EmailConfirmationTokenExpiry, Is.EqualTo(Now.AddHours(EmailConfirmationTokenLifetimeHours)));
         }
 
         [TestCase(null)]
@@ -73,7 +68,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
                     ValidFirstName,
                     ValidLastName,
                     ValidEmail,
-                    ValidPhone));
+                    ValidPhone, Now));
 
             Assert.That(ex.Error, Is.EqualTo($"{nameof(passwordHash)} cannot be null or empty."));
         }
@@ -211,21 +206,22 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         {
             Assert.That(_user.LastLoginAt, Is.Null);
 
-            var before1 = DateTime.UtcNow;
-            _user.UpdateLastLogin();
-            var after1 = DateTime.UtcNow;
+            _user.UpdateLastLogin(Now);
 
-            Assert.That(_user.LastLoginAt, Is.Not.Null);
-            Assert.That(_user.LastLoginAt, Is.InRange(before1, after1));
+            Assert.That(_user.LastLoginAt, Is.EqualTo(Now));
 
-            var firstLastLogin = _user.LastLoginAt.Value;
+            var later = Now.AddMinutes(5);
+            _user.UpdateLastLogin(later);
 
-            var before2 = DateTime.UtcNow;
-            _user.UpdateLastLogin();
-            var after2 = DateTime.UtcNow;
+            Assert.That(_user.LastLoginAt, Is.EqualTo(later));
+        }
 
-            Assert.That(_user.LastLoginAt, Is.InRange(before2, after2));
-            Assert.That(_user.LastLoginAt, Is.GreaterThan(firstLastLogin));
+        [Test]
+        public void UpdateLastLogin_ShouldThrowArgumentException_WhenTimeIsNotUtc()
+        {
+            var localNow = DateTime.SpecifyKind(Now, DateTimeKind.Local);
+
+            Assert.Throws<ArgumentException>(() => _user.UpdateLastLogin(localNow));
         }
 
         [Test]
@@ -233,9 +229,32 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         {
             Assert.That(_user.IsEmailConfirmed, Is.False);
 
-            _user.ConfirmEmail(_user.EmailConfirmationToken);
+            _user.ConfirmEmail(_user.EmailConfirmationToken, Now);
 
             Assert.That(_user.IsEmailConfirmed, Is.True);
+        }
+
+        [Test]
+        public void ConfirmEmail_ShouldConfirmEmail_JustBeforeTokenExpires()
+        {
+            var justBeforeExpiry = _user.EmailConfirmationTokenExpiry.Value.AddTicks(-1);
+
+            _user.ConfirmEmail(_user.EmailConfirmationToken, justBeforeExpiry);
+
+            Assert.That(_user.IsEmailConfirmed, Is.True);
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(60 * 60)]
+        public void ConfirmEmail_ShouldThrowInvalidUserException_WhenTokenHasExpired(int secondsAfterExpiry)
+        {
+            var now = _user.EmailConfirmationTokenExpiry.Value.AddSeconds(secondsAfterExpiry);
+
+            var ex = Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(_user.EmailConfirmationToken, now));
+
+            Assert.That(ex.Error, Is.EqualTo(EmailConfirmationTokenInvalid));
+            Assert.That(_user.IsEmailConfirmed, Is.False);
         }
 
         [TestCase(null)]
@@ -244,7 +263,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         [TestCase("wrong-token")]
         public void ConfirmEmail_ShouldThrowInvalidUserException_WhenTokenIsInvalid(string token)
         {
-            var ex = Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(token));
+            var ex = Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(token, Now));
 
             Assert.That(ex.Error, Is.EqualTo(EmailConfirmationTokenInvalid));
             Assert.That(_user.IsEmailConfirmed, Is.False);
@@ -255,25 +274,25 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         {
             var token = _user.EmailConfirmationToken.ToUpperInvariant();
 
-            Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(token));
+            Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(token, Now));
         }
 
         [Test]
         public void ConfirmEmail_ShouldNotThrow_WhenAlreadyConfirmedWithSameToken()
         {
             var token = _user.EmailConfirmationToken;
-            _user.ConfirmEmail(token);
+            _user.ConfirmEmail(token, Now);
 
-            Assert.DoesNotThrow(() => _user.ConfirmEmail(token));
+            Assert.DoesNotThrow(() => _user.ConfirmEmail(token, Now));
             Assert.That(_user.IsEmailConfirmed, Is.True);
         }
 
         [Test]
         public void ConfirmEmail_ShouldThrowInvalidUserException_WhenAlreadyConfirmedWithDifferentToken()
         {
-            _user.ConfirmEmail(_user.EmailConfirmationToken);
+            _user.ConfirmEmail(_user.EmailConfirmationToken, Now);
 
-            var ex = Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail("any-token"));
+            var ex = Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail("any-token", Now));
 
             Assert.That(ex.Error, Is.EqualTo(EmailConfirmationTokenInvalid));
         }
@@ -283,15 +302,23 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         {
             var oldToken = _user.EmailConfirmationToken;
 
-            var before = DateTime.UtcNow;
-            _user.RegenerateEmailConfirmationToken();
-            var after = DateTime.UtcNow;
+            var later = Now.AddHours(30);
+            _user.RegenerateEmailConfirmationToken(later);
 
             Assert.That(_user.EmailConfirmationToken, Is.Not.EqualTo(oldToken));
             Assert.That(Guid.TryParse(_user.EmailConfirmationToken, out _), Is.True);
-            Assert.That(
-                _user.EmailConfirmationTokenExpiry,
-                Is.InRange(before.AddHours(EmailConfirmationTokenLifetimeHours), after.AddHours(EmailConfirmationTokenLifetimeHours)));
+            Assert.That(_user.EmailConfirmationTokenExpiry, Is.EqualTo(later.AddHours(EmailConfirmationTokenLifetimeHours)));
+        }
+
+        [Test]
+        public void RegenerateEmailConfirmationToken_ShouldAllowConfirmation_AfterOldTokenExpired()
+        {
+            var afterExpiry = Now.AddHours(EmailConfirmationTokenLifetimeHours + 1);
+
+            _user.RegenerateEmailConfirmationToken(afterExpiry);
+
+            Assert.DoesNotThrow(() => _user.ConfirmEmail(_user.EmailConfirmationToken, afterExpiry));
+            Assert.That(_user.IsEmailConfirmed, Is.True);
         }
 
         [Test]
@@ -299,10 +326,10 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         {
             var oldToken = _user.EmailConfirmationToken;
 
-            _user.RegenerateEmailConfirmationToken();
+            _user.RegenerateEmailConfirmationToken(Now);
 
-            Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(oldToken));
-            Assert.DoesNotThrow(() => _user.ConfirmEmail(_user.EmailConfirmationToken));
+            Assert.Throws<InvalidUserException>(() => _user.ConfirmEmail(oldToken, Now));
+            Assert.DoesNotThrow(() => _user.ConfirmEmail(_user.EmailConfirmationToken, Now));
         }
 
         [Test]
@@ -310,9 +337,9 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         {
             var token = _user.EmailConfirmationToken;
             var expiry = _user.EmailConfirmationTokenExpiry;
-            _user.ConfirmEmail(token);
+            _user.ConfirmEmail(token, Now);
 
-            _user.RegenerateEmailConfirmationToken();
+            _user.RegenerateEmailConfirmationToken(Now);
 
             Assert.That(_user.EmailConfirmationToken, Is.EqualTo(token));
             Assert.That(_user.EmailConfirmationTokenExpiry, Is.EqualTo(expiry));
@@ -406,7 +433,7 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         {
             _user.ClearDomainEvents();
 
-            _user.RegenerateEmailConfirmationToken();
+            _user.RegenerateEmailConfirmationToken(Now);
 
             Assert.That(_user.DomainEvents, Has.Count.EqualTo(1));
             Assert.That(_user.DomainEvents[0], Is.TypeOf<EmailConfirmationTokenRegeneratedDomainEvent>().And.Property("UserId").EqualTo(_user.Id));
@@ -415,10 +442,10 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
         [Test]
         public void RegenerateEmailConfirmationToken_ShouldNotRaiseDomainEvent_WhenEmailIsAlreadyConfirmed()
         {
-            _user.ConfirmEmail(_user.EmailConfirmationToken);
+            _user.ConfirmEmail(_user.EmailConfirmationToken, Now);
             _user.ClearDomainEvents();
 
-            _user.RegenerateEmailConfirmationToken();
+            _user.RegenerateEmailConfirmationToken(Now);
 
             Assert.That(_user.DomainEvents, Is.Empty);
         }

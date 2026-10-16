@@ -17,7 +17,8 @@ namespace Body4uHUB.Identity.Application.Commands.Login
         IRoleRepository roleRepository,
         IJwtTokenService jwtTokenService,
         IPasswordHasherService passwordHasherService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        TimeProvider timeProvider)
         : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
     {
         private readonly IUserRepository _userRepository = userRepository;
@@ -25,6 +26,7 @@ namespace Body4uHUB.Identity.Application.Commands.Login
         private readonly IJwtTokenService _jwtTokenService = jwtTokenService;
         private readonly IPasswordHasherService _passwordHasherService = passwordHasherService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<Result<AuthResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
@@ -44,7 +46,7 @@ namespace Body4uHUB.Identity.Application.Commands.Login
 
             var accessToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, roles);
 
-            user.UpdateLastLogin();
+            user.UpdateLastLogin(_timeProvider.GetUtcNow().UtcDateTime);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
