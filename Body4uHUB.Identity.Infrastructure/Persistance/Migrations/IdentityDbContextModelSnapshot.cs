@@ -259,21 +259,6 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Migrations
                     b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("UserRoles", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("UserRoles");
-                });
-
             modelBuilder.Entity("Body4uHUB.Identity.Domain.Models.User", b =>
                 {
                     b.OwnsOne("Body4uHUB.Identity.Domain.ValueObjects.ContactInfo", "ContactInfo", b1 =>
@@ -305,7 +290,33 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Migrations
                                 .HasForeignKey("UserId");
                         });
 
+                    b.OwnsMany("Body4uHUB.Identity.Domain.ValueObjects.UserRole", "Roles", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("RoleId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("UserId", "RoleId");
+
+                            b1.HasIndex("RoleId");
+
+                            b1.ToTable("UserRoles", (string)null);
+
+                            b1.HasOne("Body4uHUB.Identity.Domain.Models.Role", null)
+                                .WithMany()
+                                .HasForeignKey("RoleId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired();
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
                     b.Navigation("ContactInfo");
+
+                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -318,21 +329,6 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Migrations
                         .WithMany()
                         .HasForeignKey("InboxMessageId", "InboxConsumerId")
                         .HasPrincipalKey("MessageId", "ConsumerId");
-                });
-
-            modelBuilder.Entity("UserRoles", b =>
-                {
-                    b.HasOne("Body4uHUB.Identity.Domain.Models.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Body4uHUB.Identity.Domain.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

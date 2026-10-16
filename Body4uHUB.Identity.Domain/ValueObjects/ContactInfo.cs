@@ -19,9 +19,13 @@
 
         public static ContactInfo Create(string email, string phoneNumber)
         {
+            email = NormalizeEmail(email);
             Validate(email, phoneNumber);
             return new ContactInfo(email, phoneNumber);
         }
+
+        public static string NormalizeEmail(string email)
+            => email?.Trim().ToLowerInvariant();
 
         protected override IEnumerable<object> GetEqualityComponents()
         {

@@ -29,6 +29,16 @@ namespace Body4uHUB.Identity.Domain.UnitTests.ValueObjects
             Assert.That(resultWithNullPhoneNumber.PhoneNumber, Is.Null);
         }
 
+        [TestCase("Test@Mail.com", "test@mail.com")]
+        [TestCase("  test@mail.com  ", "test@mail.com")]
+        [TestCase(" TEST@MAIL.COM", "test@mail.com")]
+        public void Create_ShouldNormalizeEmail(string email, string expected)
+        {
+            var result = ContactInfo.Create(email, ValidPhoneNumber);
+
+            Assert.That(result.Email, Is.EqualTo(expected));
+        }
+
         [TestCase("", ValidPhoneNumber)]
         [TestCase(" ", ValidPhoneNumber)]
         [TestCase(null, ValidPhoneNumber)]
