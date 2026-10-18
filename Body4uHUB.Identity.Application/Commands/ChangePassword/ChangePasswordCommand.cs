@@ -30,7 +30,8 @@ namespace Body4uHUB.Identity.Application.Commands.ChangePassword
 
             if (!_passwordHasherService.VerifyPassword(request.CurrentPassword, user.PasswordHash))
             {
-                return Result.Unauthorized(InvalidCredentials);
+                // 422, not 401: the caller is authenticated; a 401 would make clients drop the session.
+                return Result.BusinessRuleViolation(CurrentPasswordInvalid);
             }
 
             var newPasswordHash = _passwordHasherService.HashPassword(request.NewPassword);

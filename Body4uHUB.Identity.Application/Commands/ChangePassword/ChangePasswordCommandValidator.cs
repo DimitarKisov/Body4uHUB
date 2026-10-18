@@ -13,7 +13,8 @@ namespace Body4uHUB.Identity.Application.Commands.ChangePassword
 
             RuleFor(x => x.NewPassword)
                 .NotEmpty().WithMessage(PasswordRequired)
-                .Matches(PasswordRegex).WithMessage(PasswordInvalid);
+                .Matches(PasswordRegex).WithMessage(PasswordInvalid)
+                .NotEqual(x => x.CurrentPassword).WithMessage(NewPasswordSameAsCurrent);
         }
     }
 }

@@ -59,13 +59,13 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         }
 
         [Test]
-        public async Task Handle_ShouldReturnUnauthorizedAndKeepPassword_WhenCurrentPasswordIsWrong()
+        public async Task Handle_ShouldReturnBusinessRuleViolationAndKeepPassword_WhenCurrentPasswordIsWrong()
         {
             var result = await _handler.Handle(new ChangePasswordCommand(_user.Id, "WrongPassword1!", NewPassword), CancellationToken.None);
 
             Assert.That(result.IsSuccess, Is.False);
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Unauthorized));
-            Assert.That(result.Error, Is.EqualTo(InvalidCredentials));
+            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.BusinessRule));
+            Assert.That(result.Error, Is.EqualTo(CurrentPasswordInvalid));
             Assert.That(_user.PasswordHash, Is.EqualTo(CurrentHash));
             _passwordHasherService.Verify(x => x.HashPassword(It.IsAny<string>()), Times.Never);
             _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
