@@ -125,7 +125,7 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken)
         {
             var result = await Mediator.Send(new GetUserByIdQuery(id), cancellationToken);
