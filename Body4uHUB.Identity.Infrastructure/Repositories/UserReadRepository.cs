@@ -17,6 +17,7 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
 
             var items = await _dbContext.Users
                 .OrderBy(x => x.CreatedAt)
+                .ThenBy(x => x.Id) // tie-breaker: equal timestamps must not move between pages
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new GetAllUsersResponse(
