@@ -1,11 +1,10 @@
 ﻿using Body4uHUB.Identity.Application.Settings;
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.HealthChecks;
-using Body4uHUB.Shared.Infrastructure.Settings;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 namespace Body4uHUB.Identity.Api.Extensions
@@ -30,6 +29,17 @@ namespace Body4uHUB.Identity.Api.Extensions
             return services;
         }
 
+        public static IServiceCollection AddCustomHealthChecks(this IServiceCollection services)
+        {
+            services.AddHealthChecks()
+                .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["liveness"])
+                .AddCheck<StartupHealthCheck>("startup", tags: ["startup"])
+                .AddCheck<DatabaseReadinessHealthCheck>("sql-server", tags: ["readiness"])
+                .AddCheck<RabbitMqReadinessHealthCheck>("rabbitmq", tags: ["readiness"]);
+
+            return services;
+        }
+
         private static IServiceCollection AddRateLimitPolicies(this IServiceCollection services)
         {
             services.AddRateLimiter(options =>
@@ -45,6 +55,9 @@ namespace Body4uHUB.Identity.Api.Extensions
 
                 // Each registration sends an email, so this also caps how much mail one client can trigger.
                 options.AddPerIpFixedWindowPolicy(RateLimitPolicies.Register, permitLimit: 5, TimeSpan.FromHours(1));
+
+                // Per user: a stolen session should not allow unlimited guesses of the current password.
+                options.AddPerUserFixedWindowPolicy(RateLimitPolicies.ChangePassword, permitLimit: 5, TimeSpan.FromMinutes(15));
             });
 
             return services;
@@ -63,6 +76,23 @@ namespace Body4uHUB.Identity.Api.Extensions
                     }));
         }
 
+        // For authenticated endpoints (UseRateLimiter runs after UseAuthentication); falls back to the IP without a user id.
+        private static void AddPerUserFixedWindowPolicy(this RateLimiterOptions options, string policyName, int permitLimit, TimeSpan window)
+        {
+            options.AddPolicy(policyName, context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                        ?? context.Connection.RemoteIpAddress?.ToString()
+                        ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = permitLimit,
+                        Window = window,
+                        QueueLimit = 0
+                    }));
+        }
+
         private static IServiceCollection AddAppSettings(this IServiceCollection services, IConfiguration configuration)
         {
             services
@@ -70,17 +100,6 @@ namespace Body4uHUB.Identity.Api.Extensions
                 .Bind(configuration.GetSection(AppSettings.SectionName))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
-
-            return services;
-        }
-
-        public static IServiceCollection AddCustomHealthChecks(this IServiceCollection services)
-        {
-            services.AddHealthChecks()
-                .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["liveness"])
-                .AddCheck<StartupHealthCheck>("startup", tags: ["startup"])
-                .AddCheck<DatabaseReadinessHealthCheck>("sql-server", tags: ["readiness"])
-                .AddCheck<RabbitMqReadinessHealthCheck>("rabbitmq", tags: ["readiness"]);
 
             return services;
         }

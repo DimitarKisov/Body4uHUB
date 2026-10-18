@@ -1,3 +1,4 @@
+using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Identity.Api.Models.Roles;
 using Body4uHUB.Identity.Api.Models.Users;
 using Body4uHUB.Identity.Application.Commands.AddUserRoles;
@@ -14,6 +15,7 @@ using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Body4uHUB.Identity.Api.Controllers
 {
@@ -25,11 +27,13 @@ namespace Body4uHUB.Identity.Api.Controllers
         /// Change current user password
         /// </summary>
         [HttpPost("me/change-password")]
+        [EnableRateLimiting(RateLimitPolicies.ChangePassword)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
         {
             var command = new ChangePasswordCommand(
