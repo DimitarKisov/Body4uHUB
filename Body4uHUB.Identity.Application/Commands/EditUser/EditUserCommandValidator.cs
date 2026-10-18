@@ -16,8 +16,10 @@ public class EditUserCommandValidator : AbstractValidator<EditUserCommand>
             .NotEmpty().WithMessage(LastNameRequired)
             .Length(MinNameLength, MaxNameLength).WithMessage(string.Format(LastNameLength, MinNameLength, MaxNameLength));
 
+        // Optional, as on registration: only the format is checked when a number is given.
         RuleFor(x => x.PhoneNumber)
-            .NotEmpty().WithMessage(PhoneNumberRequired)
-            .Matches(PhoneNumberRegex).WithMessage(PhoneNumberInvalid);
+            .Matches(PhoneNumberRegex)
+            .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+            .WithMessage(PhoneNumberInvalid);
     }
 }
