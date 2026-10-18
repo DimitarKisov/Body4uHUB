@@ -5,5 +5,7 @@ namespace Body4uHUB.Shared.Domain.Abstractions
     public interface IEmailService
     {
         Task SendEmailConfirmation(string receiverEmail, string receiverName, string confirmationLink);
+
+        Task SendPasswordReset(string receiverEmail, string receiverName, string resetLink);
     }
 }

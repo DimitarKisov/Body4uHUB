@@ -59,5 +59,15 @@ namespace Body4uHUB.Identity.Application.Tests.DomainEventHandlers
                 x => x.PublishAsync(It.Is<TrainerAccountDeletedEvent>(e => e.UserId == _userId), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
+
+        [Test]
+        public async Task Handle_ShouldPublishPasswordResetRequestedEventWithToken_ForPasswordResetRequestedDomainEvent()
+        {
+            await _handler.Handle(new PasswordResetRequestedDomainEvent(_userId, "raw-token"), CancellationToken.None);
+
+            _eventBus.Verify(
+                x => x.PublishAsync(It.Is<PasswordResetRequestedEvent>(e => e.UserId == _userId && e.Token == "raw-token"), It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
     }
 }

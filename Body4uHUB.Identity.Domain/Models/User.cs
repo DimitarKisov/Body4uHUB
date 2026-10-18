@@ -3,6 +3,8 @@ using Body4uHUB.Identity.Domain.Exceptions;
 using Body4uHUB.Identity.Domain.ValueObjects;
 using Body4uHUB.Shared.Domain.Base;
 using Body4uHUB.Shared.Domain.Guards;
+using System.Security.Cryptography;
+using System.Text;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.RoleConstants;
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
@@ -21,6 +23,8 @@ public class User : AggregateRoot<Guid>
     public bool IsEmailConfirmed { get; private set; }
     public string EmailConfirmationToken { get; private set; }
     public DateTime? EmailConfirmationTokenExpiry { get; private set; }
+    public string PasswordResetTokenHash { get; private set; }
+    public DateTime? PasswordResetTokenExpiry { get; private set; }
     public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
 
     //За EF Core
@@ -128,6 +132,39 @@ public class User : AggregateRoot<Guid>
         AddDomainEvent(new EmailConfirmationTokenRegeneratedDomainEvent(Id));
     }
 
+    // Only the SHA-256 hash of the token is stored, so a leaked database cannot be used to reset passwords.
+    // A new request replaces the previous token, so only the latest email link works.
+    public void RequestPasswordReset(DateTime utcNow)
+    {
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+        PasswordResetTokenHash = HashPasswordResetToken(token);
+        PasswordResetTokenExpiry = EnsureUtc(utcNow).AddHours(PasswordResetTokenLifetimeHours);
+        AddDomainEvent(new PasswordResetRequestedDomainEvent(Id, token));
+    }
+
+    // The token is single-use: a successful reset clears it, so the same link cannot be used twice.
+    public void ResetPassword(string token, string newPasswordHash, DateTime utcNow)
+    {
+        var tokenMatches = !string.IsNullOrWhiteSpace(token)
+            && PasswordResetTokenHash != null
+            && CryptographicOperations.FixedTimeEquals(
+                Encoding.ASCII.GetBytes(HashPasswordResetToken(token)),
+                Encoding.ASCII.GetBytes(PasswordResetTokenHash));
+
+        var isTokenExpired = !(PasswordResetTokenExpiry > EnsureUtc(utcNow));
+
+        if (!tokenMatches || isTokenExpired)
+        {
+            throw new InvalidUserException(PasswordResetTokenInvalid);
+        }
+
+        UpdatePasswordHash(newPasswordHash);
+        PasswordResetTokenHash = null;
+        PasswordResetTokenExpiry = null;
+    }
+
     public bool HasRole(Guid roleId) => _roles.Any(x => x.RoleId == roleId);
 
     // The Trainer role and the trainer account go together: the role is granted when the account is
@@ -172,6 +209,9 @@ public class User : AggregateRoot<Guid>
         EmailConfirmationToken = Guid.NewGuid().ToString();
         EmailConfirmationTokenExpiry = EnsureUtc(utcNow).AddHours(EmailConfirmationTokenLifetimeHours);
     }
+
+    private static string HashPasswordResetToken(string token)
+        => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
     // The caller supplies "now", so a local time here is a programming error rather than invalid user input.
     private static DateTime EnsureUtc(DateTime utcNow)

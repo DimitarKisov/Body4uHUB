@@ -70,6 +70,7 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<SendEmailConfirmationConsumer>();
+                x.AddConsumer<SendPasswordResetConsumer>();
 
                 x.UsingRabbitMq((context, cfg) =>
                 {

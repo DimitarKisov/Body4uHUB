@@ -1,7 +1,9 @@
 ﻿using Body4uHUB.Identity.Application.Commands.ConfirmEmail;
+using Body4uHUB.Identity.Application.Commands.ForgotPassword;
 using Body4uHUB.Identity.Application.Commands.Login;
 using Body4uHUB.Identity.Application.Commands.Register;
 using Body4uHUB.Identity.Application.Commands.ResendEmailConfirmation;
+using Body4uHUB.Identity.Application.Commands.ResetPassword;
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Api.Extensions;
 using Body4uHUB.Shared.Api;
@@ -67,6 +69,35 @@ namespace Body4uHUB.Identity.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
         public async Task<IActionResult> ResendEmailConfirmation(ResendEmailConfirmationCommand command, CancellationToken cancellationToken)
+        {
+            var result = await Mediator.Send(command, cancellationToken);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Email a password reset link (valid 1 hour, single use). Always returns 204, whether or not the email is registered.
+        /// </summary>
+        [HttpPost("forgot-password")]
+        [EnableRateLimiting(RateLimitPolicies.ForgotPassword)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordCommand command, CancellationToken cancellationToken)
+        {
+            var result = await Mediator.Send(command, cancellationToken);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Set a new password with the token from the reset email. 422 when the link is invalid, expired or already used.
+        /// </summary>
+        [HttpPost("reset-password")]
+        [EnableRateLimiting(RateLimitPolicies.ResetPassword)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+        public async Task<IActionResult> ResetPassword(ResetPasswordCommand command, CancellationToken cancellationToken)
         {
             var result = await Mediator.Send(command, cancellationToken);
             return HandleResult(result);

@@ -39,6 +39,13 @@ namespace Body4uHUB.Identity.Infrastructure.Persistance.Configurations
             builder.Property(x => x.IsEmailConfirmed)
                 .IsRequired();
 
+            builder.Property(x => x.PasswordResetTokenHash)
+                .IsRequired(false)
+                .HasMaxLength(PasswordResetTokenHashLength);
+
+            builder.Property(x => x.PasswordResetTokenExpiry)
+                .IsRequired(false);
+
             builder.Property(x => x.EmailConfirmationToken)
                 .IsRequired(false)
                 .HasMaxLength(36);

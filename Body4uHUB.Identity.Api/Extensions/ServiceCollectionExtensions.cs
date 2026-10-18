@@ -58,6 +58,12 @@ namespace Body4uHUB.Identity.Api.Extensions
 
                 // Per user: a stolen session should not allow unlimited guesses of the current password.
                 options.AddPerUserFixedWindowPolicy(RateLimitPolicies.ChangePassword, permitLimit: 5, TimeSpan.FromMinutes(15));
+
+                // Each request sends an email, like resend-confirmation.
+                options.AddPerIpFixedWindowPolicy(RateLimitPolicies.ForgotPassword, permitLimit: 3, TimeSpan.FromMinutes(15));
+
+                // Caps token guessing; the token itself is 256 random bits.
+                options.AddPerIpFixedWindowPolicy(RateLimitPolicies.ResetPassword, permitLimit: 5, TimeSpan.FromMinutes(15));
             });
 
             return services;

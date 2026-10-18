@@ -483,5 +483,90 @@ namespace Body4uHUB.Identity.Domain.UnitTests.Models
 
             Assert.That(_user.DomainEvents, Is.Empty);
         }
+
+        private string RequestReset(DateTime? at = null)
+        {
+            _user.ClearDomainEvents();
+            _user.RequestPasswordReset(at ?? Now);
+            return ((PasswordResetRequestedDomainEvent)_user.DomainEvents[0]).Token;
+        }
+
+        [Test]
+        public void RequestPasswordReset_ShouldStoreOnlyTheTokenHashAndRaiseEventWithRawToken()
+        {
+            var token = RequestReset();
+
+            Assert.That(token, Has.Length.GreaterThanOrEqualTo(43));
+            Assert.That(_user.PasswordResetTokenHash, Has.Length.EqualTo(PasswordResetTokenHashLength));
+            Assert.That(_user.PasswordResetTokenHash, Does.Not.Contain(token));
+            Assert.That(_user.PasswordResetTokenExpiry, Is.EqualTo(Now.AddHours(PasswordResetTokenLifetimeHours)));
+            Assert.That(_user.DomainEvents[0], Is.TypeOf<PasswordResetRequestedDomainEvent>().And.Property("UserId").EqualTo(_user.Id));
+        }
+
+        [Test]
+        public void RequestPasswordReset_ShouldGenerateADifferentTokenEachTime()
+        {
+            Assert.That(RequestReset(), Is.Not.EqualTo(RequestReset()));
+        }
+
+        [Test]
+        public void ResetPassword_ShouldReplacePasswordHashAndClearToken_WhenTokenIsValid()
+        {
+            var token = RequestReset();
+
+            _user.ResetPassword(token, "AQAAAAEAACcQAAAAENewHashValue==", Now.AddMinutes(30));
+
+            Assert.That(_user.PasswordHash, Is.EqualTo("AQAAAAEAACcQAAAAENewHashValue=="));
+            Assert.That(_user.PasswordResetTokenHash, Is.Null);
+            Assert.That(_user.PasswordResetTokenExpiry, Is.Null);
+        }
+
+        [Test]
+        public void ResetPassword_ShouldThrow_WhenTokenIsReused()
+        {
+            var token = RequestReset();
+            _user.ResetPassword(token, "AQAAAAEAACcQAAAAENewHashValue==", Now);
+
+            var ex = Assert.Throws<InvalidUserException>(() => _user.ResetPassword(token, "AQAAAAEAACcQAAAAEOtherHashValue==", Now));
+            Assert.That(ex.Error, Is.EqualTo(PasswordResetTokenInvalid));
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        public void ResetPassword_ShouldThrowAndKeepPassword_WhenTokenHasExpired(int secondsAfterExpiry)
+        {
+            var token = RequestReset();
+            var at = Now.AddHours(PasswordResetTokenLifetimeHours).AddSeconds(secondsAfterExpiry);
+
+            Assert.Throws<InvalidUserException>(() => _user.ResetPassword(token, "AQAAAAEAACcQAAAAENewHashValue==", at));
+            Assert.That(_user.PasswordHash, Is.EqualTo(ValidPasswordHash));
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("not-the-token")]
+        public void ResetPassword_ShouldThrow_WhenTokenIsWrong(string token)
+        {
+            RequestReset();
+
+            Assert.Throws<InvalidUserException>(() => _user.ResetPassword(token, "AQAAAAEAACcQAAAAENewHashValue==", Now));
+            Assert.That(_user.PasswordHash, Is.EqualTo(ValidPasswordHash));
+        }
+
+        [Test]
+        public void ResetPassword_ShouldThrow_WhenNoResetWasRequested()
+        {
+            Assert.Throws<InvalidUserException>(() => _user.ResetPassword("anything", "AQAAAAEAACcQAAAAENewHashValue==", Now));
+        }
+
+        [Test]
+        public void ResetPassword_ShouldRejectTheOldToken_AfterANewRequest()
+        {
+            var oldToken = RequestReset();
+            var newToken = RequestReset();
+
+            Assert.Throws<InvalidUserException>(() => _user.ResetPassword(oldToken, "AQAAAAEAACcQAAAAENewHashValue==", Now));
+            Assert.DoesNotThrow(() => _user.ResetPassword(newToken, "AQAAAAEAACcQAAAAENewHashValue==", Now));
+        }
     }
 }

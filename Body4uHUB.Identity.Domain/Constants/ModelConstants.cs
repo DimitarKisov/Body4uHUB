@@ -12,6 +12,8 @@ public static class ModelConstants
         public const int MaxEmailLength = 200;
         public const int MaxPhoneNumberLength = 20;
         public const int EmailConfirmationTokenLifetimeHours = 24;
+        public const int PasswordResetTokenLifetimeHours = 1;
+        public const int PasswordResetTokenHashLength = 64; // SHA-256, hex
 
         public const string EmailRequired = "Email is required";
         public const string EmailInvalid = "Invalid email format";
@@ -31,6 +33,8 @@ public static class ModelConstants
         public const string EmailNotConfirmed = "Email is not confirmed.";
         public const string EmailConfirmationTokenInvalid = "Email confirmation token is invalid or has expired.";
         public const string EmailConfirmationTokenRequired = "Email confirmation token is required.";
+        public const string PasswordResetTokenInvalid = "Password reset token is invalid or has expired.";
+        public const string PasswordResetTokenRequired = "Password reset token is required.";
         public const string InvalidCredentials = "Invalid email or password.";
         public const string CurrentPasswordInvalid = "Current password is incorrect.";
         public const string NewPasswordSameAsCurrent = "New password must be different from the current password.";

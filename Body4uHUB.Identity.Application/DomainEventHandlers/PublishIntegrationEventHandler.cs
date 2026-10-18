@@ -13,7 +13,8 @@ namespace Body4uHUB.Identity.Application.DomainEventHandlers
         : INotificationHandler<UserRegisteredDomainEvent>,
           INotificationHandler<EmailConfirmationTokenRegeneratedDomainEvent>,
           INotificationHandler<TrainerRoleAssignedDomainEvent>,
-          INotificationHandler<TrainerRoleRevokedDomainEvent>
+          INotificationHandler<TrainerRoleRevokedDomainEvent>,
+          INotificationHandler<PasswordResetRequestedDomainEvent>
     {
         private readonly IEventBus _eventBus = eventBus;
 
@@ -28,5 +29,8 @@ namespace Body4uHUB.Identity.Application.DomainEventHandlers
 
         public Task Handle(TrainerRoleRevokedDomainEvent notification, CancellationToken cancellationToken)
             => _eventBus.PublishAsync(new TrainerAccountDeletedEvent { UserId = notification.UserId }, cancellationToken);
+
+        public Task Handle(PasswordResetRequestedDomainEvent notification, CancellationToken cancellationToken)
+            => _eventBus.PublishAsync(new PasswordResetRequestedEvent { UserId = notification.UserId, Token = notification.Token }, cancellationToken);
     }
 }
