@@ -8,6 +8,8 @@ trigger:
       - Body4uHUB.Content.Application/**
       - Body4uHUB.Content.Domain/**
       - Body4uHUB.Content.Infrastructure/**
+      - Body4uHUB.Content.Application.Tests/**
+      - Body4uHUB.Content.Domain.UnitTests/**
       - Body4uHUB.Shared/**
       - Body4uHUB.Shared.Api/**
       - Body4uHUB.Shared.Application/**
@@ -47,11 +49,24 @@ stages:
         version: $(dotnetVersion)
 
     - task: DotNetCoreCLI@2
-      displayName: 'Build Content Service'
+      displayName: 'Build Content Service and Tests'
       inputs:
         command: 'build'
-        projects: 'Body4uHUB.Content.Api/Body4uHUB.Content.Api.csproj'
+        projects: |
+          Body4uHUB.Content.Api/Body4uHUB.Content.Api.csproj
+          Body4uHUB.Content.Application.Tests/Body4uHUB.Content.Application.Tests.csproj
+          Body4uHUB.Content.Domain.UnitTests/Body4uHUB.Content.Domain.UnitTests.csproj
         arguments: '--configuration $(buildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Run Unit Tests'
+      inputs:
+        command: 'test'
+        projects: |
+          Body4uHUB.Content.Application.Tests/Body4uHUB.Content.Application.Tests.csproj
+          Body4uHUB.Content.Domain.UnitTests/Body4uHUB.Content.Domain.UnitTests.csproj
+        arguments: '--configuration $(buildConfiguration) --no-build'
+        publishTestResults: true
 
     - task: AzureCLI@2
       displayName: 'Build & Push Content API'
