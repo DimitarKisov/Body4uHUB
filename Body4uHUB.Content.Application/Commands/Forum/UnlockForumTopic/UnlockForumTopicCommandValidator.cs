@@ -9,7 +9,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic
         public UnlockForumTopicCommandValidator()
         {
             RuleFor(x => x.TopicId)
-                .NotEmpty().WithMessage(ForumTopicIdRequired);
+                .GreaterThan(0).WithMessage(ForumTopicIdRequired);
         }
     }
 }

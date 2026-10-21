@@ -10,7 +10,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumTopic
         public EditForumTopicCommandValidator()
         {
             RuleFor(x => x.TopicId)
-                .NotEmpty().WithMessage(ForumTopicIdRequired);
+                .GreaterThan(0).WithMessage(ForumTopicIdRequired);
 
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage(TitleRequired)

@@ -10,7 +10,7 @@
         public PublishArticleValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage(ArticleIdRequired);
+                .GreaterThan(0).WithMessage(ArticleIdRequired);
         }
     }
 }

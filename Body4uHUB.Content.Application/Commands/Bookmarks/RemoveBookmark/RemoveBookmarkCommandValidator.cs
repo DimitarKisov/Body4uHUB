@@ -12,7 +12,7 @@
                 .NotEmpty().WithMessage(UserIdRequired);
 
             RuleFor(x => x.ArticleId)
-                .NotEmpty().WithMessage(ArticleIdRequired);
+                .GreaterThan(0).WithMessage(ArticleIdRequired);
         }
     }
 }

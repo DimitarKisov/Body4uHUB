@@ -11,13 +11,13 @@
         {
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage(ContentRequired)
-                .Length(ForumPostContentMinLength, ForumPostContentMaxLength).WithMessage(ContentLengthMessage);
+                .Length(ForumPostContentMinLength, ForumPostContentMaxLength).WithMessage(string.Format(ContentLengthMessage, ForumPostContentMinLength, ForumPostContentMaxLength));
 
             RuleFor(x => x.AuthorId)
                 .NotEmpty().WithMessage(AuthorIdRequired);
 
             RuleFor(x => x.TopicId)
-                .NotEmpty().WithMessage(ForumTopicIdRequired);
+                .GreaterThan(0).WithMessage(ForumTopicIdRequired);
         }
     }
 }

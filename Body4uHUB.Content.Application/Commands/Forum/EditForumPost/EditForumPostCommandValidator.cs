@@ -10,14 +10,14 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
         public EditForumPostCommandValidator()
         {
             RuleFor(x => x.PostId)
-                .NotEmpty().WithMessage(ForumPostIdRequired);
+                .GreaterThan(0).WithMessage(ForumPostIdRequired);
 
             RuleFor(x => x.TopicId)
-                .NotEmpty().WithMessage(ForumTopicIdRequired);
+                .GreaterThan(0).WithMessage(ForumTopicIdRequired);
 
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage(ContentRequired)
-                .Length(ForumPostContentMinLength, ForumPostContentMaxLength).WithMessage(ContentLengthMessage);
+                .Length(ForumPostContentMinLength, ForumPostContentMaxLength).WithMessage(string.Format(ContentLengthMessage, ForumPostContentMinLength, ForumPostContentMaxLength));
         }
     }
 }

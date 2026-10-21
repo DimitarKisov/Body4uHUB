@@ -9,10 +9,10 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
         public DeleteForumPostCommandValidator()
         {
             RuleFor(x => x.PostId)
-                .NotEmpty().WithMessage(ForumPostIdRequired);
+                .GreaterThan(0).WithMessage(ForumPostIdRequired);
 
             RuleFor(x => x.TopicId)
-                .NotEmpty().WithMessage(ForumTopicIdRequired);
+                .GreaterThan(0).WithMessage(ForumTopicIdRequired);
         }
     }
 }

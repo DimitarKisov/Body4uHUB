@@ -11,7 +11,7 @@
         {
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage(TitleRequired)
-                .Length(TitleMinLength, TitleMaxLength).WithMessage(TitleLengthMessage);
+                .Length(TitleMinLength, TitleMaxLength).WithMessage(string.Format(TitleLengthMessage, TitleMinLength, TitleMaxLength));
 
             RuleFor(x => x.AuthorId)
                 .NotEmpty().WithMessage(AuthorIdRequired);

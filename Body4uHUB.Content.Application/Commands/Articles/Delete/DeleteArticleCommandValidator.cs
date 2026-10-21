@@ -9,7 +9,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
         public DeleteArticleCommandValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage(ArticleIdRequired);
+                .GreaterThan(0).WithMessage(ArticleIdRequired);
         }
     }
 }

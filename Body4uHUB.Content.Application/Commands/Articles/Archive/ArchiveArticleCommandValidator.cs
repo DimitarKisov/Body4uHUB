@@ -9,7 +9,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Archive
         public ArchiveArticleCommandValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage(ArticleIdRequired);
+                .GreaterThan(0).WithMessage(ArticleIdRequired);
         }
     }
 }

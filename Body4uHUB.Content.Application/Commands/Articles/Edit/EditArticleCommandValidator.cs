@@ -10,7 +10,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
         public EditArticleCommandValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage(ArticleIdRequired);
+                .GreaterThan(0).WithMessage(ArticleIdRequired);
 
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage(TitleRequired)

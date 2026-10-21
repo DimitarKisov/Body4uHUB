@@ -11,13 +11,13 @@
         {
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage(ContentRequired)
-                .Length(CommentContentMinLength, CommentContentMaxLength).WithMessage(ContentLengthMessage);
+                .Length(CommentContentMinLength, CommentContentMaxLength).WithMessage(string.Format(ContentLengthMessage, CommentContentMinLength, CommentContentMaxLength));
 
             RuleFor(x => x.AuthorId)
                 .NotEmpty().WithMessage(AuthorIdRequired);
 
             RuleFor(x => x.ArticleId)
-                .GreaterThan(0).WithMessage("ArticleId must be greater than 0.");
+                .GreaterThan(0).WithMessage(ArticleIdRequired);
         }
     }
 }
