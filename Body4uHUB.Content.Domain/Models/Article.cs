@@ -172,7 +172,10 @@ namespace Body4uHUB.Content.Domain.Models
                 throw new DomainNotFoundException(CommentNotFound);
             }
 
-            EnsureCanBeModifiedBy(requesterId, isAdmin);
+            if (!isAdmin && comment.AuthorId != requesterId)
+            {
+                throw new DomainAuthorizationException(CommentDeleteForbidden);
+            }
 
             if (comment.IsDeleted)
             {
