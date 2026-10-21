@@ -70,6 +70,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
         public async Task<GetArticleByIdResponse> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles
+                .Where(x => x.Id == id && !x.IsDeleted)
                 .Select(x => new GetArticleByIdResponse(
                     x.Id,
                     x.Title,
@@ -77,18 +78,22 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                     x.AuthorId,
                     x.Status.Name,
                     x.PublishedAt,
-                    x.ViewCount + 1,
+                    x.ViewCount,
                     x.CreatedAt,
                     x.ModifiedAt,
-                    x.Comments.Select(y => new CommentDto
-                    {
-                        Id = y.Id,
-                        AuthorId = y.AuthorId,
-                        Content = y.Content,
-                        CreatedAt = y.CreatedAt,
-                        ModifiedAt = y.ModifiedAt
-                    }).ToList()))
-                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+                    x.Comments
+                        .OrderBy(y => y.CreatedAt)
+                        .Select(y => new CommentDto
+                        {
+                            Id = y.Id,
+                            AuthorId = y.AuthorId,
+                            Content = y.Content,
+                            ParentCommentId = y.ParentCommentId,
+                            IsDeleted = y.IsDeleted,
+                            CreatedAt = y.CreatedAt,
+                            ModifiedAt = y.ModifiedAt
+                        }).ToList()))
+                .FirstOrDefaultAsync(cancellationToken);
         }
     }
 }

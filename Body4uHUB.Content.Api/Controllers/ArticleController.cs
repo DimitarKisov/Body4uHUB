@@ -108,14 +108,19 @@ namespace Body4uHUB.Content.Api.Controllers
         }
 
         /// <summary>
-        /// Get article by ID
+        /// Get article by ID (drafts and archived articles are visible to their author and admins only)
         /// </summary>
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(GetArticleByIdResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetArticle(int id)
         {
-            var result = await Mediator.Send(new GetArticleByIdQuery(id));
+            var authContext = User.Identity?.IsAuthenticated == true
+                ? AuthorizationContext.Create(User.GetUserId(), User.IsAdmin())
+                : null;
+
+            var result = await Mediator.Send(new GetArticleByIdQuery(id, authContext));
 
             return HandleResult(result);
         }
