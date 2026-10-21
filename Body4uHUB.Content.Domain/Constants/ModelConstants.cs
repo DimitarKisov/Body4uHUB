@@ -67,6 +67,7 @@
             public const string ForumTopicNotFound = "Forum topic not found.";
             public const string ForumTopicExists = "Forum topic with title '{0}' already exists.";
             public const string ForumTopicLocked = "Forum topic is already locked.";
+            public const string ForumTopicIsLocked = "Forum topic is locked.";
             public const string ForumTopicUnlocked = "Forum topic is already unlocked.";
             public const string ForumTopicModifyForbidden = "You do not have permission to modify this forum topic.";
             public const string ForumTopicDeleted = "Cannot modify a deleted forum topic.";
@@ -79,6 +80,7 @@
             public const int ForumPostContentMaxLength = 2000;
 
             public const string ForumPostDeleted = "Cannot update content of a deleted forum post.";
+            public const string ForumPostAlreadyDeleted = "Forum post is already deleted.";
             public const string ForumPostEditForbidden = "You do not have permission to edit this post.";
             public const string ForumPostNotFound = "Forum post not found.";
             public const string ForumPostDeleteForbidden = "You do not have permission to delete this post.";

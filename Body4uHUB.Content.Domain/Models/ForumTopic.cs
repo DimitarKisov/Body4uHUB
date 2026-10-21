@@ -41,11 +41,7 @@ namespace Body4uHUB.Content.Domain.Models
 
         public void Edit(string title, Guid requesterId, bool isAdmin)
         {
-            if (IsDeleted)
-            {
-                throw new InvalidForumTopicException(ForumTopicDeleted);
-            }
-
+            EnsureNotDeleted();
             EnsureCanBeModifiedBy(requesterId, isAdmin);
 
             ValidateTitle(title);
@@ -54,9 +50,11 @@ namespace Body4uHUB.Content.Domain.Models
 
         public ForumPost AddPost(string content, Guid authorId)
         {
+            EnsureNotDeleted();
+
             if (IsLocked)
             {
-                throw new InvalidForumTopicException(ForumTopicLocked);
+                throw new InvalidForumTopicException(ForumTopicIsLocked);
             }
 
             var post = ForumPost.Create(content, authorId);
@@ -67,6 +65,9 @@ namespace Body4uHUB.Content.Domain.Models
 
         public void EditPost(int postId, string content, Guid requesterId, bool isAdmin)
         {
+            EnsureNotDeleted();
+            EnsurePostsCanBeModifiedBy(isAdmin);
+
             var post = _posts.FirstOrDefault(x => x.Id == postId);
             if (post == null)
             {
@@ -83,6 +84,9 @@ namespace Body4uHUB.Content.Domain.Models
 
         public void DeletePost(int postId, Guid requesterId, bool isAdmin)
         {
+            EnsureNotDeleted();
+            EnsurePostsCanBeModifiedBy(isAdmin);
+
             var post = _posts.FirstOrDefault(x => x.Id == postId);
             if (post == null)
             {
@@ -92,6 +96,11 @@ namespace Body4uHUB.Content.Domain.Models
             if (!isAdmin && post.AuthorId != requesterId)
             {
                 throw new DomainAuthorizationException(ForumPostDeleteForbidden);
+            }
+
+            if (post.IsDeleted)
+            {
+                throw new InvalidForumPostException(ForumPostAlreadyDeleted);
             }
 
             post.MarkAsDeleted();
@@ -122,6 +131,8 @@ namespace Body4uHUB.Content.Domain.Models
 
         public void Lock()
         {
+            EnsureNotDeleted();
+
             if (IsLocked)
             {
                 throw new InvalidForumTopicException(ForumTopicLocked);
@@ -132,6 +143,8 @@ namespace Body4uHUB.Content.Domain.Models
 
         public void Unlock()
         {
+            EnsureNotDeleted();
+
             if (!IsLocked)
             {
                 throw new InvalidForumTopicException(ForumTopicUnlocked);
@@ -150,6 +163,22 @@ namespace Body4uHUB.Content.Domain.Models
             if (!isAdmin && AuthorId != requesterId)
             {
                 throw new DomainAuthorizationException(ForumTopicModifyForbidden);
+            }
+        }
+
+        private void EnsureNotDeleted()
+        {
+            if (IsDeleted)
+            {
+                throw new InvalidForumTopicException(ForumTopicDeleted);
+            }
+        }
+
+        private void EnsurePostsCanBeModifiedBy(bool isAdmin)
+        {
+            if (IsLocked && !isAdmin)
+            {
+                throw new InvalidForumTopicException(ForumTopicIsLocked);
             }
         }
 

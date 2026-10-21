@@ -101,6 +101,11 @@ namespace Body4uHUB.Content.Domain.Models
         {
             EnsureCanBeModifiedBy(requesterId, isAdmin);
 
+            if (IsDeleted)
+            {
+                throw new InvalidArticleException(ArticleAlreadyDeleted);
+            }
+
             if (Status != ArticleStatus.Published)
             {
                 throw new InvalidArticleException(ArticleNotPublished);
@@ -136,6 +141,11 @@ namespace Body4uHUB.Content.Domain.Models
 
         public Guid AddComment(string content, Guid authorId, Guid? parentCommentId)
         {
+            if (IsDeleted)
+            {
+                throw new InvalidArticleException(ArticleAlreadyDeleted);
+            }
+
             if (Status != ArticleStatus.Published)
             {
                 throw new InvalidArticleException(ArticleNotPublished);

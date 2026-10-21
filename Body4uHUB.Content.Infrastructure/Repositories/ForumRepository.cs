@@ -2,22 +2,13 @@
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Content.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories
 {
-    internal class ForumRepository : IForumRepository
+    internal sealed class ForumRepository(ContentDbContext dbContext)
+        : IForumRepository
     {
-        private readonly ContentDbContext _dbContext;
-
-        public ForumRepository(ContentDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly ContentDbContext _dbContext = dbContext;
 
         public void Add(ForumTopic forumTopic)
         {
@@ -44,6 +35,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
         public async Task<ForumTopic> GetByIdWithPostsAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.ForumTopics
+                .Where(x => !x.IsDeleted)
                 .Include(x => x.Posts
                     .Where(y => !y.IsDeleted))
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
