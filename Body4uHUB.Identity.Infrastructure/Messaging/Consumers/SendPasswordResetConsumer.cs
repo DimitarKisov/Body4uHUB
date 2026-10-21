@@ -39,7 +39,7 @@ namespace Body4uHUB.Identity.Infrastructure.Messaging.Consumers
             var frontendUrl = _appSettings.FrontendUrl.TrimEnd('/');
             var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(context.Message.Token)}&email={Uri.EscapeDataString(email)}";
 
-            await _emailService.SendPasswordReset(email, $"{user.FirstName} {user.LastName}", resetLink);
+            await _emailService.SendPasswordReset(email, user.FirstName, user.LastName, resetLink);
 
             _logger.LogInformation("Password reset email sent to user {UserId}", userId);
         }

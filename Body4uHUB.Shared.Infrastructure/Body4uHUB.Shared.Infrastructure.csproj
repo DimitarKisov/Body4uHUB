@@ -10,6 +10,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Branded emails from design/emails (design 2026-10-21). -->
+    <EmbeddedResource Include="Email\Templates\*.html" LogicalName="EmailTemplates.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Body4uHUB.Shared\Body4uHUB.Shared.Domain.csproj" />
   </ItemGroup>
 

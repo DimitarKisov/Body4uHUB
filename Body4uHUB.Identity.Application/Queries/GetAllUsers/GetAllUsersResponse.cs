@@ -7,5 +7,6 @@ namespace Body4uHUB.Identity.Application.Queries.GetAllUsers
         string LastName,
         string PhoneNumber,
         DateTime CreatedAt,
-        bool IsEmailConfirmed);
+        bool IsEmailConfirmed,
+        IReadOnlyList<string> Roles);
 }

@@ -27,7 +27,11 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
                     x.LastName,
                     x.ContactInfo.PhoneNumber,
                     x.CreatedAt,
-                    x.IsEmailConfirmed))
+                    x.IsEmailConfirmed,
+                    _dbContext.Roles
+                        .Where(r => x.Roles.Any(ur => ur.RoleId == r.Id))
+                        .Select(r => r.Name)
+                        .ToList()))
                 .ToListAsync(cancellationToken);
 
             return new PagedResult<GetAllUsersResponse>(items, totalCount, page, pageSize);

@@ -50,7 +50,7 @@ namespace Body4uHUB.Identity.Infrastructure.Messaging.Consumers
             var frontendUrl = _appSettings.FrontendUrl.TrimEnd('/');
             var confirmationLink = $"{frontendUrl}/confirm-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(email)}";
 
-            await _emailService.SendEmailConfirmation(email, $"{user.FirstName} {user.LastName}", confirmationLink);
+            await _emailService.SendEmailConfirmation(email, user.FirstName, user.LastName, confirmationLink);
 
             _logger.LogInformation("Email confirmation sent to user {UserId}", userId);
         }
