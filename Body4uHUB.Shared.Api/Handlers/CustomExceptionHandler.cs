@@ -10,18 +10,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Body4uHUB.Shared.Api.Handlers
 {
-    public class CustomExceptionHandler : IExceptionHandler
+    public sealed class CustomExceptionHandler(
+        ILogger<CustomExceptionHandler> logger,
+        IWebHostEnvironment env)
+        : IExceptionHandler
     {
-        private readonly ILogger<CustomExceptionHandler> _logger;
-        private readonly IWebHostEnvironment _env;
-
-        public CustomExceptionHandler(
-            ILogger<CustomExceptionHandler> logger,
-            IWebHostEnvironment env)
-        {
-            _logger = logger;
-            _env = env;
-        }
+        private readonly ILogger<CustomExceptionHandler> _logger = logger;
+        private readonly IWebHostEnvironment _env = env;
 
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
@@ -62,6 +57,13 @@ namespace Body4uHUB.Shared.Api.Handlers
                     problemDetails.Title = "Resource not found";
                     problemDetails.Detail = domainNotFoundEx.Error;
                     problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4";
+                    break;
+
+                case DomainAuthorizationException domainAuthorizationEx:
+                    problemDetails.Status = StatusCodes.Status403Forbidden;
+                    problemDetails.Title = "Forbidden";
+                    problemDetails.Detail = domainAuthorizationEx.Error;
+                    problemDetails.Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3";
                     break;
 
                 case BaseDomainException domainEx:
