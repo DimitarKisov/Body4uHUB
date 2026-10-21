@@ -6,20 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories
 {
-    internal class BookmarkReadRepository : IBookmarkReadRepository
+    internal sealed class BookmarkReadRepository(ContentDbContext dbContext) : IBookmarkReadRepository
     {
-        private readonly ContentDbContext _dbContext;
-
-        public BookmarkReadRepository(ContentDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly ContentDbContext _dbContext = dbContext;
 
         public async Task<PagedResult<GetUserBookmarksResponse>> GetByUserIdAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default)
         {
             var query = _dbContext.Bookmarks.Where(b => b.UserId == userId);
 
-            var totalCount = query.Count();
+            var totalCount = await query.CountAsync(cancellationToken);
 
             var items = await (from b in query
                                join a in _dbContext.Articles on b.ArticleId equals a.Id

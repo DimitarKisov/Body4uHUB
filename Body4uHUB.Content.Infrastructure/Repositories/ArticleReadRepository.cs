@@ -11,22 +11,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories
 {
-    internal class ArticleReadRepository : IArticleReadRepository
+    internal sealed class ArticleReadRepository(ContentDbContext dbContext) : IArticleReadRepository
     {
-        private readonly ContentDbContext _dbContext;
-
-        public ArticleReadRepository(ContentDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly ContentDbContext _dbContext = dbContext;
 
         public async Task<PagedResult<GetAllArticlesResponse>> GetAllArticlesAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
             var query = _dbContext.Articles.Where(x => !x.IsDeleted && x.Status == ArticleStatus.Published);
 
-            var totalCount = query.Count();
+            var totalCount = await query.CountAsync(cancellationToken);
 
-            var items = await _dbContext.Articles
+            var items = await query
                 .OrderByDescending(x => x.PublishedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -52,10 +47,10 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                             x.Status == ArticleStatus.Published &&
                             !x.IsDeleted);
 
-            var totalCount = query.Count();
+            var totalCount = await query.CountAsync(cancellationToken);
 
-            var items = await _dbContext.Articles
-                .OrderByDescending(x => x.CreatedAt)
+            var items = await query
+                .OrderByDescending(x => x.PublishedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new GetArticlesByAuthorResponse(
