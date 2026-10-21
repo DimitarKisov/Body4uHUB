@@ -75,6 +75,10 @@
             builder.HasIndex(x => x.AuthorId);
             builder.HasIndex(x => x.CreatedAt);
 
+            builder.HasIndex(x => x.Title)
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
+
             // Ignore domain events
             builder.Ignore(x => x.DomainEvents);
         }

@@ -5,14 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories
 {
-    internal class ArticleRepository : IArticleRepository
+    internal sealed class ArticleRepository(ContentDbContext dbContext)
+        : IArticleRepository
     {
-        private readonly ContentDbContext _dbContext;
-
-        public ArticleRepository(ContentDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly ContentDbContext _dbContext = dbContext;
 
         public void Add(Article article)
         {
@@ -22,11 +18,6 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
         public async Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Articles.AnyAsync(x => x.Id == id, cancellationToken);
-        }
-
-        public async Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default)
-        {
-            return await _dbContext.Articles.AnyAsync(x => x.Title == title, cancellationToken);
         }
 
         public async Task<Article> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)

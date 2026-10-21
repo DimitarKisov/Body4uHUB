@@ -13,7 +13,6 @@
             public const string IdCannotBeZeroOrNegative = "Article ID must be greater than 0.";
 
             public const string ArticleAlreadyPublished = "Article is already published.";
-            public const string ArticleExists = "Article with title '{0}' already exists";
             public const string ArticleModifyForbidden = "You do not have permission to modify this article.";
             public const string ArticleNotFound = "Article not found.";
             public const string ArticleNotPublished = "Article is not published.";

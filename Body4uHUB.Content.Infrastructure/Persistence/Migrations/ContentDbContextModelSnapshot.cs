@@ -145,6 +145,10 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                     b.HasIndex("Id")
                         .IsUnique();
 
+                    b.HasIndex("Title")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
                     b.ToTable("ForumTopics", (string)null);
                 });
 
@@ -153,7 +157,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                     b.OwnsMany("Body4uHUB.Content.Domain.Models.Comment", "Comments", b1 =>
                         {
                             b1.Property<Guid>("Id")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<int>("ArticleId")

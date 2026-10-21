@@ -4,34 +4,20 @@ using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
 
-using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
-
 namespace Body4uHUB.Content.Application.Commands.Articles.Create
 {
     public record CreateArticleCommand(string Title, string Content, Guid AuthorId) : IRequest<Result<CreateArticleResponse>>;
 
-    internal sealed class CreateArticleCommandHandler : IRequestHandler<CreateArticleCommand, Result<CreateArticleResponse>>
+    internal sealed class CreateArticleCommandHandler(
+        IArticleRepository articleRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<CreateArticleCommand, Result<CreateArticleResponse>>
     {
-        private readonly IArticleRepository _articleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CreateArticleCommandHandler(
-            IArticleRepository articleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _articleRepository = articleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IArticleRepository _articleRepository = articleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<CreateArticleResponse>> Handle(CreateArticleCommand request, CancellationToken cancellationToken)
         {
-            var articleExists = await _articleRepository.ExistsByTitleAsync(request.Title, cancellationToken);
-
-            if (articleExists)
-            {
-                return Result.Conflict<CreateArticleResponse>(string.Format(ArticleExists, request.Title));
-            }
-
             var article = Article.Create(
                 request.Title,
                 request.Content,

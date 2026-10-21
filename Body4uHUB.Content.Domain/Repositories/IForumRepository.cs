@@ -9,7 +9,7 @@ namespace Body4uHUB.Content.Domain.Repositories
         Task<ForumTopic> GetByIdAsync(int id, CancellationToken cancellationToken = default);
         Task<ForumTopic> GetByIdWithPostsAsync(int id, CancellationToken cancellationToken = default);
         Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default);
-        Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default);
+        Task<bool> ExistsByTitleAsync(string title, int? exceptTopicId = null, CancellationToken cancellationToken = default);
         Task<bool> IncrementViewCountAsync(int id, CancellationToken cancellationToken = default);
         void Remove(ForumTopic forumTopic);
     }

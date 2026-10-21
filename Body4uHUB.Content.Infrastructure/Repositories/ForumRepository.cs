@@ -20,9 +20,10 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             return await _dbContext.ForumTopics.AnyAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsByTitleAsync(string title, int? exceptTopicId = null, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.ForumTopics.AnyAsync(x => x.Title == title, cancellationToken);
+            return await _dbContext.ForumTopics
+                .AnyAsync(x => x.Title == title && !x.IsDeleted && x.Id != exceptTopicId, cancellationToken);
         }
 
         public async Task<ForumTopic> GetByIdAsync(int id, CancellationToken cancellationToken = default)

@@ -50,7 +50,6 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(typeof(CreateArticleResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request)
         {
             var command = new CreateArticleCommand(
