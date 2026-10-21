@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Content.Application.DTOs;
+﻿using Body4uHUB.Content.Application.Abstractions;
+using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Repositories;
@@ -9,15 +10,17 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Queries.Articles.GetById
 {
-    public record GetArticleByIdQuery(int Id, AuthorizationContext AuthContext) : IRequest<Result<GetArticleByIdResponse>>;
+    public record GetArticleByIdQuery(int Id, AuthorizationContext AuthContext, string VisitorIp) : IRequest<Result<GetArticleByIdResponse>>;
 
     internal sealed class GetArticleByIdQueryHandler(
         IArticleRepository articleRepository,
-        IArticleReadRepository articleReadRepository)
+        IArticleReadRepository articleReadRepository,
+        IViewTracker viewTracker)
         : IRequestHandler<GetArticleByIdQuery, Result<GetArticleByIdResponse>>
     {
         private readonly IArticleRepository _articleRepository = articleRepository;
         private readonly IArticleReadRepository _articleReadRepository = articleReadRepository;
+        private readonly IViewTracker _viewTracker = viewTracker;
 
         public async Task<Result<GetArticleByIdResponse>> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
         {
@@ -33,7 +36,7 @@ namespace Body4uHUB.Content.Application.Queries.Articles.GetById
                 return Result.ResourceNotFound<GetArticleByIdResponse>(ArticleNotFound);
             }
 
-            if (isPublished)
+            if (isPublished && await _viewTracker.TryRegisterViewAsync(ViewTarget.Article, request.Id, request.VisitorIp, cancellationToken))
             {
                 var success = await _articleRepository.IncrementViewCountAsync(request.Id, cancellationToken);
                 if (!success)

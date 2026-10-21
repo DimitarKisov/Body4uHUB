@@ -1,3 +1,4 @@
+using Body4uHUB.Content.Application.Abstractions;
 using Body4uHUB.Content.Application.Repositories;
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
@@ -7,20 +8,17 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Application.Queries.Forum.GetById
 {
-    public record GetForumTopicByIdQuery(int TopicId) : IRequest<Result<GetForumTopicByIdResponse>>;
+    public record GetForumTopicByIdQuery(int TopicId, string VisitorIp) : IRequest<Result<GetForumTopicByIdResponse>>;
 
-    internal sealed class GetForumTopicByIdQueryHandler : IRequestHandler<GetForumTopicByIdQuery, Result<GetForumTopicByIdResponse>>
+    internal sealed class GetForumTopicByIdQueryHandler(
+        IForumRepository forumRepository,
+        IForumReadRepository forumReadRepository,
+        IViewTracker viewTracker)
+        : IRequestHandler<GetForumTopicByIdQuery, Result<GetForumTopicByIdResponse>>
     {
-        private readonly IForumRepository _forumRepository;
-        private readonly IForumReadRepository _forumReadRepository;
-
-        public GetForumTopicByIdQueryHandler(
-            IForumRepository forumRepository,
-            IForumReadRepository forumReadRepository)
-        {
-            _forumRepository = forumRepository;
-            _forumReadRepository = forumReadRepository;
-        }
+        private readonly IForumRepository _forumRepository = forumRepository;
+        private readonly IForumReadRepository _forumReadRepository = forumReadRepository;
+        private readonly IViewTracker _viewTracker = viewTracker;
 
         public async Task<Result<GetForumTopicByIdResponse>> Handle(GetForumTopicByIdQuery request, CancellationToken cancellationToken)
         {
@@ -30,10 +28,15 @@ namespace Body4uHUB.Content.Application.Queries.Forum.GetById
                 return Result.ResourceNotFound<GetForumTopicByIdResponse>(ForumTopicNotFound);
             }
 
-            var success = await _forumRepository.IncrementViewCountAsync(request.TopicId, cancellationToken);
-            if (!success)
+            if (await _viewTracker.TryRegisterViewAsync(ViewTarget.ForumTopic, request.TopicId, request.VisitorIp, cancellationToken))
             {
-                return Result.ResourceNotFound<GetForumTopicByIdResponse>(ForumTopicNotFound);
+                var success = await _forumRepository.IncrementViewCountAsync(request.TopicId, cancellationToken);
+                if (!success)
+                {
+                    return Result.ResourceNotFound<GetForumTopicByIdResponse>(ForumTopicNotFound);
+                }
+
+                topic = topic with { ViewCount = topic.ViewCount + 1 };
             }
 
             return Result.Success(topic);

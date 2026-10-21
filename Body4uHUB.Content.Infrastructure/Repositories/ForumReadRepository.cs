@@ -52,7 +52,7 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                     x.Title,
                     x.AuthorId,
                     x.IsLocked,
-                    x.ViewCount + 1,
+                    x.ViewCount,
                     x.Posts.Count(y => !y.IsDeleted),
                     x.CreatedAt,
                     x.ModifiedAt,

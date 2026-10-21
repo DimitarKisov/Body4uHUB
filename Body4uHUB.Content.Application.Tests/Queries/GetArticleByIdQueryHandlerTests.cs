@@ -1,3 +1,4 @@
+using Body4uHUB.Content.Application.Abstractions;
 using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles.GetById;
 using Body4uHUB.Content.Application.Repositories;
@@ -13,9 +14,11 @@ namespace Body4uHUB.Content.Application.Tests.Queries
     {
         private const int ArticleId = 7;
         private const int ViewCount = 10;
+        private const string VisitorIp = "203.0.113.5";
 
         private Mock<IArticleRepository> _articleRepository;
         private Mock<IArticleReadRepository> _articleReadRepository;
+        private Mock<IViewTracker> _viewTracker;
         private GetArticleByIdQueryHandler _handler;
         private Guid _authorId;
 
@@ -24,12 +27,22 @@ namespace Body4uHUB.Content.Application.Tests.Queries
         {
             _articleRepository = new Mock<IArticleRepository>();
             _articleReadRepository = new Mock<IArticleReadRepository>();
-            _handler = new GetArticleByIdQueryHandler(_articleRepository.Object, _articleReadRepository.Object);
+            _viewTracker = new Mock<IViewTracker>();
+            _handler = new GetArticleByIdQueryHandler(_articleRepository.Object, _articleReadRepository.Object, _viewTracker.Object);
             _authorId = Guid.NewGuid();
 
             _articleRepository
                 .Setup(x => x.IncrementViewCountAsync(ArticleId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
+
+            SetupViewAlreadyCountedToday(false);
+        }
+
+        private void SetupViewAlreadyCountedToday(bool alreadyCounted)
+        {
+            _viewTracker
+                .Setup(x => x.TryRegisterViewAsync(ViewTarget.Article, ArticleId, VisitorIp, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(!alreadyCounted);
         }
 
         private void SetupArticle(ArticleStatus status, params CommentDto[] comments)
@@ -42,7 +55,20 @@ namespace Body4uHUB.Content.Application.Tests.Queries
 
         private Task<Result<GetArticleByIdResponse>> Send(AuthorizationContext authContext)
         {
-            return _handler.Handle(new GetArticleByIdQuery(ArticleId, authContext), CancellationToken.None);
+            return _handler.Handle(new GetArticleByIdQuery(ArticleId, authContext, VisitorIp), CancellationToken.None);
+        }
+
+        [Test]
+        public async Task Handle_ShouldNotIncrementViewCount_WhenVisitorWasAlreadyCountedToday()
+        {
+            SetupArticle(ArticleStatus.Published);
+            SetupViewAlreadyCountedToday(true);
+
+            var result = await Send(null);
+
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.Value.ViewCount, Is.EqualTo(ViewCount));
+            _articleRepository.Verify(x => x.IncrementViewCountAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Test]
@@ -101,6 +127,7 @@ namespace Body4uHUB.Content.Application.Tests.Queries
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Value.ViewCount, Is.EqualTo(ViewCount));
             _articleRepository.Verify(x => x.IncrementViewCountAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+            _viewTracker.Verify(x => x.TryRegisterViewAsync(It.IsAny<ViewTarget>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [TestCaseSource(nameof(UnpublishedStatuses))]

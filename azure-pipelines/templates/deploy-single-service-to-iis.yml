@@ -161,6 +161,7 @@ jobs:
 
                       # Content Service tokens
                       if ($env:CONTENTDB_CONNECTIONSTRING)     { $content = $content -replace '#\{ContentDb-ConnectionString\}#',    $env:CONTENTDB_CONNECTIONSTRING }
+                      if ($env:VIEWTRACKING_HASHKEY)           { $content = $content -replace '#\{ViewTracking-HashKey\}#',          $env:VIEWTRACKING_HASHKEY }
 
                       # Services Marketplace tokens
                       if ($env:SERVICESDB_CONNECTIONSTRING)    { $content = $content -replace '#\{Marketplace-ConnectionString\}#',  $env:SERVICESDB_CONNECTIONSTRING }
@@ -189,6 +190,7 @@ jobs:
                 EMAILSETTINGS_PASSWORD:       $(EMAILSETTINGS_PASSWORD)
                 # Content
                 CONTENTDB_CONNECTIONSTRING:   $(CONTENTDB_CONNECTIONSTRING)
+                VIEWTRACKING_HASHKEY:         $(VIEWTRACKING_HASHKEY)
                 # Services Marketplace
                 SERVICESDB_CONNECTIONSTRING:  $(SERVICESDB_CONNECTIONSTRING)
                 # Shared

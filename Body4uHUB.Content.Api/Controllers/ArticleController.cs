@@ -119,7 +119,7 @@ namespace Body4uHUB.Content.Api.Controllers
                 ? AuthorizationContext.Create(User.GetUserId(), User.IsAdmin())
                 : null;
 
-            var result = await Mediator.Send(new GetArticleByIdQuery(id, authContext));
+            var result = await Mediator.Send(new GetArticleByIdQuery(id, authContext, HttpContext.Connection.RemoteIpAddress?.ToString()));
 
             return HandleResult(result);
         }

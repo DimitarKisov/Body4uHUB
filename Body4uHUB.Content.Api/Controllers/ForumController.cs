@@ -103,7 +103,7 @@ namespace Body4uHUB.Content.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetForumTopic(int topicId)
         {
-            var result = await Mediator.Send(new GetForumTopicByIdQuery(topicId));
+            var result = await Mediator.Send(new GetForumTopicByIdQuery(topicId, HttpContext.Connection.RemoteIpAddress?.ToString()));
 
             return HandleResult(result);
         }

@@ -152,6 +152,29 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                     b.ToTable("ForumTopics", (string)null);
                 });
 
+            modelBuilder.Entity("Body4uHUB.Content.Infrastructure.Persistence.ContentView", b =>
+                {
+                    b.Property<byte>("TargetType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("TargetId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("VisitorHash")
+                        .HasMaxLength(32)
+                        .HasColumnType("binary(32)")
+                        .IsFixedLength();
+
+                    b.Property<DateOnly>("ViewDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("TargetType", "TargetId", "VisitorHash", "ViewDate");
+
+                    b.HasIndex("ViewDate");
+
+                    b.ToTable("ContentViews", (string)null);
+                });
+
             modelBuilder.Entity("Body4uHUB.Content.Domain.Models.Article", b =>
                 {
                     b.OwnsMany("Body4uHUB.Content.Domain.Models.Comment", "Comments", b1 =>
