@@ -82,14 +82,14 @@ namespace Body4uHUB.Content.Api.Controllers
         }
 
         /// <summary>
-        /// Get all forum topics with pagination
+        /// Get all forum topics with pagination (includeDeleted is honored for admins only)
         /// </summary>
         [HttpGet("topics")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(PagedResult<ForumTopicDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTopics([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] bool includeDeleted = false)
         {
-            var result = await Mediator.Send(new GetAllForumTopicsQuery(page, pageSize, includeDeleted));
+            var result = await Mediator.Send(new GetAllForumTopicsQuery(page, pageSize, includeDeleted && User.IsAdmin()));
 
             return HandleResult(result);
         }
