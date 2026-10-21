@@ -9,22 +9,16 @@ namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment
 {
     public record CreateCommentCommand(string Content, int ArticleId, Guid AuthorId, Guid? ParentCommentId) : IRequest<Result<CreateCommentResponse>>;
 
-    internal sealed class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Result<CreateCommentResponse>>
+    internal sealed class CreateCommentCommandHandler(
+        IArticleRepository articleRepository,
+        IUnitOfWork unitOfWork) : IRequestHandler<CreateCommentCommand, Result<CreateCommentResponse>>
     {
-        private readonly IArticleRepository _articleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CreateCommentCommandHandler(
-            IArticleRepository articleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _articleRepository = articleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IArticleRepository _articleRepository = articleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<CreateCommentResponse>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
+            var article = await _articleRepository.GetWithCommentsByIdAsync(request.ArticleId, cancellationToken);
             if (article is null)
             {
                 return Result.ResourceNotFound<CreateCommentResponse>(ArticleNotFound);

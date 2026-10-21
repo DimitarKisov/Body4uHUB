@@ -9,22 +9,16 @@ namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
 {
     public record DeleteCommentCommand(Guid Id, int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, Result>
+    internal sealed class DeleteCommentCommandHandler(
+        IArticleRepository articleRepository,
+        IUnitOfWork unitOfWork) : IRequestHandler<DeleteCommentCommand, Result>
     {
-        private readonly IArticleRepository _articleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public DeleteCommentCommandHandler(
-            IArticleRepository articleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _articleRepository = articleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IArticleRepository _articleRepository = articleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
+            var article = await _articleRepository.GetWithCommentsByIdAsync(request.ArticleId, cancellationToken);
             if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);

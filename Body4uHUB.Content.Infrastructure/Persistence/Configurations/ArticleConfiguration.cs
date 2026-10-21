@@ -56,7 +56,7 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
                 commentBuilder.HasKey(c => c.Id);
 
                 commentBuilder.Property(c => c.Id)
-                    .ValueGeneratedOnAdd()
+                    .ValueGeneratedNever()
                     .IsRequired();
 
                 commentBuilder.Property(c => c.Content)
