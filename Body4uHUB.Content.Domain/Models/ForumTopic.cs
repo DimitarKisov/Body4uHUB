@@ -52,7 +52,7 @@ namespace Body4uHUB.Content.Domain.Models
             Title = title;
         }
 
-        public int AddPost(string content, Guid authorId)
+        public ForumPost AddPost(string content, Guid authorId)
         {
             if (IsLocked)
             {
@@ -62,7 +62,7 @@ namespace Body4uHUB.Content.Domain.Models
             var post = ForumPost.Create(content, authorId);
             _posts.Add(post);
 
-            return post.Id;
+            return post;
         }
 
         public void EditPost(int postId, string content, Guid requesterId, bool isAdmin)

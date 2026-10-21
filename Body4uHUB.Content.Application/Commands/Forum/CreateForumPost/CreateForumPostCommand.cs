@@ -9,18 +9,13 @@ namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumPost
 {
     public record CreateForumPostCommand(string Content, int TopicId, Guid AuthorId) : IRequest<Result<CreateForumPostResponse>>;
 
-    internal sealed class CreateForumPostCommandHandler : IRequestHandler<CreateForumPostCommand, Result<CreateForumPostResponse>>
+    internal sealed class CreateForumPostCommandHandler(
+        IForumRepository forumRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<CreateForumPostCommand, Result<CreateForumPostResponse>>
     {
-        private readonly IForumRepository _forumRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CreateForumPostCommandHandler(
-            IForumRepository forumRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _forumRepository = forumRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IForumRepository _forumRepository = forumRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<CreateForumPostResponse>> Handle(CreateForumPostCommand request, CancellationToken cancellationToken)
         {
@@ -30,11 +25,11 @@ namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumPost
                 return Result.ResourceNotFound<CreateForumPostResponse>(ForumTopicNotFound);
             }
 
-            var postId = topic.AddPost(request.Content, request.AuthorId);
+            var post = topic.AddPost(request.Content, request.AuthorId);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(new CreateForumPostResponse(postId));
+            return Result.Success(new CreateForumPostResponse(post.Id));
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Body4uHUB.Content.Domain.Models
         }
 
         private ForumPost(string content, Guid authorId)
-            : base()
+            : base(default)
         {
             Content = content;
             AuthorId = authorId;
