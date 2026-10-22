@@ -29,7 +29,7 @@ namespace Body4uHUB.Content.Application.Tests.Commands
             _topic = ForumTopic.Create("Valid topic", Guid.NewGuid());
 
             _forumRepository
-                .Setup(x => x.GetByIdWithPostsAsync(TopicId, It.IsAny<CancellationToken>()))
+                .Setup(x => x.GetByIdAsync(TopicId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_topic);
 
             // Simulates the database assigning the identity value on save.

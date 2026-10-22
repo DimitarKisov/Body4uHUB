@@ -19,7 +19,7 @@ namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumPost
 
         public async Task<Result<CreateForumPostResponse>> Handle(CreateForumPostCommand request, CancellationToken cancellationToken)
         {
-            var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
+            var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
             if (topic == null)
             {
                 return Result.ResourceNotFound<CreateForumPostResponse>(ForumTopicNotFound);

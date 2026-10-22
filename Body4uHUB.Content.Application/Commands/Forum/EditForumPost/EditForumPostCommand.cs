@@ -9,22 +9,17 @@ namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
 {
     public record EditForumPostCommand(int TopicId, int PostId, string Content, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal sealed class EditForumPostCommandHandler : IRequestHandler<EditForumPostCommand, Result>
+    internal sealed class EditForumPostCommandHandler(
+        IForumRepository forumRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<EditForumPostCommand, Result>
     {
-        private readonly IForumRepository _forumRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public EditForumPostCommandHandler(
-            IForumRepository forumRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _forumRepository = forumRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IForumRepository _forumRepository = forumRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(EditForumPostCommand request, CancellationToken cancellationToken)
         {
-            var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
+            var topic = await _forumRepository.GetByIdWithPostAsync(request.TopicId, request.PostId, cancellationToken);
             if (topic == null)
             {
                 return Result.ResourceNotFound(ForumTopicNotFound);

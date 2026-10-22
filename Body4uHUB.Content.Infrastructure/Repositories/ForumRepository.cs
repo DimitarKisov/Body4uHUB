@@ -26,19 +26,23 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
                 .AnyAsync(x => x.Title == title && !x.IsDeleted && x.Id != exceptTopicId, cancellationToken);
         }
 
+        // Posts are owned by the topic, so EF always loads all of them unless the include is filtered.
+        // Topic.Posts then holds only what is needed for the operation, not the whole thread.
         public async Task<ForumTopic> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.ForumTopics
                 .Where(x => !x.IsDeleted)
+                .Include(x => x.Posts
+                    .Where(y => false))
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
-        public async Task<ForumTopic> GetByIdWithPostsAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<ForumTopic> GetByIdWithPostAsync(int id, int postId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.ForumTopics
                 .Where(x => !x.IsDeleted)
                 .Include(x => x.Posts
-                    .Where(y => !y.IsDeleted))
+                    .Where(y => y.Id == postId && !y.IsDeleted))
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 

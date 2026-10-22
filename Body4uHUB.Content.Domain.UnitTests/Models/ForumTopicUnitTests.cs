@@ -116,6 +116,17 @@ namespace Body4uHUB.Content.Domain.UnitTests.Models
         }
 
         [Test]
+        public void EditPost_ShouldThrowInvalidForumPostException_WhenPostIsDeleted()
+        {
+            _topic.DeletePost(PostId, _postAuthorId, isAdmin: false);
+
+            var ex = Assert.Throws<InvalidForumPostException>(() => _topic.EditPost(PostId, EditedContent, _postAuthorId, isAdmin: false));
+
+            Assert.That(ex.Error, Is.EqualTo(ForumPostDeleted));
+            Assert.That(_post.Content, Is.EqualTo(PostContent));
+        }
+
+        [Test]
         public void DeletePost_ShouldMarkPostAsDeleted_WhenRequesterIsPostAuthor()
         {
             _topic.DeletePost(PostId, _postAuthorId, isAdmin: false);

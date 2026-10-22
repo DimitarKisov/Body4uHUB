@@ -9,22 +9,17 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumPost
 {
     public record DeleteForumPostCommand(int TopicId, int PostId, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal sealed class DeleteForumPostCommandHandler : IRequestHandler<DeleteForumPostCommand, Result>
+    internal sealed class DeleteForumPostCommandHandler(
+        IForumRepository forumRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<DeleteForumPostCommand, Result>
     {
-        private readonly IForumRepository _forumRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public DeleteForumPostCommandHandler(
-            IForumRepository forumRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _forumRepository = forumRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IForumRepository _forumRepository = forumRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(DeleteForumPostCommand request, CancellationToken cancellationToken)
         {
-            var topic = await _forumRepository.GetByIdWithPostsAsync(request.TopicId, cancellationToken);
+            var topic = await _forumRepository.GetByIdWithPostAsync(request.TopicId, request.PostId, cancellationToken);
             if (topic == null)
             {
                 return Result.ResourceNotFound(ForumTopicNotFound);
