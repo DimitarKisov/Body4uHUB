@@ -9,18 +9,13 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Delete
 {
     public record DeleteArticleCommand(int Id, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal sealed class DeleteArticleCommandHandler : IRequestHandler<DeleteArticleCommand, Result>
+    internal sealed class DeleteArticleCommandHandler(
+        IArticleRepository articleRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<DeleteArticleCommand, Result>
     {
-        private readonly IArticleRepository _articleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public DeleteArticleCommandHandler(
-            IArticleRepository articleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _articleRepository = articleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IArticleRepository _articleRepository = articleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(DeleteArticleCommand request, CancellationToken cancellationToken)
         {

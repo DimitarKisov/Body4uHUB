@@ -9,18 +9,13 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.RemoveBookmark
 {
     public record RemoveBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result>;
 
-    internal sealed class RemoveBookmarkCommandHandler : IRequestHandler<RemoveBookmarkCommand, Result>
+    internal sealed class RemoveBookmarkCommandHandler(
+        IBookmarkRepository bookmarkRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<RemoveBookmarkCommand, Result>
     {
-        private readonly IBookmarkRepository _bookmarkRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public RemoveBookmarkCommandHandler(
-            IBookmarkRepository bookmarkRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _bookmarkRepository = bookmarkRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IBookmarkRepository _bookmarkRepository = bookmarkRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
         {

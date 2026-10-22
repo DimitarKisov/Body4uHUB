@@ -9,18 +9,13 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
 {
     public record EditArticleCommand(int Id, string Title, string Content, AuthorizationContext AuthContext): IRequest<Result>;
 
-    internal sealed class EditArticleCommandHandler : IRequestHandler<EditArticleCommand, Result>
+    internal sealed class EditArticleCommandHandler(
+        IArticleRepository articleRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<EditArticleCommand, Result>
     {
-        private readonly IArticleRepository _articleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public EditArticleCommandHandler(
-            IArticleRepository articleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _articleRepository = articleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IArticleRepository _articleRepository = articleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(EditArticleCommand request, CancellationToken cancellationToken)
         {

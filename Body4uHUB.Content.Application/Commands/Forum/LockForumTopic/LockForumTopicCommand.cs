@@ -9,18 +9,13 @@ namespace Body4uHUB.Content.Application.Commands.Forum.LockForumTopic
 {
     public record LockForumTopicCommand(int TopicId) : IRequest<Result>;
 
-    internal sealed class LockForumTopicCommandHandler : IRequestHandler<LockForumTopicCommand, Result>
+    internal sealed class LockForumTopicCommandHandler(
+        IForumRepository forumRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<LockForumTopicCommand, Result>
     {
-        private readonly IForumRepository _forumRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public LockForumTopicCommandHandler(
-            IForumRepository forumRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _forumRepository = forumRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IForumRepository _forumRepository = forumRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(LockForumTopicCommand request, CancellationToken cancellationToken)
         {

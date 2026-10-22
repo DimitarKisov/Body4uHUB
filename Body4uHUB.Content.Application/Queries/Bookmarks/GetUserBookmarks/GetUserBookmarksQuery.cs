@@ -6,14 +6,10 @@ namespace Body4uHUB.Content.Application.Queries.Bookmarks.GetUserBookmarks
 {
     public record GetUserBookmarksQuery(Guid UserId, int Page, int PageSize) : IRequest<Result<PagedResult<GetUserBookmarksResponse>>>;
 
-    internal sealed class GetUserBookmarksQueryHandler : IRequestHandler<GetUserBookmarksQuery, Result<PagedResult<GetUserBookmarksResponse>>>
+    internal sealed class GetUserBookmarksQueryHandler(IBookmarkReadRepository bookmarkReadRepository)
+        : IRequestHandler<GetUserBookmarksQuery, Result<PagedResult<GetUserBookmarksResponse>>>
     {
-        private readonly IBookmarkReadRepository _bookmarkReadRepository;
-
-        public GetUserBookmarksQueryHandler(IBookmarkReadRepository bookmarkReadRepository)
-        {
-            _bookmarkReadRepository = bookmarkReadRepository;
-        }
+        private readonly IBookmarkReadRepository _bookmarkReadRepository = bookmarkReadRepository;
 
         public async Task<Result<PagedResult<GetUserBookmarksResponse>>> Handle(
             GetUserBookmarksQuery request,

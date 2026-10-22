@@ -7,14 +7,10 @@ namespace Body4uHUB.Content.Application.Queries.Forum.GetAllForumTopics
 {
     public record GetAllForumTopicsQuery(int Page, int PageSize, bool IncludeDeleted = false) : IRequest<Result<PagedResult<ForumTopicDto>>>;
 
-    internal sealed class GetAllForumTopicsQueryHandler : IRequestHandler<GetAllForumTopicsQuery, Result<PagedResult<ForumTopicDto>>>
+    internal sealed class GetAllForumTopicsQueryHandler(IForumReadRepository forumReadRepository)
+        : IRequestHandler<GetAllForumTopicsQuery, Result<PagedResult<ForumTopicDto>>>
     {
-        private readonly IForumReadRepository _forumReadRepository;
-
-        public GetAllForumTopicsQueryHandler(IForumReadRepository forumReadRepository)
-        {
-            _forumReadRepository = forumReadRepository;
-        }
+        private readonly IForumReadRepository _forumReadRepository = forumReadRepository;
 
         public async Task<Result<PagedResult<ForumTopicDto>>> Handle(GetAllForumTopicsQuery request, CancellationToken cancellationToken)
         {

@@ -9,18 +9,13 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Publish
 {
     public record PublishArticleCommand(int Id, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal sealed class PublishArticleCommandHandler : IRequestHandler<PublishArticleCommand, Result>
+    internal sealed class PublishArticleCommandHandler(
+        IArticleRepository articleRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<PublishArticleCommand, Result>
     {
-        private readonly IArticleRepository _articleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public PublishArticleCommandHandler(
-            IArticleRepository articleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _articleRepository = articleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IArticleRepository _articleRepository = articleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(PublishArticleCommand request, CancellationToken cancellationToken)
         {

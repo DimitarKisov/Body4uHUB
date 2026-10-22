@@ -9,18 +9,13 @@ namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic
 {
     public record DeleteForumTopicCommand(int TopicId, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal sealed class DeleteForumTopicCommandHandler : IRequestHandler<DeleteForumTopicCommand, Result>
+    internal sealed class DeleteForumTopicCommandHandler(
+        IForumRepository forumRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<DeleteForumTopicCommand, Result>
     {
-        private readonly IForumRepository _forumRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public DeleteForumTopicCommandHandler(
-            IForumRepository forumRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _forumRepository = forumRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IForumRepository _forumRepository = forumRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(DeleteForumTopicCommand request, CancellationToken cancellationToken)
         {
