@@ -1,8 +1,8 @@
 ﻿namespace Body4uHUB.Content.Domain.Constants;
 
-public class ModelConstants
+public static class ModelConstants
 {
-    public class ArticleConstants
+    public static class ArticleConstants
     {
         #region Article
         public const int ContentMinLength = 50;
@@ -10,13 +10,10 @@ public class ModelConstants
         public const int TitleMinLength = 10;
         public const int TitleMaxLength = 100;
 
-
         public const string ArticleAlreadyPublished = "Article is already published.";
         public const string ArticleModifyForbidden = "You do not have permission to modify this article.";
         public const string ArticleNotFound = "Article not found.";
         public const string ArticleNotPublished = "Article is not published.";
-        public const string ArticlePublishForbidden = "You do not have permission to publish this article.";
-        public const string ArticleEditForbidden = "You do not have permission to edit this article.";
         public const string ArticleAlreadyDeleted = "Article is already deleted.";
         #endregion
 
@@ -25,7 +22,6 @@ public class ModelConstants
         public const int CommentContentMaxLength = 1000;
 
         public const string CommentIdRequired = "CommentId is required.";
-        public const string CommentIdCannotBeZeroOrNegative = "Comment ID must be greater than 0.";
         public const string CommentAlreadyDeleted = "Comment is already deleted.";
 
         public const string CommentNotFound = "Comment not found.";
@@ -35,15 +31,13 @@ public class ModelConstants
         #endregion
     }
 
-    public class BookmarkConstants
+    public static class BookmarkConstants
     {
         public const string BookmarkAlreadyExists = "Bookmark already exists.";
-        public const string BookmarkDoesNotExist = "Bookmark does not exist.";
-
         public const string BookmarkNotFound = "Bookmark not found.";
     }
 
-    public class CommonConstants
+    public static class CommonConstants
     {
         public const string ArticleIdRequired = "ArticleId is required.";
         public const string AuthorIdRequired = "AuthorId is required.";
@@ -56,7 +50,7 @@ public class ModelConstants
         public const string UserIdRequired = "UserId is required.";
     }
 
-    public class ForumTopicConstants
+    public static class ForumTopicConstants
     {
         #region ForumTopic
         public const int TitleMinLength = 5;
@@ -69,8 +63,6 @@ public class ModelConstants
         public const string ForumTopicUnlocked = "Forum topic is already unlocked.";
         public const string ForumTopicModifyForbidden = "You do not have permission to modify this forum topic.";
         public const string ForumTopicDeleted = "Cannot modify a deleted forum topic.";
-
-        public const string ForumTopicIdCannotBeZeroOrNegative = "Forum Topic ID must be greater than 0.";
         #endregion
 
         #region ForumPost
