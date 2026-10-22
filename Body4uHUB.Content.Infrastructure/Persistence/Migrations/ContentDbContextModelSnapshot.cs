@@ -63,14 +63,9 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthorId");
+                    b.HasIndex("Status", "IsDeleted", "PublishedAt");
 
-                    b.HasIndex("Id")
-                        .IsUnique();
-
-                    b.HasIndex("PublishedAt");
-
-                    b.HasIndex("Status");
+                    b.HasIndex("AuthorId", "Status", "IsDeleted", "PublishedAt");
 
                     b.ToTable("Articles", (string)null);
                 });
@@ -96,8 +91,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ArticleId");
-
-                    b.HasIndex("UserId");
 
                     b.HasIndex("UserId", "ArticleId")
                         .IsUnique();
@@ -141,9 +134,6 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                     b.HasIndex("AuthorId");
 
                     b.HasIndex("CreatedAt");
-
-                    b.HasIndex("Id")
-                        .IsUnique();
 
                     b.HasIndex("Title")
                         .IsUnique()

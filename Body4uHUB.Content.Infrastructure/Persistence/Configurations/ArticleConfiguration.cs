@@ -88,12 +88,9 @@ internal class ArticleConfiguration : IEntityTypeConfiguration<Article>
         });
 
         // Indexes
-        builder.HasIndex(x => x.Id)
-            .IsUnique();
-
-        builder.HasIndex(x => x.AuthorId);
-        builder.HasIndex(x => x.PublishedAt);
-        builder.HasIndex(x => x.Status);
+        // Published articles, newest first: all of them and by author.
+        builder.HasIndex(x => new { x.Status, x.IsDeleted, x.PublishedAt });
+        builder.HasIndex(x => new { x.AuthorId, x.Status, x.IsDeleted, x.PublishedAt });
 
         // Ignore domain events
         builder.Ignore(x => x.DomainEvents);

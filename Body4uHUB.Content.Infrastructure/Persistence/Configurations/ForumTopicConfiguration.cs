@@ -69,9 +69,6 @@ internal class ForumTopicConfiguration : IEntityTypeConfiguration<ForumTopic>
         });
 
         // Indexes
-        builder.HasIndex(x => x.Id)
-            .IsUnique();
-
         builder.HasIndex(x => x.AuthorId);
         builder.HasIndex(x => x.CreatedAt);
 

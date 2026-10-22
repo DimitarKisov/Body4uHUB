@@ -29,8 +29,7 @@ internal class BookmarkConfiguration : IEntityTypeConfiguration<Bookmark>
             .IsUnique();
 
         // Indexes
-        builder.HasIndex(x => x.UserId);
-
+        // Lookups by UserId alone use the unique (UserId, ArticleId) index above.
         builder.HasIndex(x => x.ArticleId);
 
         // Ignore domain events
