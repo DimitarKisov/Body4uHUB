@@ -9,22 +9,18 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Archive
 {
     public record ArchiveArticleCommand(int Id, AuthorizationContext AuthContext) : IRequest<Result>;
 
-    internal sealed class ArchiveArticleCommandHandler: IRequestHandler<ArchiveArticleCommand, Result>
+    internal sealed class ArchiveArticleCommandHandler(
+        IArticleRepository articleRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<ArchiveArticleCommand, Result>
     {
-        private readonly IArticleRepository _articleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public ArchiveArticleCommandHandler(
-            IArticleRepository articleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _articleRepository = articleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IArticleRepository _articleRepository = articleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(ArchiveArticleCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetWithCommentsByIdAsync(request.Id, cancellationToken);
+            // Archiving changes only the status, so the comments are not loaded.
+            var article = await _articleRepository.GetByIdAsync(request.Id, cancellationToken);
             if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);
