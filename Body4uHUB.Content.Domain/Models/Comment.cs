@@ -13,10 +13,7 @@ public class Comment : Entity<Guid>
     public Guid? ParentCommentId { get; private set; }
     public bool IsDeleted { get; private set; }
 
-    private Comment()
-        : base()
-    {
-    }
+    private Comment() { }
 
     private Comment(string content, Guid authorId, Guid? parentCommentId)
         : base(Guid.NewGuid())
@@ -24,7 +21,6 @@ public class Comment : Entity<Guid>
         Content = content;
         AuthorId = authorId;
         ParentCommentId = parentCommentId;
-        IsDeleted = false;
     }
 
     public static Comment Create(string content, Guid authorId, Guid? parentCommentId)

@@ -12,17 +12,13 @@ public class ForumPost : Entity<int>
     public Guid AuthorId { get; private set; }
     public bool IsDeleted { get; private set; }
 
-    private ForumPost()
-        : base()
-    {
-    }
+    private ForumPost() { }
 
     private ForumPost(string content, Guid authorId)
         : base(default)
     {
         Content = content;
         AuthorId = authorId;
-        IsDeleted = false;
     }
 
     public static ForumPost Create(string content, Guid authorId)

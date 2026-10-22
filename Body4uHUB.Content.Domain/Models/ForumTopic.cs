@@ -18,19 +18,12 @@ public class ForumTopic : AggregateRoot<int>
     public Guid AuthorId { get; private set; }
     public IReadOnlyCollection<ForumPost> Posts => _posts.AsReadOnly();
 
-    private ForumTopic()
-        : base()
-    {
-    }
+    private ForumTopic() { }
 
     private ForumTopic(string title, Guid authorId)
-        : base()
     {
         Title = title;
         AuthorId = authorId;
-        ViewCount = 0;
-        IsDeleted = false;
-        IsLocked = false;
     }
 
     public static ForumTopic Create(string title, Guid authorId)

@@ -9,10 +9,7 @@ public class Bookmark : AggregateRoot<Guid>
     public Guid UserId { get; private set; }
     public int ArticleId { get; private set; }
 
-    private Bookmark()
-        : base()
-    {
-    }
+    private Bookmark() { }
 
     private Bookmark(Guid userId, int articleId)
         : base(Guid.NewGuid())

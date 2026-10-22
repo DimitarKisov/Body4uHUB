@@ -71,6 +71,24 @@ public class ForumTopicUnitTests
     }
 
     [Test]
+    public void Create_ShouldStartUnlockedAndNotDeleted()
+    {
+        Assert.That(_topic.IsLocked, Is.False);
+        Assert.That(_topic.IsDeleted, Is.False);
+        Assert.That(_topic.ViewCount, Is.Zero);
+    }
+
+    [Test]
+    public void Unlock_ShouldUnlockTopic_WhenTopicIsLocked()
+    {
+        _topic.Lock();
+
+        _topic.Unlock();
+
+        Assert.That(_topic.IsLocked, Is.False);
+    }
+
+    [Test]
     public void EditPost_ShouldUpdateContent_WhenRequesterIsPostAuthor()
     {
         _topic.EditPost(PostId, EditedContent, _postAuthorId, isAdmin: false);

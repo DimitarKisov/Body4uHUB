@@ -21,18 +21,13 @@ public class Article : AggregateRoot<int>
     public bool IsDeleted { get; private set; }
     public IReadOnlyCollection<Comment> Comments => _comments.AsReadOnly();
 
-    private Article()
-        : base()
-    { 
-    }
+    private Article() { }
 
     private Article(string title, string content, Guid authorId)
-        : base()
     {
         Title = title;
         Content = content;
         Status = ArticleStatus.Draft;
-        ViewCount = 0;
         AuthorId = authorId;
     }
 
