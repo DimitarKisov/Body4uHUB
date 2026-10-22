@@ -2,7 +2,7 @@
 
 namespace Body4uHUB.Content.Domain.Exceptions;
 
-internal class InvalidBookmarkException : BaseDomainException
+internal sealed class InvalidBookmarkException : BaseDomainException
 {
     public InvalidBookmarkException()
     {

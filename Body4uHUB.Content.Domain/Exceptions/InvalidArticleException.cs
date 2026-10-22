@@ -2,7 +2,7 @@
 
 namespace Body4uHUB.Content.Domain.Exceptions;
 
-internal class InvalidArticleException : BaseDomainException
+internal sealed class InvalidArticleException : BaseDomainException
 {
     public InvalidArticleException()
     {
@@ -10,6 +10,6 @@ internal class InvalidArticleException : BaseDomainException
 
     public InvalidArticleException(string message)
         : base(message)
-    { 
+    {
     }
 }

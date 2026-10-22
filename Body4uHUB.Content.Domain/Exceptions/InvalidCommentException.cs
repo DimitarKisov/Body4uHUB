@@ -2,7 +2,7 @@
 
 namespace Body4uHUB.Content.Domain.Exceptions;
 
-internal class InvalidCommentException : BaseDomainException
+internal sealed class InvalidCommentException : BaseDomainException
 {
     public InvalidCommentException()
     {

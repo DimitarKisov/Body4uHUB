@@ -2,7 +2,7 @@
 
 namespace Body4uHUB.Content.Domain.Exceptions;
 
-internal class InvalidForumTopicException : BaseDomainException
+internal sealed class InvalidForumTopicException : BaseDomainException
 {
     public InvalidForumTopicException()
     {
