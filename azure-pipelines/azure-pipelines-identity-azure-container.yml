@@ -10,6 +10,7 @@ trigger:
       - Body4uHUB.Identity.Infrastructure/**
       - Body4uHUB.Identity.Application.Tests/**
       - Body4uHUB.Identity.Domain.UnitTests/**
+      - Body4uHUB.Shared.Infrastructure.Tests/**
       - Body4uHUB.Shared/**
       - Body4uHUB.Shared.Api/**
       - Body4uHUB.Shared.Application/**
@@ -54,6 +55,7 @@ stages:
           Body4uHUB.Identity.Api/Body4uHUB.Identity.Api.csproj
           Body4uHUB.Identity.Application.Tests/Body4uHUB.Identity.Application.Tests.csproj
           Body4uHUB.Identity.Domain.UnitTests/Body4uHUB.Identity.Domain.UnitTests.csproj
+          Body4uHUB.Shared.Infrastructure.Tests/Body4uHUB.Shared.Infrastructure.Tests.csproj
         arguments: '--configuration $(buildConfiguration)'
 
     - task: DotNetCoreCLI@2
@@ -63,6 +65,7 @@ stages:
         projects: |
           Body4uHUB.Identity.Application.Tests/Body4uHUB.Identity.Application.Tests.csproj
           Body4uHUB.Identity.Domain.UnitTests/Body4uHUB.Identity.Domain.UnitTests.csproj
+          Body4uHUB.Shared.Infrastructure.Tests/Body4uHUB.Shared.Infrastructure.Tests.csproj
         arguments: '--configuration $(buildConfiguration) --no-build'
         publishTestResults: true
 

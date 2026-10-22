@@ -2,25 +2,32 @@
 
 namespace Body4uHUB.Shared.Domain.Base
 {
-    public abstract class Entity<TId> : IEquatable<Entity<TId>>, IModifiableEntity
+    public abstract class Entity<TId> : IEquatable<Entity<TId>>, ITimestampedEntity
         where TId : notnull
     {
         public TId Id { get; protected set; }
-        public DateTime CreatedAt { get; protected set; }
-        public DateTime? ModifiedAt { get; protected set; }
+
+        // Set by the persistence layer on save (TimestampsInterceptor), so they stay default until then.
+        public DateTime CreatedAt { get; private set; }
+        public DateTime? ModifiedAt { get; private set; }
 
         protected Entity(TId id)
         {
             Id = id;
-            CreatedAt = DateTime.UtcNow;
         }
 
         // За EF Core
         protected Entity() { }
 
-        public void SetModifiedAt()
+        // Explicit, so domain and application code cannot change the timestamps.
+        void ITimestampedEntity.SetCreatedAt(DateTime utcNow)
         {
-            ModifiedAt = DateTime.UtcNow;
+            CreatedAt = utcNow;
+        }
+
+        void ITimestampedEntity.SetModifiedAt(DateTime utcNow)
+        {
+            ModifiedAt = utcNow;
         }
 
         public bool Equals(Entity<TId> other)

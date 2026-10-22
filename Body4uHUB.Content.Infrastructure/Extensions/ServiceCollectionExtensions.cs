@@ -20,12 +20,13 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<ModifiedAtInterceptor>();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton<TimestampsInterceptor>();
 
         services
             .AddDbContext<ContentDbContext>((serviceProvider, options) =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-            .AddInterceptors(serviceProvider.GetRequiredService<ModifiedAtInterceptor>()));
+            .AddInterceptors(serviceProvider.GetRequiredService<TimestampsInterceptor>()));
 
         services.AddScoped<IArticleRepository, ArticleRepository>();
         services.AddScoped<IArticleReadRepository, ArticleReadRepository>();
@@ -36,7 +37,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDbInitializer, DbInitializer>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        services.TryAddSingleton(TimeProvider.System);
         services.AddValidatedOptions<ViewTrackingSettings>(configuration, ViewTrackingSettings.SectionName);
         services.AddScoped<IViewTracker, ViewTracker>();
         services.AddHostedService<ContentViewCleanupService>();

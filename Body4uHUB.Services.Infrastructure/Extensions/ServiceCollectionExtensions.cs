@@ -14,6 +14,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
@@ -23,14 +24,15 @@ namespace Body4uHUB.Services.Infrastructure.Extensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<ModifiedAtInterceptor>();
+            services.TryAddSingleton(TimeProvider.System);
+            services.AddSingleton<TimestampsInterceptor>();
 
             services
                 .AddDbContext<ServicesDbContext>((serviceProvider, options) =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName))
-                .AddInterceptors(serviceProvider.GetRequiredService<ModifiedAtInterceptor>()));
+                .AddInterceptors(serviceProvider.GetRequiredService<TimestampsInterceptor>()));
 
             services
                 .AddScoped<IServiceOrderRepository, ServiceOrderRepository>()

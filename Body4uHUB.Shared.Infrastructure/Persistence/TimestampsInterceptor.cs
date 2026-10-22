@@ -7,17 +7,19 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Body4uHUB.Shared.Infrastructure.Persistence
 {
     /// <summary>
-    /// Sets ModifiedAt on modified entities and on their owners. A change inside an aggregate
-    /// (owned entity added/edited/removed, many-to-many link added/removed) leaves the owner
-    /// Unchanged in EF, so the change is propagated up to the owner here.
+    /// Sets CreatedAt on added entities, and ModifiedAt on modified entities and on their owners.
+    /// A change inside an aggregate (owned entity added/edited/removed, many-to-many link added/removed)
+    /// leaves the owner Unchanged in EF, so the change is propagated up to the owner here.
     /// </summary>
-    public sealed class ModifiedAtInterceptor : SaveChangesInterceptor
+    public sealed class TimestampsInterceptor(TimeProvider timeProvider) : SaveChangesInterceptor
     {
+        private readonly TimeProvider _timeProvider = timeProvider;
+
         public override InterceptionResult<int> SavingChanges(
             DbContextEventData eventData,
             InterceptionResult<int> result)
         {
-            SetModifiedAt(eventData.Context);
+            SetTimestamps(eventData.Context);
             return base.SavingChanges(eventData, result);
         }
 
@@ -26,17 +28,18 @@ namespace Body4uHUB.Shared.Infrastructure.Persistence
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default)
         {
-            SetModifiedAt(eventData.Context);
+            SetTimestamps(eventData.Context);
             return base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
-        private static void SetModifiedAt(DbContext context)
+        private void SetTimestamps(DbContext context)
         {
             if (context is null)
             {
                 return;
             }
 
+            var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
             var entries = context.ChangeTracker.Entries().ToList();
             var visited = new HashSet<object>(ReferenceEqualityComparer.Instance);
 
@@ -46,9 +49,14 @@ namespace Body4uHUB.Shared.Infrastructure.Persistence
 
             foreach (var entry in changedEntries)
             {
+                if (entry.State == EntityState.Added && entry.Entity is ITimestampedEntity addedEntity)
+                {
+                    addedEntity.SetCreatedAt(utcNow);
+                }
+
                 if (entry.State == EntityState.Modified || entry.Metadata.IsOwned())
                 {
-                    MarkModified(entry, entries, visited);
+                    MarkModified(entry, entries, visited, utcNow);
                 }
 
                 // Many-to-many join entries (e.g. UserRoles) point to the entity that declares the
@@ -59,13 +67,13 @@ namespace Body4uHUB.Shared.Infrastructure.Persistence
                     var principal = FindPrincipal(entry, foreignKey, entries);
                     if (principal is not null)
                     {
-                        MarkModified(principal, entries, visited);
+                        MarkModified(principal, entries, visited, utcNow);
                     }
                 }
             }
         }
 
-        private static void MarkModified(EntityEntry entry, List<EntityEntry> entries, HashSet<object> visited)
+        private static void MarkModified(EntityEntry entry, List<EntityEntry> entries, HashSet<object> visited, DateTime utcNow)
         {
             if (!visited.Add(entry.Entity))
             {
@@ -73,9 +81,9 @@ namespace Body4uHUB.Shared.Infrastructure.Persistence
             }
 
             if (entry.State is EntityState.Unchanged or EntityState.Modified &&
-                entry.Entity is IModifiableEntity modifiableEntity)
+                entry.Entity is ITimestampedEntity modifiedEntity)
             {
-                modifiableEntity.SetModifiedAt();
+                modifiedEntity.SetModifiedAt(utcNow);
             }
 
             var ownership = entry.Metadata.FindOwnership();
@@ -87,7 +95,7 @@ namespace Body4uHUB.Shared.Infrastructure.Persistence
             var owner = FindPrincipal(entry, ownership, entries);
             if (owner is not null)
             {
-                MarkModified(owner, entries, visited);
+                MarkModified(owner, entries, visited, utcNow);
             }
         }
 
