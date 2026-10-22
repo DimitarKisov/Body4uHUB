@@ -2,6 +2,7 @@ using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Exceptions;
 using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
@@ -11,25 +12,20 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
 {
     public record AddBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result<AddBookmarkResponse>>;
 
-    internal sealed class AddBookmarkCommandHandler : IRequestHandler<AddBookmarkCommand, Result<AddBookmarkResponse>>
+    internal sealed class AddBookmarkCommandHandler(
+        IBookmarkRepository bookmarkRepository,
+        IArticleRepository articleRepository,
+        IUnitOfWork unitOfWork)
+        : IRequestHandler<AddBookmarkCommand, Result<AddBookmarkResponse>>
     {
-        private readonly IBookmarkRepository _bookmarkRepository;
-        private readonly IArticleRepository _articleRepository;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public AddBookmarkCommandHandler(
-            IBookmarkRepository bookmarkRepository,
-            IArticleRepository articleRepository,
-            IUnitOfWork unitOfWork)
-        {
-            _bookmarkRepository = bookmarkRepository;
-            _articleRepository = articleRepository;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IBookmarkRepository _bookmarkRepository = bookmarkRepository;
+        private readonly IArticleRepository _articleRepository = articleRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<AddBookmarkResponse>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
         {
-            var articleExists = await _articleRepository.ExistsByIdAsync(request.ArticleId, cancellationToken);
+            // Drafts, archived and deleted articles are not visible to readers, so they cannot be bookmarked.
+            var articleExists = await _articleRepository.ExistsPublishedAsync(request.ArticleId, cancellationToken);
             if (!articleExists)
             {
                 return Result.ResourceNotFound<AddBookmarkResponse>(ArticleNotFound);
@@ -45,7 +41,15 @@ namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
 
             _bookmarkRepository.Add(bookmark);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            catch (UniqueConstraintViolationException)
+            {
+                // A concurrent request for the same article passed the ExistsAsync check first.
+                return Result.Conflict<AddBookmarkResponse>(BookmarkAlreadyExists);
+            }
 
             return Result.Success(new AddBookmarkResponse(bookmark.Id));
         }

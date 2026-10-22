@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Content.Domain.Models;
+﻿using Body4uHUB.Content.Domain.Enumerations;
+using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Content.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +16,9 @@ namespace Body4uHUB.Content.Infrastructure.Repositories
             _dbContext.Articles.Add(article);
         }
 
-        public async Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsPublishedAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Articles.AnyAsync(x => x.Id == id, cancellationToken);
+            return await _dbContext.Articles.AnyAsync(x => x.Id == id && !x.IsDeleted && x.Status == ArticleStatus.Published, cancellationToken);
         }
 
         public async Task<Article> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)
