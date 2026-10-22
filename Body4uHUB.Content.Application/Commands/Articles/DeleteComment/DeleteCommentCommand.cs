@@ -7,7 +7,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
 {
-    public record DeleteCommentCommand(Guid Id, int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
+    public record DeleteCommentCommand(Guid CommentId, int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
 
     internal sealed class DeleteCommentCommandHandler(
         IArticleRepository articleRepository,
@@ -24,7 +24,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
                 return Result.ResourceNotFound(ArticleNotFound);
             }
 
-            article.DeleteComment(request.Id, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
+            article.DeleteComment(request.CommentId, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -9,7 +9,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
     {
         public DeleteCommentCommandValidator()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.CommentId)
                 .NotEmpty().WithMessage(CommentIdRequired);
 
             RuleFor(x => x.ArticleId)

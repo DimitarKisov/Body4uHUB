@@ -7,7 +7,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Publish
 {
-    public record PublishArticleCommand(int Id, AuthorizationContext AuthContext) : IRequest<Result>;
+    public record PublishArticleCommand(int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
 
     internal sealed class PublishArticleCommandHandler(
         IArticleRepository articleRepository,
@@ -19,7 +19,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Publish
 
         public async Task<Result> Handle(PublishArticleCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByIdAsync(request.Id, cancellationToken);
+            var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
             if (article == null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);

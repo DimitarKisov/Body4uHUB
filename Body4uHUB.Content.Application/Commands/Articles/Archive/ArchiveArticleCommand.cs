@@ -7,7 +7,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Archive
 {
-    public record ArchiveArticleCommand(int Id, AuthorizationContext AuthContext) : IRequest<Result>;
+    public record ArchiveArticleCommand(int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
 
     internal sealed class ArchiveArticleCommandHandler(
         IArticleRepository articleRepository,
@@ -20,7 +20,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Archive
         public async Task<Result> Handle(ArchiveArticleCommand request, CancellationToken cancellationToken)
         {
             // Archiving changes only the status, so the comments are not loaded.
-            var article = await _articleRepository.GetByIdAsync(request.Id, cancellationToken);
+            var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
             if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);

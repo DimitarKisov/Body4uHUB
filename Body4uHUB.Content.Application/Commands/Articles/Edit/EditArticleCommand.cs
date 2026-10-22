@@ -7,7 +7,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Edit
 {
-    public record EditArticleCommand(int Id, string Title, string Content, AuthorizationContext AuthContext): IRequest<Result>;
+    public record EditArticleCommand(int ArticleId, string Title, string Content, AuthorizationContext AuthContext): IRequest<Result>;
 
     internal sealed class EditArticleCommandHandler(
         IArticleRepository articleRepository,
@@ -19,7 +19,7 @@ namespace Body4uHUB.Content.Application.Commands.Articles.Edit
 
         public async Task<Result> Handle(EditArticleCommand request, CancellationToken cancellationToken)
         {
-            var article = await _articleRepository.GetByIdAsync(request.Id, cancellationToken);
+            var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
             if (article is null)
             {
                 return Result.ResourceNotFound(ArticleNotFound);
