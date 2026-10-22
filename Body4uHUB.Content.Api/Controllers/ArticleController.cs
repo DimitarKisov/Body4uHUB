@@ -36,10 +36,10 @@ public class ArticleController : ApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> ArchiveArticle(int id)
+    public async Task<IActionResult> ArchiveArticle(int id, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
-        var result = await Mediator.Send(new ArchiveArticleCommand(id, authContext));
+        var result = await Mediator.Send(new ArchiveArticleCommand(id, authContext), cancellationToken);
 
         return HandleResult(result);
     }
@@ -52,14 +52,14 @@ public class ArticleController : ApiController
     [ProducesResponseType(typeof(CreateArticleResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request)
+    public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateArticleCommand(
             request.Title,
             request.Content,
             User.GetUserId());
 
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleCreatedResult(result, id => new { articleId = id });
     }
@@ -74,10 +74,10 @@ public class ArticleController : ApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> DeleteArticle(int id)
+    public async Task<IActionResult> DeleteArticle(int id, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
-        var result = await Mediator.Send(new DeleteArticleCommand(id, authContext));
+        var result = await Mediator.Send(new DeleteArticleCommand(id, authContext), cancellationToken);
 
         return HandleResult(result);
     }
@@ -88,9 +88,9 @@ public class ArticleController : ApiController
     [HttpGet("author/{authorId:Guid}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResult<ArticleSummaryDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetArticlesByAuthor(Guid authorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetArticlesByAuthor(Guid authorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId, page, pageSize));
+        var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId, page, pageSize), cancellationToken);
 
         return HandleResult(result);
     }
@@ -101,9 +101,9 @@ public class ArticleController : ApiController
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResult<ArticleSummaryDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllArticles([FromQuery] int page = 1, [FromQuery] int size = 10)
+    public async Task<IActionResult> GetAllArticles([FromQuery] int page = 1, [FromQuery] int size = 10, CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new GetAllArticlesQuery(page, size));
+        var result = await Mediator.Send(new GetAllArticlesQuery(page, size), cancellationToken);
 
         return HandleResult(result);
     }
@@ -115,13 +115,13 @@ public class ArticleController : ApiController
     [AllowAnonymous]
     [ProducesResponseType(typeof(GetArticleByIdResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetArticle(int id)
+    public async Task<IActionResult> GetArticle(int id, CancellationToken cancellationToken)
     {
         var authContext = User.Identity?.IsAuthenticated == true
             ? AuthorizationContext.Create(User.GetUserId(), User.IsAdmin())
             : null;
 
-        var result = await Mediator.Send(new GetArticleByIdQuery(id, authContext, HttpContext.Connection.RemoteIpAddress?.ToString()));
+        var result = await Mediator.Send(new GetArticleByIdQuery(id, authContext, HttpContext.Connection.RemoteIpAddress?.ToString()), cancellationToken);
 
         return HandleResult(result);
     }
@@ -136,11 +136,11 @@ public class ArticleController : ApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> EditArticle(int id, [FromBody] EditArticleRequest request)
+    public async Task<IActionResult> EditArticle(int id, [FromBody] EditArticleRequest request, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
         var command = new EditArticleCommand(id, request.Title, request.Content, authContext);
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleResult(result);
     }
@@ -154,10 +154,10 @@ public class ArticleController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> PublishArticle(int id)
+    public async Task<IActionResult> PublishArticle(int id, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
-        var result = await Mediator.Send(new PublishArticleCommand(id, authContext));
+        var result = await Mediator.Send(new PublishArticleCommand(id, authContext), cancellationToken);
 
         return HandleResult(result);
     }
@@ -172,10 +172,10 @@ public class ArticleController : ApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> AddComment(int articleId, [FromBody] CreateCommentRequest request)
+    public async Task<IActionResult> AddComment(int articleId, [FromBody] CreateCommentRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateCommentCommand(request.Content, articleId, User.GetUserId(), request.ParentCommentId);
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleCreatedResult(result, id => new { commentId = id });
     }
@@ -191,11 +191,11 @@ public class ArticleController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> EditComment(int articleId, Guid commentId, [FromBody] EditCommentRequest request)
+    public async Task<IActionResult> EditComment(int articleId, Guid commentId, [FromBody] EditCommentRequest request, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
         var command = new EditCommentCommand(articleId, commentId, request.Content, authContext);
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleResult(result);
     }
@@ -210,10 +210,10 @@ public class ArticleController : ApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> DeleteComment(int articleId, Guid commentId)
+    public async Task<IActionResult> DeleteComment(int articleId, Guid commentId, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
-        var result = await Mediator.Send(new DeleteCommentCommand(commentId, articleId, authContext));
+        var result = await Mediator.Send(new DeleteCommentCommand(commentId, articleId, authContext), cancellationToken);
 
         return HandleResult(result);
     }

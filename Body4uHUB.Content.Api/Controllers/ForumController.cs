@@ -33,10 +33,10 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> CreateForumTopic([FromBody] CreateForumTopicRequest request)
+    public async Task<IActionResult> CreateForumTopic([FromBody] CreateForumTopicRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateForumTopicCommand(request.Title, User.GetUserId());
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleCreatedResult(result, id => new { topicId = id });
     }
@@ -52,10 +52,10 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> DeleteForumTopic(int topicId)
+    public async Task<IActionResult> DeleteForumTopic(int topicId, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
-        var result = await Mediator.Send(new DeleteForumTopicCommand(topicId, authContext));
+        var result = await Mediator.Send(new DeleteForumTopicCommand(topicId, authContext), cancellationToken);
 
         return HandleResult(result);
     }
@@ -72,11 +72,11 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> EditForumTopic(int topicId, [FromBody] EditForumTopicRequest request)
+    public async Task<IActionResult> EditForumTopic(int topicId, [FromBody] EditForumTopicRequest request, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
         var command = new EditForumTopicCommand(topicId, request.Title, authContext);
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleResult(result);
     }
@@ -87,9 +87,9 @@ public class ForumController : ApiController
     [HttpGet("topics")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResult<ForumTopicDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllTopics([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] bool includeDeleted = false)
+    public async Task<IActionResult> GetAllTopics([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new GetAllForumTopicsQuery(page, pageSize, includeDeleted && User.IsAdmin()));
+        var result = await Mediator.Send(new GetAllForumTopicsQuery(page, pageSize, includeDeleted && User.IsAdmin()), cancellationToken);
 
         return HandleResult(result);
     }
@@ -101,9 +101,9 @@ public class ForumController : ApiController
     [AllowAnonymous]
     [ProducesResponseType(typeof(GetForumTopicByIdResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetForumTopic(int topicId)
+    public async Task<IActionResult> GetForumTopic(int topicId, CancellationToken cancellationToken)
     {
-        var result = await Mediator.Send(new GetForumTopicByIdQuery(topicId, HttpContext.Connection.RemoteIpAddress?.ToString()));
+        var result = await Mediator.Send(new GetForumTopicByIdQuery(topicId, HttpContext.Connection.RemoteIpAddress?.ToString()), cancellationToken);
 
         return HandleResult(result);
     }
@@ -119,9 +119,9 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> LockForumTopic(int topicId)
+    public async Task<IActionResult> LockForumTopic(int topicId, CancellationToken cancellationToken)
     {
-        var result = await Mediator.Send(new LockForumTopicCommand(topicId));
+        var result = await Mediator.Send(new LockForumTopicCommand(topicId), cancellationToken);
 
         return HandleResult(result);
     }
@@ -137,9 +137,9 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> UnlockForumTopic(int topicId)
+    public async Task<IActionResult> UnlockForumTopic(int topicId, CancellationToken cancellationToken)
     {
-        var result = await Mediator.Send(new UnlockForumTopicCommand(topicId));
+        var result = await Mediator.Send(new UnlockForumTopicCommand(topicId), cancellationToken);
 
         return HandleResult(result);
     }
@@ -154,10 +154,10 @@ public class ForumController : ApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> CreateForumPost(int topicId, [FromBody] CreateForumPostRequest request)
+    public async Task<IActionResult> CreateForumPost(int topicId, [FromBody] CreateForumPostRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateForumPostCommand(request.Content, topicId, User.GetUserId());
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleCreatedResult(result, id => new { postId = id });
     }
@@ -173,11 +173,11 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> DeleteForumPost(int topicId, int postId)
+    public async Task<IActionResult> DeleteForumPost(int topicId, int postId, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
         var command = new DeleteForumPostCommand(topicId, postId, authContext);
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleResult(result);
     }
@@ -193,11 +193,11 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> EditForumPost(int topicId, int postId, [FromBody] EditForumPostRequest request)
+    public async Task<IActionResult> EditForumPost(int topicId, int postId, [FromBody] EditForumPostRequest request, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
         var command = new EditForumPostCommand(topicId, postId, request.Content, authContext);
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
 
         return HandleResult(result);
     }

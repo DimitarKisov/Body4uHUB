@@ -24,11 +24,11 @@ public class BookmarkController : ApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> AddBookmark(int articleId)
+    public async Task<IActionResult> AddBookmark(int articleId, CancellationToken cancellationToken)
     {
         var command = new AddBookmarkCommand(User.GetUserId(), articleId);
 
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
         return HandleCreatedResult(result, id => new { bookmarkId = id });
     }
 
@@ -38,11 +38,11 @@ public class BookmarkController : ApiController
     [HttpGet]
     [ProducesResponseType(typeof(PagedResult<GetUserBookmarksResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetMyBookmarks([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetMyBookmarks([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var command = new GetUserBookmarksQuery(User.GetUserId(), page, pageSize);
 
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);
     }
 
@@ -54,11 +54,11 @@ public class BookmarkController : ApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> RemoveBookmark(int articleId)
+    public async Task<IActionResult> RemoveBookmark(int articleId, CancellationToken cancellationToken)
     {
         var command = new RemoveBookmarkCommand(User.GetUserId(), articleId);
 
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);
     }
 }
