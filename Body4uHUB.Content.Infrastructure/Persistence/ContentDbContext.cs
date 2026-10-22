@@ -1,38 +1,37 @@
 ﻿using Body4uHUB.Content.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Body4uHUB.Content.Infrastructure.Persistence
+namespace Body4uHUB.Content.Infrastructure.Persistence;
+
+internal class ContentDbContext : DbContext
 {
-    internal class ContentDbContext : DbContext
+    public ContentDbContext(DbContextOptions<ContentDbContext> options)
+        : base(options)
     {
-        public ContentDbContext(DbContextOptions<ContentDbContext> options)
-            : base(options)
-        {
-        }
-
-        public DbSet<Article> Articles { get; set; }
-        public DbSet<ForumTopic> ForumTopics { get; set; }
-        public DbSet<Bookmark> Bookmarks { get; set; }
-        public DbSet<ContentView> ContentViews { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ContentDbContext).Assembly);
-            base.OnModelCreating(modelBuilder);
-        }
-
-        //THOSE THINGS ARE NOT USED ANYMORE. IN THIS PROJECT WE USE VALUE OBJECTS WITHOUT CONVERTERS. KEEPING THIS CODE COMMENTED FOR FUTURE CHANGES IF NEEDED.
-        //protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        //{
-        //    configurationBuilder
-        //        .Properties<ArticleId>()
-        //        .HaveConversion<ArticleIdConverter>();
-
-        //    configurationBuilder
-        //        .Properties<CommentId>()
-        //        .HaveConversion<CommentIdConverter>();
-
-        //    base.ConfigureConventions(configurationBuilder);
-        //}
     }
+
+    public DbSet<Article> Articles { get; set; }
+    public DbSet<ForumTopic> ForumTopics { get; set; }
+    public DbSet<Bookmark> Bookmarks { get; set; }
+    public DbSet<ContentView> ContentViews { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ContentDbContext).Assembly);
+        base.OnModelCreating(modelBuilder);
+    }
+
+    //THOSE THINGS ARE NOT USED ANYMORE. IN THIS PROJECT WE USE VALUE OBJECTS WITHOUT CONVERTERS. KEEPING THIS CODE COMMENTED FOR FUTURE CHANGES IF NEEDED.
+    //protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    //{
+    //    configurationBuilder
+    //        .Properties<ArticleId>()
+    //        .HaveConversion<ArticleIdConverter>();
+
+    //    configurationBuilder
+    //        .Properties<CommentId>()
+    //        .HaveConversion<CommentIdConverter>();
+
+    //    base.ConfigureConventions(configurationBuilder);
+    //}
 }

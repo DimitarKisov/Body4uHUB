@@ -15,36 +15,35 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 
-namespace Body4uHUB.Content.Infrastructure.Extensions
+namespace Body4uHUB.Content.Infrastructure.Extensions;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddSingleton<ModifiedAtInterceptor>();
+        services.AddSingleton<ModifiedAtInterceptor>();
 
-            services
-                .AddDbContext<ContentDbContext>((serviceProvider, options) =>
-                options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName))
-                .AddInterceptors(serviceProvider.GetRequiredService<ModifiedAtInterceptor>()));
+        services
+            .AddDbContext<ContentDbContext>((serviceProvider, options) =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+            b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName))
+            .AddInterceptors(serviceProvider.GetRequiredService<ModifiedAtInterceptor>()));
 
-            services.AddScoped<IArticleRepository, ArticleRepository>();
-            services.AddScoped<IArticleReadRepository, ArticleReadRepository>();
-            services.AddScoped<IForumRepository, ForumRepository>();
-            services.AddScoped<IForumReadRepository, ForumReadRepository>();
-            services.AddScoped<IBookmarkRepository, BookmarkRepository>();
-            services.AddScoped<IBookmarkReadRepository, BookmarkReadRepository>();
-            services.AddScoped<IDbInitializer, DbInitializer>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IArticleRepository, ArticleRepository>();
+        services.AddScoped<IArticleReadRepository, ArticleReadRepository>();
+        services.AddScoped<IForumRepository, ForumRepository>();
+        services.AddScoped<IForumReadRepository, ForumReadRepository>();
+        services.AddScoped<IBookmarkRepository, BookmarkRepository>();
+        services.AddScoped<IBookmarkReadRepository, BookmarkReadRepository>();
+        services.AddScoped<IDbInitializer, DbInitializer>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            services.TryAddSingleton(TimeProvider.System);
-            services.AddValidatedOptions<ViewTrackingSettings>(configuration, ViewTrackingSettings.SectionName);
-            services.AddScoped<IViewTracker, ViewTracker>();
-            services.AddHostedService<ContentViewCleanupService>();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddValidatedOptions<ViewTrackingSettings>(configuration, ViewTrackingSettings.SectionName);
+        services.AddScoped<IViewTracker, ViewTracker>();
+        services.AddHostedService<ContentViewCleanupService>();
 
-            return services;
-        }
+        return services;
     }
 }

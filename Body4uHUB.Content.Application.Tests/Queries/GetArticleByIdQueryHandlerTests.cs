@@ -7,177 +7,176 @@ using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Moq;
 
-namespace Body4uHUB.Content.Application.Tests.Queries
+namespace Body4uHUB.Content.Application.Tests.Queries;
+
+[TestFixture]
+public class GetArticleByIdQueryHandlerTests
 {
-    [TestFixture]
-    public class GetArticleByIdQueryHandlerTests
+    private const int ArticleId = 7;
+    private const int ViewCount = 10;
+    private const string VisitorIp = "203.0.113.5";
+    private const string CommentContent = "Comment content";
+
+    private Mock<IArticleRepository> _articleRepository;
+    private Mock<IArticleReadRepository> _articleReadRepository;
+    private Mock<IViewTracker> _viewTracker;
+    private GetArticleByIdQueryHandler _handler;
+    private Guid _authorId;
+
+    [SetUp]
+    public void Setup()
     {
-        private const int ArticleId = 7;
-        private const int ViewCount = 10;
-        private const string VisitorIp = "203.0.113.5";
-        private const string CommentContent = "Comment content";
+        _articleRepository = new Mock<IArticleRepository>();
+        _articleReadRepository = new Mock<IArticleReadRepository>();
+        _viewTracker = new Mock<IViewTracker>();
+        _handler = new GetArticleByIdQueryHandler(_articleRepository.Object, _articleReadRepository.Object, _viewTracker.Object);
+        _authorId = Guid.NewGuid();
 
-        private Mock<IArticleRepository> _articleRepository;
-        private Mock<IArticleReadRepository> _articleReadRepository;
-        private Mock<IViewTracker> _viewTracker;
-        private GetArticleByIdQueryHandler _handler;
-        private Guid _authorId;
+        _articleRepository
+            .Setup(x => x.IncrementViewCountAsync(ArticleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-        [SetUp]
-        public void Setup()
-        {
-            _articleRepository = new Mock<IArticleRepository>();
-            _articleReadRepository = new Mock<IArticleReadRepository>();
-            _viewTracker = new Mock<IViewTracker>();
-            _handler = new GetArticleByIdQueryHandler(_articleRepository.Object, _articleReadRepository.Object, _viewTracker.Object);
-            _authorId = Guid.NewGuid();
+        SetupViewAlreadyCountedToday(false);
+    }
 
-            _articleRepository
-                .Setup(x => x.IncrementViewCountAsync(ArticleId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+    private void SetupViewAlreadyCountedToday(bool alreadyCounted)
+    {
+        _viewTracker
+            .Setup(x => x.TryRegisterViewAsync(ViewTarget.Article, ArticleId, VisitorIp, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(!alreadyCounted);
+    }
 
-            SetupViewAlreadyCountedToday(false);
-        }
+    private void SetupArticle(ArticleStatus status, params CommentDto[] comments)
+    {
+        _articleReadRepository
+            .Setup(x => x.GetWithCommentsByIdAsync(ArticleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetArticleByIdResponse(
+                ArticleId, "Title", "Content", _authorId, status.Name, null, ViewCount, DateTime.UtcNow, null, comments.ToList()));
+    }
 
-        private void SetupViewAlreadyCountedToday(bool alreadyCounted)
-        {
-            _viewTracker
-                .Setup(x => x.TryRegisterViewAsync(ViewTarget.Article, ArticleId, VisitorIp, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(!alreadyCounted);
-        }
+    private Task<Result<GetArticleByIdResponse>> Send(AuthorizationContext authContext)
+    {
+        return _handler.Handle(new GetArticleByIdQuery(ArticleId, authContext, VisitorIp), CancellationToken.None);
+    }
 
-        private void SetupArticle(ArticleStatus status, params CommentDto[] comments)
-        {
-            _articleReadRepository
-                .Setup(x => x.GetWithCommentsByIdAsync(ArticleId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new GetArticleByIdResponse(
-                    ArticleId, "Title", "Content", _authorId, status.Name, null, ViewCount, DateTime.UtcNow, null, comments.ToList()));
-        }
+    [Test]
+    public async Task Handle_ShouldNotIncrementViewCount_WhenVisitorWasAlreadyCountedToday()
+    {
+        SetupArticle(ArticleStatus.Published);
+        SetupViewAlreadyCountedToday(true);
 
-        private Task<Result<GetArticleByIdResponse>> Send(AuthorizationContext authContext)
-        {
-            return _handler.Handle(new GetArticleByIdQuery(ArticleId, authContext, VisitorIp), CancellationToken.None);
-        }
+        var result = await Send(null);
 
-        [Test]
-        public async Task Handle_ShouldNotIncrementViewCount_WhenVisitorWasAlreadyCountedToday()
-        {
-            SetupArticle(ArticleStatus.Published);
-            SetupViewAlreadyCountedToday(true);
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Value.ViewCount, Is.EqualTo(ViewCount));
+        _articleRepository.Verify(x => x.IncrementViewCountAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 
-            var result = await Send(null);
+    [Test]
+    public async Task Handle_ShouldReturnNotFound_WhenArticleDoesNotExist()
+    {
+        var result = await Send(null);
 
-            Assert.That(result.IsSuccess, Is.True);
-            Assert.That(result.Value.ViewCount, Is.EqualTo(ViewCount));
-            _articleRepository.Verify(x => x.IncrementViewCountAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
-        }
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
+    }
 
-        [Test]
-        public async Task Handle_ShouldReturnNotFound_WhenArticleDoesNotExist()
-        {
-            var result = await Send(null);
+    [Test]
+    public async Task Handle_ShouldReturnArticleAndIncrementViewCount_WhenArticleIsPublished()
+    {
+        SetupArticle(ArticleStatus.Published);
 
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
-        }
+        var result = await Send(null);
 
-        [Test]
-        public async Task Handle_ShouldReturnArticleAndIncrementViewCount_WhenArticleIsPublished()
-        {
-            SetupArticle(ArticleStatus.Published);
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Value.ViewCount, Is.EqualTo(ViewCount + 1));
+        _articleRepository.Verify(x => x.IncrementViewCountAsync(ArticleId, It.IsAny<CancellationToken>()), Times.Once);
+    }
 
-            var result = await Send(null);
+    private static IEnumerable<TestCaseData> UnpublishedStatuses()
+    {
+        yield return new TestCaseData(ArticleStatus.Draft);
+        yield return new TestCaseData(ArticleStatus.Archived);
+    }
 
-            Assert.That(result.IsSuccess, Is.True);
-            Assert.That(result.Value.ViewCount, Is.EqualTo(ViewCount + 1));
-            _articleRepository.Verify(x => x.IncrementViewCountAsync(ArticleId, It.IsAny<CancellationToken>()), Times.Once);
-        }
+    [TestCaseSource(nameof(UnpublishedStatuses))]
+    public async Task Handle_ShouldReturnNotFound_WhenArticleIsUnpublishedAndRequesterIsAnonymous(ArticleStatus status)
+    {
+        SetupArticle(status);
 
-        private static IEnumerable<TestCaseData> UnpublishedStatuses()
-        {
-            yield return new TestCaseData(ArticleStatus.Draft);
-            yield return new TestCaseData(ArticleStatus.Archived);
-        }
+        var result = await Send(null);
 
-        [TestCaseSource(nameof(UnpublishedStatuses))]
-        public async Task Handle_ShouldReturnNotFound_WhenArticleIsUnpublishedAndRequesterIsAnonymous(ArticleStatus status)
-        {
-            SetupArticle(status);
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
+    }
 
-            var result = await Send(null);
+    [TestCaseSource(nameof(UnpublishedStatuses))]
+    public async Task Handle_ShouldReturnNotFound_WhenArticleIsUnpublishedAndRequesterIsAnotherUser(ArticleStatus status)
+    {
+        SetupArticle(status);
 
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
-        }
+        var result = await Send(AuthorizationContext.Create(Guid.NewGuid(), false));
 
-        [TestCaseSource(nameof(UnpublishedStatuses))]
-        public async Task Handle_ShouldReturnNotFound_WhenArticleIsUnpublishedAndRequesterIsAnotherUser(ArticleStatus status)
-        {
-            SetupArticle(status);
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
+    }
 
-            var result = await Send(AuthorizationContext.Create(Guid.NewGuid(), false));
+    [TestCaseSource(nameof(UnpublishedStatuses))]
+    public async Task Handle_ShouldReturnArticleWithoutCountingView_WhenArticleIsUnpublishedAndRequesterIsAuthor(ArticleStatus status)
+    {
+        SetupArticle(status);
 
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
-        }
+        var result = await Send(AuthorizationContext.Create(_authorId, false));
 
-        [TestCaseSource(nameof(UnpublishedStatuses))]
-        public async Task Handle_ShouldReturnArticleWithoutCountingView_WhenArticleIsUnpublishedAndRequesterIsAuthor(ArticleStatus status)
-        {
-            SetupArticle(status);
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Value.ViewCount, Is.EqualTo(ViewCount));
+        _articleRepository.Verify(x => x.IncrementViewCountAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        _viewTracker.Verify(x => x.TryRegisterViewAsync(It.IsAny<ViewTarget>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 
-            var result = await Send(AuthorizationContext.Create(_authorId, false));
+    [TestCaseSource(nameof(UnpublishedStatuses))]
+    public async Task Handle_ShouldReturnArticle_WhenArticleIsUnpublishedAndRequesterIsAdmin(ArticleStatus status)
+    {
+        SetupArticle(status);
 
-            Assert.That(result.IsSuccess, Is.True);
-            Assert.That(result.Value.ViewCount, Is.EqualTo(ViewCount));
-            _articleRepository.Verify(x => x.IncrementViewCountAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
-            _viewTracker.Verify(x => x.TryRegisterViewAsync(It.IsAny<ViewTarget>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-        }
+        var result = await Send(AuthorizationContext.Create(Guid.NewGuid(), true));
 
-        [TestCaseSource(nameof(UnpublishedStatuses))]
-        public async Task Handle_ShouldReturnArticle_WhenArticleIsUnpublishedAndRequesterIsAdmin(ArticleStatus status)
-        {
-            SetupArticle(status);
+        Assert.That(result.IsSuccess, Is.True);
+    }
 
-            var result = await Send(AuthorizationContext.Create(Guid.NewGuid(), true));
+    // A (deleted) <- B (deleted) <- C;  D (deleted);  E (deleted) <- F (deleted)
+    [Test]
+    public async Task Handle_ShouldKeepDeletedCommentsOnlyWhenTheyHaveVisibleReplies()
+    {
+        var a = Comment(deleted: true);
+        var b = Comment(deleted: true, parent: a);
+        var c = Comment(deleted: false, parent: b);
+        var d = Comment(deleted: true);
+        var e = Comment(deleted: true);
+        var f = Comment(deleted: true, parent: e);
+        SetupArticle(ArticleStatus.Published, a, b, c, d, e, f);
 
-            Assert.That(result.IsSuccess, Is.True);
-        }
+        var result = await Send(null);
 
-        // A (deleted) <- B (deleted) <- C;  D (deleted);  E (deleted) <- F (deleted)
-        [Test]
-        public async Task Handle_ShouldKeepDeletedCommentsOnlyWhenTheyHaveVisibleReplies()
-        {
-            var a = Comment(deleted: true);
-            var b = Comment(deleted: true, parent: a);
-            var c = Comment(deleted: false, parent: b);
-            var d = Comment(deleted: true);
-            var e = Comment(deleted: true);
-            var f = Comment(deleted: true, parent: e);
-            SetupArticle(ArticleStatus.Published, a, b, c, d, e, f);
+        var comments = result.Value.Comments;
+        Assert.That(comments.Select(x => x.Id), Is.EqualTo(new[] { a.Id, b.Id, c.Id }));
+        Assert.That(comments.Single(x => x.Id == a.Id).Content, Is.Null);
+        Assert.That(comments.Single(x => x.Id == b.Id).Content, Is.Null);
+        Assert.That(comments.Single(x => x.Id == c.Id).Content, Is.Not.Null);
+    }
 
-            var result = await Send(null);
+    [Test]
+    public async Task Handle_ShouldHideDeletedCommentContentWithoutChangingTheLoadedComments()
+    {
+        var parent = Comment(deleted: true);
+        var reply = Comment(deleted: false, parent: parent);
+        SetupArticle(ArticleStatus.Published, parent, reply);
 
-            var comments = result.Value.Comments;
-            Assert.That(comments.Select(x => x.Id), Is.EqualTo(new[] { a.Id, b.Id, c.Id }));
-            Assert.That(comments.Single(x => x.Id == a.Id).Content, Is.Null);
-            Assert.That(comments.Single(x => x.Id == b.Id).Content, Is.Null);
-            Assert.That(comments.Single(x => x.Id == c.Id).Content, Is.Not.Null);
-        }
+        var result = await Send(null);
 
-        [Test]
-        public async Task Handle_ShouldHideDeletedCommentContentWithoutChangingTheLoadedComments()
-        {
-            var parent = Comment(deleted: true);
-            var reply = Comment(deleted: false, parent: parent);
-            SetupArticle(ArticleStatus.Published, parent, reply);
+        Assert.That(result.Value.Comments.Single(x => x.Id == parent.Id).Content, Is.Null);
+        Assert.That(parent.Content, Is.EqualTo(CommentContent));
+    }
 
-            var result = await Send(null);
-
-            Assert.That(result.Value.Comments.Single(x => x.Id == parent.Id).Content, Is.Null);
-            Assert.That(parent.Content, Is.EqualTo(CommentContent));
-        }
-
-        private static CommentDto Comment(bool deleted, CommentDto parent = null)
-        {
-            return new CommentDto(Guid.NewGuid(), CommentContent, Guid.NewGuid(), parent?.Id, deleted, DateTime.UtcNow, null);
-        }
+    private static CommentDto Comment(bool deleted, CommentDto parent = null)
+    {
+        return new CommentDto(Guid.NewGuid(), CommentContent, Guid.NewGuid(), parent?.Id, deleted, DateTime.UtcNow, null);
     }
 }

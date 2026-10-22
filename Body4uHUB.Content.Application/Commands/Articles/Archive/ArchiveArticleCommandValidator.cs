@@ -2,14 +2,13 @@
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Articles.Archive
+namespace Body4uHUB.Content.Application.Commands.Articles.Archive;
+
+public class ArchiveArticleCommandValidator : AbstractValidator<ArchiveArticleCommand>
 {
-    public class ArchiveArticleCommandValidator : AbstractValidator<ArchiveArticleCommand>
+    public ArchiveArticleCommandValidator()
     {
-        public ArchiveArticleCommandValidator()
-        {
-            RuleFor(x => x.ArticleId)
-                .GreaterThan(0).WithMessage(ArticleIdRequired);
-        }
+        RuleFor(x => x.ArticleId)
+            .GreaterThan(0).WithMessage(ArticleIdRequired);
     }
 }

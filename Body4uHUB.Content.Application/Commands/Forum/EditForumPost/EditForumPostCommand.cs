@@ -5,35 +5,34 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost
+namespace Body4uHUB.Content.Application.Commands.Forum.EditForumPost;
+
+public record EditForumPostCommand(int TopicId, int PostId, string Content, AuthorizationContext AuthContext) : IRequest<Result>;
+
+internal sealed class EditForumPostCommandHandler(
+    IForumRepository forumRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<EditForumPostCommand, Result>
 {
-    public record EditForumPostCommand(int TopicId, int PostId, string Content, AuthorizationContext AuthContext) : IRequest<Result>;
+    private readonly IForumRepository _forumRepository = forumRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    internal sealed class EditForumPostCommandHandler(
-        IForumRepository forumRepository,
-        IUnitOfWork unitOfWork)
-        : IRequestHandler<EditForumPostCommand, Result>
+    public async Task<Result> Handle(EditForumPostCommand request, CancellationToken cancellationToken)
     {
-        private readonly IForumRepository _forumRepository = forumRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
-        public async Task<Result> Handle(EditForumPostCommand request, CancellationToken cancellationToken)
+        var topic = await _forumRepository.GetByIdWithPostAsync(request.TopicId, request.PostId, cancellationToken);
+        if (topic == null)
         {
-            var topic = await _forumRepository.GetByIdWithPostAsync(request.TopicId, request.PostId, cancellationToken);
-            if (topic == null)
-            {
-                return Result.ResourceNotFound(ForumTopicNotFound);
-            }
-
-            topic.EditPost(
-                request.PostId,
-                request.Content,
-                request.AuthContext.CurrentUserId,
-                request.AuthContext.IsAdmin);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
+            return Result.ResourceNotFound(ForumTopicNotFound);
         }
+
+        topic.EditPost(
+            request.PostId,
+            request.Content,
+            request.AuthContext.CurrentUserId,
+            request.AuthContext.IsAdmin);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }

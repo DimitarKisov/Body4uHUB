@@ -7,120 +7,119 @@ using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Exceptions;
 using Moq;
 
-namespace Body4uHUB.Content.Application.Tests.Commands
+namespace Body4uHUB.Content.Application.Tests.Commands;
+
+[TestFixture]
+public class ForumTopicTitleCommandHandlerTests
 {
-    [TestFixture]
-    public class ForumTopicTitleCommandHandlerTests
+    private const int TopicId = 4;
+    private const string Title = "Valid topic";
+
+    private Mock<IForumRepository> _forumRepository;
+    private Mock<IUnitOfWork> _unitOfWork;
+    private Guid _authorId;
+
+    [SetUp]
+    public void Setup()
     {
-        private const int TopicId = 4;
-        private const string Title = "Valid topic";
+        _forumRepository = new Mock<IForumRepository>();
+        _unitOfWork = new Mock<IUnitOfWork>();
+        _authorId = Guid.NewGuid();
 
-        private Mock<IForumRepository> _forumRepository;
-        private Mock<IUnitOfWork> _unitOfWork;
-        private Guid _authorId;
+        _forumRepository
+            .Setup(x => x.GetByIdAsync(TopicId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ForumTopic.Create(Title, _authorId));
+    }
 
-        [SetUp]
-        public void Setup()
-        {
-            _forumRepository = new Mock<IForumRepository>();
-            _unitOfWork = new Mock<IUnitOfWork>();
-            _authorId = Guid.NewGuid();
+    private void SetupTitleExists(int? exceptTopicId, bool exists)
+    {
+        _forumRepository
+            .Setup(x => x.ExistsByTitleAsync(Title, exceptTopicId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(exists);
+    }
 
-            _forumRepository
-                .Setup(x => x.GetByIdAsync(TopicId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(ForumTopic.Create(Title, _authorId));
-        }
+    private void SetupConcurrentDuplicateOnSave()
+    {
+        _unitOfWork
+            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new UniqueConstraintViolationException(new Exception()));
+    }
 
-        private void SetupTitleExists(int? exceptTopicId, bool exists)
-        {
-            _forumRepository
-                .Setup(x => x.ExistsByTitleAsync(Title, exceptTopicId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(exists);
-        }
+    private Task<Result<CreateForumTopicResponse>> Create()
+    {
+        var handler = new CreateForumTopicCommandHandler(_forumRepository.Object, _unitOfWork.Object);
+        return handler.Handle(new CreateForumTopicCommand(Title, _authorId), CancellationToken.None);
+    }
 
-        private void SetupConcurrentDuplicateOnSave()
-        {
-            _unitOfWork
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new UniqueConstraintViolationException(new Exception()));
-        }
+    private Task<Result> Edit()
+    {
+        var handler = new EditForumTopicCommandHandler(_forumRepository.Object, _unitOfWork.Object);
+        return handler.Handle(new EditForumTopicCommand(TopicId, Title, AuthorizationContext.Create(_authorId, false)), CancellationToken.None);
+    }
 
-        private Task<Result<CreateForumTopicResponse>> Create()
-        {
-            var handler = new CreateForumTopicCommandHandler(_forumRepository.Object, _unitOfWork.Object);
-            return handler.Handle(new CreateForumTopicCommand(Title, _authorId), CancellationToken.None);
-        }
+    [Test]
+    public async Task Create_ShouldReturnConflict_WhenTitleExists()
+    {
+        SetupTitleExists(null, true);
 
-        private Task<Result> Edit()
-        {
-            var handler = new EditForumTopicCommandHandler(_forumRepository.Object, _unitOfWork.Object);
-            return handler.Handle(new EditForumTopicCommand(TopicId, Title, AuthorizationContext.Create(_authorId, false)), CancellationToken.None);
-        }
+        var result = await Create();
 
-        [Test]
-        public async Task Create_ShouldReturnConflict_WhenTitleExists()
-        {
-            SetupTitleExists(null, true);
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
+        _forumRepository.Verify(x => x.Add(It.IsAny<ForumTopic>()), Times.Never);
+    }
 
-            var result = await Create();
+    [Test]
+    public async Task Create_ShouldReturnConflict_WhenConcurrentRequestSavedSameTitle()
+    {
+        SetupTitleExists(null, false);
+        SetupConcurrentDuplicateOnSave();
 
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
-            _forumRepository.Verify(x => x.Add(It.IsAny<ForumTopic>()), Times.Never);
-        }
+        var result = await Create();
 
-        [Test]
-        public async Task Create_ShouldReturnConflict_WhenConcurrentRequestSavedSameTitle()
-        {
-            SetupTitleExists(null, false);
-            SetupConcurrentDuplicateOnSave();
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
+    }
 
-            var result = await Create();
+    [Test]
+    public async Task Create_ShouldSucceed_WhenTitleIsFree()
+    {
+        SetupTitleExists(null, false);
 
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
-        }
+        var result = await Create();
 
-        [Test]
-        public async Task Create_ShouldSucceed_WhenTitleIsFree()
-        {
-            SetupTitleExists(null, false);
+        Assert.That(result.IsSuccess, Is.True);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
 
-            var result = await Create();
+    [Test]
+    public async Task Edit_ShouldIgnoreTheEditedTopic_WhenCheckingTitle()
+    {
+        SetupTitleExists(TopicId, false);
 
-            Assert.That(result.IsSuccess, Is.True);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        }
+        var result = await Edit();
 
-        [Test]
-        public async Task Edit_ShouldIgnoreTheEditedTopic_WhenCheckingTitle()
-        {
-            SetupTitleExists(TopicId, false);
+        Assert.That(result.IsSuccess, Is.True);
+        _forumRepository.Verify(x => x.ExistsByTitleAsync(Title, TopicId, It.IsAny<CancellationToken>()), Times.Once);
+    }
 
-            var result = await Edit();
+    [Test]
+    public async Task Edit_ShouldReturnConflict_WhenAnotherTopicHasTitle()
+    {
+        SetupTitleExists(TopicId, true);
 
-            Assert.That(result.IsSuccess, Is.True);
-            _forumRepository.Verify(x => x.ExistsByTitleAsync(Title, TopicId, It.IsAny<CancellationToken>()), Times.Once);
-        }
+        var result = await Edit();
 
-        [Test]
-        public async Task Edit_ShouldReturnConflict_WhenAnotherTopicHasTitle()
-        {
-            SetupTitleExists(TopicId, true);
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 
-            var result = await Edit();
+    [Test]
+    public async Task Edit_ShouldReturnConflict_WhenConcurrentRequestSavedSameTitle()
+    {
+        SetupTitleExists(TopicId, false);
+        SetupConcurrentDuplicateOnSave();
 
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
-            _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        }
+        var result = await Edit();
 
-        [Test]
-        public async Task Edit_ShouldReturnConflict_WhenConcurrentRequestSavedSameTitle()
-        {
-            SetupTitleExists(TopicId, false);
-            SetupConcurrentDuplicateOnSave();
-
-            var result = await Edit();
-
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
-        }
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
     }
 }

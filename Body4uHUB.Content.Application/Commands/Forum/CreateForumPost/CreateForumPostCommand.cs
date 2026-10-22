@@ -5,31 +5,30 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumPost
+namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumPost;
+
+public record CreateForumPostCommand(string Content, int TopicId, Guid AuthorId) : IRequest<Result<CreateForumPostResponse>>;
+
+internal sealed class CreateForumPostCommandHandler(
+    IForumRepository forumRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<CreateForumPostCommand, Result<CreateForumPostResponse>>
 {
-    public record CreateForumPostCommand(string Content, int TopicId, Guid AuthorId) : IRequest<Result<CreateForumPostResponse>>;
+    private readonly IForumRepository _forumRepository = forumRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    internal sealed class CreateForumPostCommandHandler(
-        IForumRepository forumRepository,
-        IUnitOfWork unitOfWork)
-        : IRequestHandler<CreateForumPostCommand, Result<CreateForumPostResponse>>
+    public async Task<Result<CreateForumPostResponse>> Handle(CreateForumPostCommand request, CancellationToken cancellationToken)
     {
-        private readonly IForumRepository _forumRepository = forumRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
-        public async Task<Result<CreateForumPostResponse>> Handle(CreateForumPostCommand request, CancellationToken cancellationToken)
+        var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
+        if (topic == null)
         {
-            var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
-            if (topic == null)
-            {
-                return Result.ResourceNotFound<CreateForumPostResponse>(ForumTopicNotFound);
-            }
-
-            var post = topic.AddPost(request.Content, request.AuthorId);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result.Success(new CreateForumPostResponse(post.Id));
+            return Result.ResourceNotFound<CreateForumPostResponse>(ForumTopicNotFound);
         }
+
+        var post = topic.AddPost(request.Content, request.AuthorId);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success(new CreateForumPostResponse(post.Id));
     }
 }

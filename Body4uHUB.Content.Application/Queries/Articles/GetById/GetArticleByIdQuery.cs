@@ -8,79 +8,78 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Application.Queries.Articles.GetById
+namespace Body4uHUB.Content.Application.Queries.Articles.GetById;
+
+public record GetArticleByIdQuery(int Id, AuthorizationContext AuthContext, string VisitorIp) : IRequest<Result<GetArticleByIdResponse>>;
+
+internal sealed class GetArticleByIdQueryHandler(
+    IArticleRepository articleRepository,
+    IArticleReadRepository articleReadRepository,
+    IViewTracker viewTracker)
+    : IRequestHandler<GetArticleByIdQuery, Result<GetArticleByIdResponse>>
 {
-    public record GetArticleByIdQuery(int Id, AuthorizationContext AuthContext, string VisitorIp) : IRequest<Result<GetArticleByIdResponse>>;
+    private readonly IArticleRepository _articleRepository = articleRepository;
+    private readonly IArticleReadRepository _articleReadRepository = articleReadRepository;
+    private readonly IViewTracker _viewTracker = viewTracker;
 
-    internal sealed class GetArticleByIdQueryHandler(
-        IArticleRepository articleRepository,
-        IArticleReadRepository articleReadRepository,
-        IViewTracker viewTracker)
-        : IRequestHandler<GetArticleByIdQuery, Result<GetArticleByIdResponse>>
+    public async Task<Result<GetArticleByIdResponse>> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
     {
-        private readonly IArticleRepository _articleRepository = articleRepository;
-        private readonly IArticleReadRepository _articleReadRepository = articleReadRepository;
-        private readonly IViewTracker _viewTracker = viewTracker;
-
-        public async Task<Result<GetArticleByIdResponse>> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
+        var article = await _articleReadRepository.GetWithCommentsByIdAsync(request.Id, cancellationToken);
+        if (article == null)
         {
-            var article = await _articleReadRepository.GetWithCommentsByIdAsync(request.Id, cancellationToken);
-            if (article == null)
+            return Result.ResourceNotFound<GetArticleByIdResponse>(ArticleNotFound);
+        }
+
+        var isPublished = article.Status == ArticleStatus.Published.Name;
+        if (!isPublished && !CanViewUnpublished(article, request.AuthContext))
+        {
+            return Result.ResourceNotFound<GetArticleByIdResponse>(ArticleNotFound);
+        }
+
+        if (isPublished && await _viewTracker.TryRegisterViewAsync(ViewTarget.Article, request.Id, request.VisitorIp, cancellationToken))
+        {
+            var success = await _articleRepository.IncrementViewCountAsync(request.Id, cancellationToken);
+            if (!success)
             {
                 return Result.ResourceNotFound<GetArticleByIdResponse>(ArticleNotFound);
             }
 
-            var isPublished = article.Status == ArticleStatus.Published.Name;
-            if (!isPublished && !CanViewUnpublished(article, request.AuthContext))
-            {
-                return Result.ResourceNotFound<GetArticleByIdResponse>(ArticleNotFound);
-            }
-
-            if (isPublished && await _viewTracker.TryRegisterViewAsync(ViewTarget.Article, request.Id, request.VisitorIp, cancellationToken))
-            {
-                var success = await _articleRepository.IncrementViewCountAsync(request.Id, cancellationToken);
-                if (!success)
-                {
-                    return Result.ResourceNotFound<GetArticleByIdResponse>(ArticleNotFound);
-                }
-
-                article = article with { ViewCount = article.ViewCount + 1 };
-            }
-
-            return Result.Success(article with { Comments = VisibleComments(article.Comments) });
+            article = article with { ViewCount = article.ViewCount + 1 };
         }
 
-        private static bool CanViewUnpublished(GetArticleByIdResponse article, AuthorizationContext authContext)
+        return Result.Success(article with { Comments = VisibleComments(article.Comments) });
+    }
+
+    private static bool CanViewUnpublished(GetArticleByIdResponse article, AuthorizationContext authContext)
+    {
+        return authContext is not null
+            && (authContext.IsAdmin || authContext.CurrentUserId == article.AuthorId);
+    }
+
+    // A deleted comment stays (without content) only while it still has visible replies,
+    // so the thread does not break; otherwise it is dropped.
+    private static List<CommentDto> VisibleComments(ICollection<CommentDto> comments)
+    {
+        var visible = comments.ToList();
+
+        // Removing a deleted comment can leave its deleted parent without replies,
+        // so repeat until nothing more can be removed.
+        while (RemoveDeletedLeaves(visible))
         {
-            return authContext is not null
-                && (authContext.IsAdmin || authContext.CurrentUserId == article.AuthorId);
         }
 
-        // A deleted comment stays (without content) only while it still has visible replies,
-        // so the thread does not break; otherwise it is dropped.
-        private static List<CommentDto> VisibleComments(ICollection<CommentDto> comments)
-        {
-            var visible = comments.ToList();
+        return [.. visible.Select(x => x.IsDeleted ? x with { Content = null } : x)];
+    }
 
-            // Removing a deleted comment can leave its deleted parent without replies,
-            // so repeat until nothing more can be removed.
-            while (RemoveDeletedLeaves(visible))
-            {
-            }
+    private static bool RemoveDeletedLeaves(List<CommentDto> comments)
+    {
+        var idsWithReplies = comments
+            .Where(x => x.ParentCommentId.HasValue)
+            .Select(x => x.ParentCommentId.Value)
+            .ToHashSet();
 
-            return [.. visible.Select(x => x.IsDeleted ? x with { Content = null } : x)];
-        }
+        var removedCount = comments.RemoveAll(x => x.IsDeleted && !idsWithReplies.Contains(x.Id));
 
-        private static bool RemoveDeletedLeaves(List<CommentDto> comments)
-        {
-            var idsWithReplies = comments
-                .Where(x => x.ParentCommentId.HasValue)
-                .Select(x => x.ParentCommentId.Value)
-                .ToHashSet();
-
-            var removedCount = comments.RemoveAll(x => x.IsDeleted && !idsWithReplies.Contains(x.Id));
-
-            return removedCount > 0;
-        }
+        return removedCount > 0;
     }
 }

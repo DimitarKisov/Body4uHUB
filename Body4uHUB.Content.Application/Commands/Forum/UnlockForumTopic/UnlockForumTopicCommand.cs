@@ -5,31 +5,30 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic
+namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic;
+
+public record UnlockForumTopicCommand(int TopicId) : IRequest<Result>;
+
+internal sealed class UnlockForumTopicCommandHandler(
+    IForumRepository forumRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<UnlockForumTopicCommand, Result>
 {
-    public record UnlockForumTopicCommand(int TopicId) : IRequest<Result>;
+    private readonly IForumRepository _forumRepository = forumRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    internal sealed class UnlockForumTopicCommandHandler(
-        IForumRepository forumRepository,
-        IUnitOfWork unitOfWork)
-        : IRequestHandler<UnlockForumTopicCommand, Result>
+    public async Task<Result> Handle(UnlockForumTopicCommand request, CancellationToken cancellationToken)
     {
-        private readonly IForumRepository _forumRepository = forumRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
-        public async Task<Result> Handle(UnlockForumTopicCommand request, CancellationToken cancellationToken)
+        var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
+        if (topic == null)
         {
-            var topic = await _forumRepository.GetByIdAsync(request.TopicId, cancellationToken);
-            if (topic == null)
-            {
-                return Result.ResourceNotFound(ForumTopicNotFound);
-            }
-
-            topic.Unlock();
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
+            return Result.ResourceNotFound(ForumTopicNotFound);
         }
+
+        topic.Unlock();
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }

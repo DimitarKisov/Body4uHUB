@@ -3,37 +3,36 @@ using Body4uHUB.Shared.Domain.Exceptions;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Domain.ValueObjects
+namespace Body4uHUB.Content.Domain.ValueObjects;
+
+public class ArticleId : ValueObject
 {
-    public class ArticleId : ValueObject
+    public int Value { get; private set; }
+
+    private ArticleId(int value)
     {
-        public int Value { get; private set; }
+        Value = value;
+    }
 
-        private ArticleId(int value)
+    // Public - за application layer
+    public static ArticleId Create(int value)
+    {
+        if (value <= 0)
         {
-            Value = value;
+            throw new InvalidValueObjectException(IdCannotBeZeroOrNegative);
         }
 
-        // Public - за application layer
-        public static ArticleId Create(int value)
-        {
-            if (value <= 0)
-            {
-                throw new InvalidValueObjectException(IdCannotBeZeroOrNegative);
-            }
+        return new ArticleId(value);
+    }
 
-            return new ArticleId(value);
-        }
+    // Internal - САМО за EF Core
+    internal static ArticleId CreateInternal(int value)
+    {
+        return new ArticleId(value);
+    }
 
-        // Internal - САМО за EF Core
-        internal static ArticleId CreateInternal(int value)
-        {
-            return new ArticleId(value);
-        }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Value;
-        }
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

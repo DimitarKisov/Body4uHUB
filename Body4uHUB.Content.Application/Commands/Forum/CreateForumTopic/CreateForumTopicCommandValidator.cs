@@ -1,20 +1,19 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic
+﻿using FluentValidation;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
+
+namespace Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic;
+
+public class CreateForumTopicCommandValidator : AbstractValidator<CreateForumTopicCommand>
 {
-    using FluentValidation;
-
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
-
-    public class CreateForumTopicCommandValidator : AbstractValidator<CreateForumTopicCommand>
+    public CreateForumTopicCommandValidator()
     {
-        public CreateForumTopicCommandValidator()
-        {
-            RuleFor(x => x.Title)
-                .NotEmpty().WithMessage(TitleRequired)
-                .Length(TitleMinLength, TitleMaxLength).WithMessage(string.Format(TitleLengthMessage, TitleMinLength, TitleMaxLength));
+        RuleFor(x => x.Title)
+            .NotEmpty().WithMessage(TitleRequired)
+            .Length(TitleMinLength, TitleMaxLength).WithMessage(string.Format(TitleLengthMessage, TitleMinLength, TitleMaxLength));
 
-            RuleFor(x => x.AuthorId)
-                .NotEmpty().WithMessage(AuthorIdRequired);
-        }
+        RuleFor(x => x.AuthorId)
+            .NotEmpty().WithMessage(AuthorIdRequired);
     }
 }

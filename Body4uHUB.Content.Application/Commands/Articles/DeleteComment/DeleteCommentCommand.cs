@@ -5,30 +5,29 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment
+namespace Body4uHUB.Content.Application.Commands.Articles.DeleteComment;
+
+public record DeleteCommentCommand(Guid CommentId, int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
+
+internal sealed class DeleteCommentCommandHandler(
+    IArticleRepository articleRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<DeleteCommentCommand, Result>
 {
-    public record DeleteCommentCommand(Guid CommentId, int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
+    private readonly IArticleRepository _articleRepository = articleRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    internal sealed class DeleteCommentCommandHandler(
-        IArticleRepository articleRepository,
-        IUnitOfWork unitOfWork) : IRequestHandler<DeleteCommentCommand, Result>
+    public async Task<Result> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
     {
-        private readonly IArticleRepository _articleRepository = articleRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
-        public async Task<Result> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
+        var article = await _articleRepository.GetWithCommentsByIdAsync(request.ArticleId, cancellationToken);
+        if (article is null)
         {
-            var article = await _articleRepository.GetWithCommentsByIdAsync(request.ArticleId, cancellationToken);
-            if (article is null)
-            {
-                return Result.ResourceNotFound(ArticleNotFound);
-            }
-
-            article.DeleteComment(request.CommentId, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
+            return Result.ResourceNotFound(ArticleNotFound);
         }
+
+        article.DeleteComment(request.CommentId, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }

@@ -2,39 +2,38 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
+namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations;
+
+internal class BookmarkConfiguration : IEntityTypeConfiguration<Bookmark>
 {
-    internal class BookmarkConfiguration : IEntityTypeConfiguration<Bookmark>
+    public void Configure(EntityTypeBuilder<Bookmark> builder)
     {
-        public void Configure(EntityTypeBuilder<Bookmark> builder)
-        {
-            builder.ToTable("Bookmarks");
+        builder.ToTable("Bookmarks");
 
-            builder.HasKey(x => x.Id);
+        builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Id)
-                .ValueGeneratedOnAdd();
+        builder.Property(x => x.Id)
+            .ValueGeneratedOnAdd();
 
-            builder.Property(x => x.UserId)
-                .IsRequired();
+        builder.Property(x => x.UserId)
+            .IsRequired();
 
-            builder.Property(x => x.ArticleId)
-                .IsRequired();
+        builder.Property(x => x.ArticleId)
+            .IsRequired();
 
-            builder.Property(x => x.CreatedAt)
-                .IsRequired();
+        builder.Property(x => x.CreatedAt)
+            .IsRequired();
 
-            // Unique constraint
-            builder.HasIndex(x => new { x.UserId, x.ArticleId })
-                .IsUnique();
+        // Unique constraint
+        builder.HasIndex(x => new { x.UserId, x.ArticleId })
+            .IsUnique();
 
-            // Indexes
-            builder.HasIndex(x => x.UserId);
+        // Indexes
+        builder.HasIndex(x => x.UserId);
 
-            builder.HasIndex(x => x.ArticleId);
+        builder.HasIndex(x => x.ArticleId);
 
-            // Ignore domain events
-            builder.Ignore(x => x.DomainEvents);
-        }
+        // Ignore domain events
+        builder.Ignore(x => x.DomainEvents);
     }
 }

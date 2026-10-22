@@ -1,18 +1,17 @@
-﻿namespace Body4uHUB.Content.Application.Commands.Bookmarks.RemoveBookmark
+﻿using FluentValidation;
+
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
+
+namespace Body4uHUB.Content.Application.Commands.Bookmarks.RemoveBookmark;
+
+public class RemoveBookmarkCommandValidator : AbstractValidator<RemoveBookmarkCommand>
 {
-    using FluentValidation;
-
-    using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
-
-    public class RemoveBookmarkCommandValidator : AbstractValidator<RemoveBookmarkCommand>
+    public RemoveBookmarkCommandValidator()
     {
-        public RemoveBookmarkCommandValidator()
-        {
-            RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage(UserIdRequired);
+        RuleFor(x => x.UserId)
+            .NotEmpty().WithMessage(UserIdRequired);
 
-            RuleFor(x => x.ArticleId)
-                .GreaterThan(0).WithMessage(ArticleIdRequired);
-        }
+        RuleFor(x => x.ArticleId)
+            .GreaterThan(0).WithMessage(ArticleIdRequired);
     }
 }

@@ -2,14 +2,13 @@
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic
+namespace Body4uHUB.Content.Application.Commands.Forum.DeleteForumTopic;
+
+public class DeleteForumTopicCommandValidator : AbstractValidator<DeleteForumTopicCommand>
 {
-    public class DeleteForumTopicCommandValidator : AbstractValidator<DeleteForumTopicCommand>
+    public DeleteForumTopicCommandValidator()
     {
-        public DeleteForumTopicCommandValidator()
-        {
-            RuleFor(x => x.TopicId)
-                .GreaterThan(0).WithMessage(ForumTopicIdRequired);
-        }
+        RuleFor(x => x.TopicId)
+            .GreaterThan(0).WithMessage(ForumTopicIdRequired);
     }
 }

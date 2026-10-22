@@ -6,97 +6,96 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations
+namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations;
+
+internal class ArticleConfiguration : IEntityTypeConfiguration<Article>
 {
-    internal class ArticleConfiguration : IEntityTypeConfiguration<Article>
+    public void Configure(EntityTypeBuilder<Article> builder)
     {
-        public void Configure(EntityTypeBuilder<Article> builder)
+        builder.ToTable("Articles");
+
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+            .IsRequired();
+
+        builder.Property(x => x.Title)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder.Property(x => x.Content)
+            .HasMaxLength(ContentMaxLength)
+            .IsRequired();
+
+        builder.Property(x => x.AuthorId)
+            .IsRequired();
+
+        builder.Property(x => x.ViewCount)
+            .IsRequired();
+
+        builder.Property(x => x.PublishedAt)
+            .IsRequired(false);
+
+        builder.Property(x => x.CreatedAt)
+            .IsRequired();
+
+        builder.Property(x => x.ModifiedAt)
+            .IsRequired(false);
+
+        // ArticleStatus enumeration
+        builder.Property(x => x.Status)
+            .HasConversion(
+                v => v.Id,
+                v => Enumeration.FromValue<ArticleStatus>(v))
+            .IsRequired();
+
+        builder.OwnsMany(b => b.Comments, commentBuilder =>
         {
-            builder.ToTable("Articles");
+            commentBuilder.ToTable("Comments");
 
-            builder.HasKey(x => x.Id);
+            commentBuilder.HasKey(c => c.Id);
 
-            builder.Property(x => x.Id)
+            commentBuilder.Property(c => c.Id)
+                .ValueGeneratedNever()
                 .IsRequired();
 
-            builder.Property(x => x.Title)
-                .HasMaxLength(200)
+            commentBuilder.Property(c => c.Content)
+                .HasMaxLength(CommentContentMaxLength)
                 .IsRequired();
 
-            builder.Property(x => x.Content)
-                .HasMaxLength(ContentMaxLength)
+            commentBuilder.Property(c => c.AuthorId)
                 .IsRequired();
 
-            builder.Property(x => x.AuthorId)
-                .IsRequired();
+            commentBuilder.WithOwner()
+                .HasForeignKey("ArticleId");
 
-            builder.Property(x => x.ViewCount)
-                .IsRequired();
-
-            builder.Property(x => x.PublishedAt)
+            commentBuilder.Property(c => c.ParentCommentId)
                 .IsRequired(false);
 
-            builder.Property(x => x.CreatedAt)
+            commentBuilder.Property(c => c.IsDeleted)
                 .IsRequired();
 
-            builder.Property(x => x.ModifiedAt)
+            commentBuilder.Property(c => c.CreatedAt)
+                .IsRequired();
+
+            commentBuilder.Property(c => c.ModifiedAt)
                 .IsRequired(false);
-
-            // ArticleStatus enumeration
-            builder.Property(x => x.Status)
-                .HasConversion(
-                    v => v.Id,
-                    v => Enumeration.FromValue<ArticleStatus>(v))
-                .IsRequired();
-
-            builder.OwnsMany(b => b.Comments, commentBuilder =>
-            {
-                commentBuilder.ToTable("Comments");
-
-                commentBuilder.HasKey(c => c.Id);
-
-                commentBuilder.Property(c => c.Id)
-                    .ValueGeneratedNever()
-                    .IsRequired();
-
-                commentBuilder.Property(c => c.Content)
-                    .HasMaxLength(CommentContentMaxLength)
-                    .IsRequired();
-
-                commentBuilder.Property(c => c.AuthorId)
-                    .IsRequired();
-
-                commentBuilder.WithOwner()
-                    .HasForeignKey("ArticleId");
-
-                commentBuilder.Property(c => c.ParentCommentId)
-                    .IsRequired(false);
-
-                commentBuilder.Property(c => c.IsDeleted)
-                    .IsRequired();
-
-                commentBuilder.Property(c => c.CreatedAt)
-                    .IsRequired();
-
-                commentBuilder.Property(c => c.ModifiedAt)
-                    .IsRequired(false);
-
-                // Indexes
-                commentBuilder.HasIndex("ArticleId");
-                commentBuilder.HasIndex(c => c.AuthorId);
-                commentBuilder.HasIndex(c => c.ParentCommentId);
-            });
 
             // Indexes
-            builder.HasIndex(x => x.Id)
-                .IsUnique();
+            commentBuilder.HasIndex("ArticleId");
+            commentBuilder.HasIndex(c => c.AuthorId);
+            commentBuilder.HasIndex(c => c.ParentCommentId);
+        });
 
-            builder.HasIndex(x => x.AuthorId);
-            builder.HasIndex(x => x.PublishedAt);
-            builder.HasIndex(x => x.Status);
+        // Indexes
+        builder.HasIndex(x => x.Id)
+            .IsUnique();
 
-            // Ignore domain events
-            builder.Ignore(x => x.DomainEvents);
-        }
+        builder.HasIndex(x => x.AuthorId);
+        builder.HasIndex(x => x.PublishedAt);
+        builder.HasIndex(x => x.Status);
+
+        // Ignore domain events
+        builder.Ignore(x => x.DomainEvents);
     }
 }

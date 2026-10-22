@@ -6,83 +6,82 @@ using Body4uHUB.Shared.Domain.Abstractions;
 using Body4uHUB.Shared.Exceptions;
 using Moq;
 
-namespace Body4uHUB.Content.Application.Tests.Commands
+namespace Body4uHUB.Content.Application.Tests.Commands;
+
+[TestFixture]
+public class AddBookmarkCommandHandlerTests
 {
-    [TestFixture]
-    public class AddBookmarkCommandHandlerTests
+    private const int ArticleId = 7;
+
+    private Mock<IBookmarkRepository> _bookmarkRepository;
+    private Mock<IArticleRepository> _articleRepository;
+    private Mock<IUnitOfWork> _unitOfWork;
+    private Guid _userId;
+
+    [SetUp]
+    public void Setup()
     {
-        private const int ArticleId = 7;
+        _bookmarkRepository = new Mock<IBookmarkRepository>();
+        _articleRepository = new Mock<IArticleRepository>();
+        _unitOfWork = new Mock<IUnitOfWork>();
+        _userId = Guid.NewGuid();
 
-        private Mock<IBookmarkRepository> _bookmarkRepository;
-        private Mock<IArticleRepository> _articleRepository;
-        private Mock<IUnitOfWork> _unitOfWork;
-        private Guid _userId;
+        _articleRepository
+            .Setup(x => x.ExistsPublishedAsync(ArticleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+    }
 
-        [SetUp]
-        public void Setup()
-        {
-            _bookmarkRepository = new Mock<IBookmarkRepository>();
-            _articleRepository = new Mock<IArticleRepository>();
-            _unitOfWork = new Mock<IUnitOfWork>();
-            _userId = Guid.NewGuid();
+    private Task<Result<AddBookmarkResponse>> Add()
+    {
+        var handler = new AddBookmarkCommandHandler(_bookmarkRepository.Object, _articleRepository.Object, _unitOfWork.Object);
+        return handler.Handle(new AddBookmarkCommand(_userId, ArticleId), CancellationToken.None);
+    }
 
-            _articleRepository
-                .Setup(x => x.ExistsPublishedAsync(ArticleId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
-        }
+    [Test]
+    public async Task ShouldAddBookmark_WhenArticleIsPublished()
+    {
+        var result = await Add();
 
-        private Task<Result<AddBookmarkResponse>> Add()
-        {
-            var handler = new AddBookmarkCommandHandler(_bookmarkRepository.Object, _articleRepository.Object, _unitOfWork.Object);
-            return handler.Handle(new AddBookmarkCommand(_userId, ArticleId), CancellationToken.None);
-        }
+        Assert.That(result.IsSuccess, Is.True);
+        _bookmarkRepository.Verify(x => x.Add(It.Is<Bookmark>(y => y.UserId == _userId && y.ArticleId == ArticleId)), Times.Once);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
 
-        [Test]
-        public async Task ShouldAddBookmark_WhenArticleIsPublished()
-        {
-            var result = await Add();
+    [Test]
+    public async Task ShouldReturnNotFound_WhenArticleIsNotPublished()
+    {
+        _articleRepository
+            .Setup(x => x.ExistsPublishedAsync(ArticleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
-            Assert.That(result.IsSuccess, Is.True);
-            _bookmarkRepository.Verify(x => x.Add(It.Is<Bookmark>(y => y.UserId == _userId && y.ArticleId == ArticleId)), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-        }
+        var result = await Add();
 
-        [Test]
-        public async Task ShouldReturnNotFound_WhenArticleIsNotPublished()
-        {
-            _articleRepository
-                .Setup(x => x.ExistsPublishedAsync(ArticleId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(false);
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
+        _bookmarkRepository.Verify(x => x.Add(It.IsAny<Bookmark>()), Times.Never);
+    }
 
-            var result = await Add();
+    [Test]
+    public async Task ShouldReturnConflict_WhenBookmarkExists()
+    {
+        _bookmarkRepository
+            .Setup(x => x.ExistsAsync(_userId, ArticleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
-            _bookmarkRepository.Verify(x => x.Add(It.IsAny<Bookmark>()), Times.Never);
-        }
+        var result = await Add();
 
-        [Test]
-        public async Task ShouldReturnConflict_WhenBookmarkExists()
-        {
-            _bookmarkRepository
-                .Setup(x => x.ExistsAsync(_userId, ArticleId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
+        _bookmarkRepository.Verify(x => x.Add(It.IsAny<Bookmark>()), Times.Never);
+    }
 
-            var result = await Add();
+    [Test]
+    public async Task ShouldReturnConflict_WhenConcurrentRequestSavedSameBookmark()
+    {
+        _unitOfWork
+            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new UniqueConstraintViolationException(new Exception()));
 
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
-            _bookmarkRepository.Verify(x => x.Add(It.IsAny<Bookmark>()), Times.Never);
-        }
+        var result = await Add();
 
-        [Test]
-        public async Task ShouldReturnConflict_WhenConcurrentRequestSavedSameBookmark()
-        {
-            _unitOfWork
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new UniqueConstraintViolationException(new Exception()));
-
-            var result = await Add();
-
-            Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
-        }
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.Conflict));
     }
 }

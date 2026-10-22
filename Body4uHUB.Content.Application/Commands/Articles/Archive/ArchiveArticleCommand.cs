@@ -5,32 +5,31 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Articles.Archive
+namespace Body4uHUB.Content.Application.Commands.Articles.Archive;
+
+public record ArchiveArticleCommand(int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
+
+internal sealed class ArchiveArticleCommandHandler(
+    IArticleRepository articleRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<ArchiveArticleCommand, Result>
 {
-    public record ArchiveArticleCommand(int ArticleId, AuthorizationContext AuthContext) : IRequest<Result>;
+    private readonly IArticleRepository _articleRepository = articleRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    internal sealed class ArchiveArticleCommandHandler(
-        IArticleRepository articleRepository,
-        IUnitOfWork unitOfWork)
-        : IRequestHandler<ArchiveArticleCommand, Result>
+    public async Task<Result> Handle(ArchiveArticleCommand request, CancellationToken cancellationToken)
     {
-        private readonly IArticleRepository _articleRepository = articleRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
-        public async Task<Result> Handle(ArchiveArticleCommand request, CancellationToken cancellationToken)
+        // Archiving changes only the status, so the comments are not loaded.
+        var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
+        if (article is null)
         {
-            // Archiving changes only the status, so the comments are not loaded.
-            var article = await _articleRepository.GetByIdAsync(request.ArticleId, cancellationToken);
-            if (article is null)
-            {
-                return Result.ResourceNotFound(ArticleNotFound);
-            }
-
-            article.Archive(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
+            return Result.ResourceNotFound(ArticleNotFound);
         }
+
+        article.Archive(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }

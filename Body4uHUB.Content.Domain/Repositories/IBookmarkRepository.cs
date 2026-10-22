@@ -1,13 +1,12 @@
 using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Shared.Domain.Abstractions;
 
-namespace Body4uHUB.Content.Domain.Repositories
+namespace Body4uHUB.Content.Domain.Repositories;
+
+public interface IBookmarkRepository : IRepository<Bookmark>
 {
-    public interface IBookmarkRepository : IRepository<Bookmark>
-    {
-        void Add(Bookmark bookmark);
-        Task<bool> ExistsAsync(Guid userId, int articleId, CancellationToken cancellationToken = default);
-        Task<Bookmark> GetByUserAndArticleAsync(Guid userId, int articleId, CancellationToken cancellationToken = default);
-        void Remove(Bookmark bookmark);
-    }
+    void Add(Bookmark bookmark);
+    Task<bool> ExistsAsync(Guid userId, int articleId, CancellationToken cancellationToken = default);
+    Task<Bookmark> GetByUserAndArticleAsync(Guid userId, int articleId, CancellationToken cancellationToken = default);
+    void Remove(Bookmark bookmark);
 }

@@ -5,198 +5,197 @@ using Body4uHUB.Shared.Domain.Guards;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstants;
 
-namespace Body4uHUB.Content.Domain.Models
+namespace Body4uHUB.Content.Domain.Models;
+
+public class ForumTopic : AggregateRoot<int>
 {
-    public class ForumTopic : AggregateRoot<int>
+    private readonly List<ForumPost> _posts = new();
+
+    public string Title { get; private set; }
+    public int ViewCount { get; private set; }
+    public bool IsDeleted { get; private set; }
+    public bool IsLocked { get; private set; }
+    public Guid AuthorId { get; private set; }
+    public IReadOnlyCollection<ForumPost> Posts => _posts.AsReadOnly();
+
+    private ForumTopic()
+        : base()
     {
-        private readonly List<ForumPost> _posts = new();
+    }
 
-        public string Title { get; private set; }
-        public int ViewCount { get; private set; }
-        public bool IsDeleted { get; private set; }
-        public bool IsLocked { get; private set; }
-        public Guid AuthorId { get; private set; }
-        public IReadOnlyCollection<ForumPost> Posts => _posts.AsReadOnly();
+    private ForumTopic(string title, Guid authorId)
+        : base()
+    {
+        Title = title;
+        AuthorId = authorId;
+        ViewCount = 0;
+        IsDeleted = false;
+        IsLocked = false;
+    }
 
-        private ForumTopic()
-            : base()
+    public static ForumTopic Create(string title, Guid authorId)
+    {
+        Validate(title, authorId);
+        return new ForumTopic(title, authorId);
+    }
+
+    public void Edit(string title, Guid requesterId, bool isAdmin)
+    {
+        EnsureNotDeleted();
+        EnsureCanBeModifiedBy(requesterId, isAdmin);
+
+        ValidateTitle(title);
+        Title = title;
+    }
+
+    public ForumPost AddPost(string content, Guid authorId)
+    {
+        EnsureNotDeleted();
+
+        if (IsLocked)
         {
+            throw new InvalidForumTopicException(ForumTopicIsLocked);
         }
 
-        private ForumTopic(string title, Guid authorId)
-            : base()
+        var post = ForumPost.Create(content, authorId);
+        _posts.Add(post);
+
+        return post;
+    }
+
+    public void EditPost(int postId, string content, Guid requesterId, bool isAdmin)
+    {
+        EnsureNotDeleted();
+        EnsurePostsCanBeModifiedBy(isAdmin);
+
+        var post = _posts.FirstOrDefault(x => x.Id == postId);
+        if (post == null)
         {
-            Title = title;
-            AuthorId = authorId;
-            ViewCount = 0;
-            IsDeleted = false;
-            IsLocked = false;
+            throw new DomainNotFoundException(ForumPostNotFound);
         }
 
-        public static ForumTopic Create(string title, Guid authorId)
+        if (!isAdmin && post.AuthorId != requesterId)
         {
-            Validate(title, authorId);
-            return new ForumTopic(title, authorId);
+            throw new DomainAuthorizationException(ForumPostEditForbidden);
         }
 
-        public void Edit(string title, Guid requesterId, bool isAdmin)
-        {
-            EnsureNotDeleted();
-            EnsureCanBeModifiedBy(requesterId, isAdmin);
+        post.UpdateContent(content);
+    }
 
-            ValidateTitle(title);
-            Title = title;
+    public void DeletePost(int postId, Guid requesterId, bool isAdmin)
+    {
+        EnsureNotDeleted();
+        EnsurePostsCanBeModifiedBy(isAdmin);
+
+        var post = _posts.FirstOrDefault(x => x.Id == postId);
+        if (post == null)
+        {
+            throw new DomainNotFoundException(ForumPostNotFound);
         }
 
-        public ForumPost AddPost(string content, Guid authorId)
+        if (!isAdmin && post.AuthorId != requesterId)
         {
-            EnsureNotDeleted();
-
-            if (IsLocked)
-            {
-                throw new InvalidForumTopicException(ForumTopicIsLocked);
-            }
-
-            var post = ForumPost.Create(content, authorId);
-            _posts.Add(post);
-
-            return post;
+            throw new DomainAuthorizationException(ForumPostDeleteForbidden);
         }
 
-        public void EditPost(int postId, string content, Guid requesterId, bool isAdmin)
+        if (post.IsDeleted)
         {
-            EnsureNotDeleted();
-            EnsurePostsCanBeModifiedBy(isAdmin);
-
-            var post = _posts.FirstOrDefault(x => x.Id == postId);
-            if (post == null)
-            {
-                throw new DomainNotFoundException(ForumPostNotFound);
-            }
-
-            if (!isAdmin && post.AuthorId != requesterId)
-            {
-                throw new DomainAuthorizationException(ForumPostEditForbidden);
-            }
-
-            post.UpdateContent(content);
+            throw new InvalidForumPostException(ForumPostAlreadyDeleted);
         }
 
-        public void DeletePost(int postId, Guid requesterId, bool isAdmin)
+        post.MarkAsDeleted();
+    }
+
+    public void Delete(Guid requesterId, bool isAdmin)
+    {
+        EnsureCanBeModifiedBy(requesterId, isAdmin);
+
+        if (IsDeleted)
         {
-            EnsureNotDeleted();
-            EnsurePostsCanBeModifiedBy(isAdmin);
-
-            var post = _posts.FirstOrDefault(x => x.Id == postId);
-            if (post == null)
-            {
-                throw new DomainNotFoundException(ForumPostNotFound);
-            }
-
-            if (!isAdmin && post.AuthorId != requesterId)
-            {
-                throw new DomainAuthorizationException(ForumPostDeleteForbidden);
-            }
-
-            if (post.IsDeleted)
-            {
-                throw new InvalidForumPostException(ForumPostAlreadyDeleted);
-            }
-
-            post.MarkAsDeleted();
+            throw new InvalidForumTopicException(ForumTopicDeleted);
         }
 
-        public void Delete(Guid requesterId, bool isAdmin)
+        MarkAsDeleted();
+    }
+
+    public void UpdateTitle(string title)
+    {
+        ValidateTitle(title);
+        Title = title;
+    }
+
+    private void MarkAsDeleted()
+    {
+        IsDeleted = true;
+    }
+
+    public void Lock()
+    {
+        EnsureNotDeleted();
+
+        if (IsLocked)
         {
-            EnsureCanBeModifiedBy(requesterId, isAdmin);
-
-            if (IsDeleted)
-            {
-                throw new InvalidForumTopicException(ForumTopicDeleted);
-            }
-
-            MarkAsDeleted();
+            throw new InvalidForumTopicException(ForumTopicLocked);
         }
 
-        public void UpdateTitle(string title)
+        IsLocked = true;
+    }
+
+    public void Unlock()
+    {
+        EnsureNotDeleted();
+
+        if (!IsLocked)
         {
-            ValidateTitle(title);
-            Title = title;
+            throw new InvalidForumTopicException(ForumTopicUnlocked);
         }
 
-        private void MarkAsDeleted()
+        IsLocked = false;
+    }
+
+    public void IncrementViewCount()
+    {
+        ViewCount++;
+    }
+
+    private void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
+    {
+        if (!isAdmin && AuthorId != requesterId)
         {
-            IsDeleted = true;
+            throw new DomainAuthorizationException(ForumTopicModifyForbidden);
         }
+    }
 
-        public void Lock()
+    private void EnsureNotDeleted()
+    {
+        if (IsDeleted)
         {
-            EnsureNotDeleted();
-
-            if (IsLocked)
-            {
-                throw new InvalidForumTopicException(ForumTopicLocked);
-            }
-
-            IsLocked = true;
+            throw new InvalidForumTopicException(ForumTopicDeleted);
         }
+    }
 
-        public void Unlock()
+    private void EnsurePostsCanBeModifiedBy(bool isAdmin)
+    {
+        if (IsLocked && !isAdmin)
         {
-            EnsureNotDeleted();
-
-            if (!IsLocked)
-            {
-                throw new InvalidForumTopicException(ForumTopicUnlocked);
-            }
-
-            IsLocked = false;
+            throw new InvalidForumTopicException(ForumTopicIsLocked);
         }
+    }
 
-        public void IncrementViewCount()
-        {
-            ViewCount++;
-        }
+    private static void Validate(string title, Guid authorId)
+    {
+        ValidateTitle(title);
+        ValidateAuthorId(authorId);
+    }
 
-        private void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)
-        {
-            if (!isAdmin && AuthorId != requesterId)
-            {
-                throw new DomainAuthorizationException(ForumTopicModifyForbidden);
-            }
-        }
+    private static void ValidateTitle(string title)
+    {
+        Guard.AgainstEmptyString<InvalidForumTopicException>(title, nameof(title));
+        Guard.ForStringLength<InvalidForumTopicException>(title, TitleMinLength, TitleMaxLength, nameof(title));
+    }
 
-        private void EnsureNotDeleted()
-        {
-            if (IsDeleted)
-            {
-                throw new InvalidForumTopicException(ForumTopicDeleted);
-            }
-        }
-
-        private void EnsurePostsCanBeModifiedBy(bool isAdmin)
-        {
-            if (IsLocked && !isAdmin)
-            {
-                throw new InvalidForumTopicException(ForumTopicIsLocked);
-            }
-        }
-
-        private static void Validate(string title, Guid authorId)
-        {
-            ValidateTitle(title);
-            ValidateAuthorId(authorId);
-        }
-
-        private static void ValidateTitle(string title)
-        {
-            Guard.AgainstEmptyString<InvalidForumTopicException>(title, nameof(title));
-            Guard.ForStringLength<InvalidForumTopicException>(title, TitleMinLength, TitleMaxLength, nameof(title));
-        }
-
-        private static void ValidateAuthorId(Guid authorId)
-        {
-            Guard.AgainstEmptyGuid<InvalidForumTopicException>(authorId, nameof(authorId));
-        }
+    private static void ValidateAuthorId(Guid authorId)
+    {
+        Guard.AgainstEmptyGuid<InvalidForumTopicException>(authorId, nameof(authorId));
     }
 }

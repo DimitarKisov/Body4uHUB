@@ -4,32 +4,31 @@ using Body4uHUB.Content.Infrastructure.Persistence;
 using Body4uHUB.Shared.Application;
 using Microsoft.EntityFrameworkCore;
 
-namespace Body4uHUB.Content.Infrastructure.Repositories
+namespace Body4uHUB.Content.Infrastructure.Repositories;
+
+internal sealed class BookmarkReadRepository(ContentDbContext dbContext) : IBookmarkReadRepository
 {
-    internal sealed class BookmarkReadRepository(ContentDbContext dbContext) : IBookmarkReadRepository
+    private readonly ContentDbContext _dbContext = dbContext;
+
+    public async Task<PagedResult<GetUserBookmarksResponse>> GetByUserIdAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        private readonly ContentDbContext _dbContext = dbContext;
+        var query = _dbContext.Bookmarks.Where(b => b.UserId == userId);
 
-        public async Task<PagedResult<GetUserBookmarksResponse>> GetByUserIdAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default)
-        {
-            var query = _dbContext.Bookmarks.Where(b => b.UserId == userId);
+        var totalCount = await query.CountAsync(cancellationToken);
 
-            var totalCount = await query.CountAsync(cancellationToken);
+        var items = await (from b in query
+                           join a in _dbContext.Articles on b.ArticleId equals a.Id
+                           orderby b.CreatedAt descending
+                           select new GetUserBookmarksResponse(
+                               b.Id,
+                               a.Id,
+                               a.Title,
+                               a.AuthorId,
+                               b.CreatedAt))
+              .Skip((page - 1) * pageSize)
+              .Take(pageSize)
+              .ToListAsync(cancellationToken);
 
-            var items = await (from b in query
-                               join a in _dbContext.Articles on b.ArticleId equals a.Id
-                               orderby b.CreatedAt descending
-                               select new GetUserBookmarksResponse(
-                                   b.Id,
-                                   a.Id,
-                                   a.Title,
-                                   a.AuthorId,
-                                   b.CreatedAt))
-                  .Skip((page - 1) * pageSize)
-                  .Take(pageSize)
-                  .ToListAsync(cancellationToken);
-
-            return new PagedResult<GetUserBookmarksResponse>(items, totalCount, page, pageSize);
-        }
+        return new PagedResult<GetUserBookmarksResponse>(items, totalCount, page, pageSize);
     }
 }

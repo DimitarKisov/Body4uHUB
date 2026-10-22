@@ -1,30 +1,29 @@
 ﻿using Body4uHUB.Shared.Domain.Base;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 
-namespace Body4uHUB.Content.Domain.ValueObjects
+namespace Body4uHUB.Content.Domain.ValueObjects;
+
+public class BookmarkId : ValueObject
 {
-    public class BookmarkId : ValueObject
+    public int Value { get; private set; }
+
+    private BookmarkId(int value)
     {
-        public int Value { get; private set; }
-
-        private BookmarkId(int value)
+        if (value <= 0)
         {
-            if (value <= 0)
-            {
-                throw new ArgumentException(BookmarkIdCannotBeZeroOrNegative);
-            }
-
-            Value = value;
+            throw new ArgumentException(BookmarkIdCannotBeZeroOrNegative);
         }
 
-        public static BookmarkId Create(int value)
-        {
-            return new BookmarkId(value);
-        }
+        Value = value;
+    }
 
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Value;
-        }
+    public static BookmarkId Create(int value)
+    {
+        return new BookmarkId(value);
+    }
+
+    protected override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

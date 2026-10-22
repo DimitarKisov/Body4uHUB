@@ -2,14 +2,13 @@
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Articles.Delete
+namespace Body4uHUB.Content.Application.Commands.Articles.Delete;
+
+public class DeleteArticleCommandValidator : AbstractValidator<DeleteArticleCommand>
 {
-    public class DeleteArticleCommandValidator : AbstractValidator<DeleteArticleCommand>
+    public DeleteArticleCommandValidator()
     {
-        public DeleteArticleCommandValidator()
-        {
-            RuleFor(x => x.ArticleId)
-                .GreaterThan(0).WithMessage(ArticleIdRequired);
-        }
+        RuleFor(x => x.ArticleId)
+            .GreaterThan(0).WithMessage(ArticleIdRequired);
     }
 }

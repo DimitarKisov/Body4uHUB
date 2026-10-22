@@ -4,23 +4,22 @@ using Body4uHUB.Shared.Exceptions;
 using Body4uHUB.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Body4uHUB.Content.Infrastructure.Repositories
-{
-    internal sealed class UnitOfWork(ContentDbContext dbContext)
-        : IUnitOfWork
-    {
-        private readonly ContentDbContext _dbContext = dbContext;
+namespace Body4uHUB.Content.Infrastructure.Repositories;
 
-        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+internal sealed class UnitOfWork(ContentDbContext dbContext)
+    : IUnitOfWork
+{
+    private readonly ContentDbContext _dbContext = dbContext;
+
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        try
         {
-            try
-            {
-                return await _dbContext.SaveChangesAsync(cancellationToken);
-            }
-            catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation())
-            {
-                throw new UniqueConstraintViolationException(ex);
-            }
+            return await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation())
+        {
+            throw new UniqueConstraintViolationException(ex);
         }
     }
 }

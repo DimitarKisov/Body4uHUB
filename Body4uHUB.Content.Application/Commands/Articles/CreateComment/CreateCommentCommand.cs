@@ -5,30 +5,29 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment
+namespace Body4uHUB.Content.Application.Commands.Articles.CreateComment;
+
+public record CreateCommentCommand(string Content, int ArticleId, Guid AuthorId, Guid? ParentCommentId) : IRequest<Result<CreateCommentResponse>>;
+
+internal sealed class CreateCommentCommandHandler(
+    IArticleRepository articleRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<CreateCommentCommand, Result<CreateCommentResponse>>
 {
-    public record CreateCommentCommand(string Content, int ArticleId, Guid AuthorId, Guid? ParentCommentId) : IRequest<Result<CreateCommentResponse>>;
+    private readonly IArticleRepository _articleRepository = articleRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    internal sealed class CreateCommentCommandHandler(
-        IArticleRepository articleRepository,
-        IUnitOfWork unitOfWork) : IRequestHandler<CreateCommentCommand, Result<CreateCommentResponse>>
+    public async Task<Result<CreateCommentResponse>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
-        private readonly IArticleRepository _articleRepository = articleRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
-        public async Task<Result<CreateCommentResponse>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+        var article = await _articleRepository.GetWithCommentsByIdAsync(request.ArticleId, cancellationToken);
+        if (article is null)
         {
-            var article = await _articleRepository.GetWithCommentsByIdAsync(request.ArticleId, cancellationToken);
-            if (article is null)
-            {
-                return Result.ResourceNotFound<CreateCommentResponse>(ArticleNotFound);
-            }
-
-            var commentId = article.AddComment(request.Content, request.AuthorId, request.ParentCommentId);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result.Success(new CreateCommentResponse(commentId));
+            return Result.ResourceNotFound<CreateCommentResponse>(ArticleNotFound);
         }
+
+        var commentId = article.AddComment(request.Content, request.AuthorId, request.ParentCommentId);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success(new CreateCommentResponse(commentId));
     }
 }

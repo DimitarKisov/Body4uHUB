@@ -5,35 +5,34 @@ using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Bookmarks.RemoveBookmark
+namespace Body4uHUB.Content.Application.Commands.Bookmarks.RemoveBookmark;
+
+public record RemoveBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result>;
+
+internal sealed class RemoveBookmarkCommandHandler(
+    IBookmarkRepository bookmarkRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<RemoveBookmarkCommand, Result>
 {
-    public record RemoveBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result>;
+    private readonly IBookmarkRepository _bookmarkRepository = bookmarkRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    internal sealed class RemoveBookmarkCommandHandler(
-        IBookmarkRepository bookmarkRepository,
-        IUnitOfWork unitOfWork)
-        : IRequestHandler<RemoveBookmarkCommand, Result>
+    public async Task<Result> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
     {
-        private readonly IBookmarkRepository _bookmarkRepository = bookmarkRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        var bookmark = await _bookmarkRepository.GetByUserAndArticleAsync(
+            request.UserId,
+            request.ArticleId,
+            cancellationToken);
 
-        public async Task<Result> Handle(RemoveBookmarkCommand request, CancellationToken cancellationToken)
+        if (bookmark == null)
         {
-            var bookmark = await _bookmarkRepository.GetByUserAndArticleAsync(
-                request.UserId,
-                request.ArticleId,
-                cancellationToken);
-
-            if (bookmark == null)
-            {
-                return Result.ResourceNotFound(BookmarkNotFound);
-            }
-
-            _bookmarkRepository.Remove(bookmark);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
+            return Result.ResourceNotFound(BookmarkNotFound);
         }
+
+        _bookmarkRepository.Remove(bookmark);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }

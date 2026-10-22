@@ -7,90 +7,89 @@ using Body4uHUB.Content.Infrastructure.Persistence;
 using Body4uHUB.Shared.Application;
 using Microsoft.EntityFrameworkCore;
 
-namespace Body4uHUB.Content.Infrastructure.Repositories
+namespace Body4uHUB.Content.Infrastructure.Repositories;
+
+internal sealed class ArticleReadRepository(ContentDbContext dbContext) : IArticleReadRepository
 {
-    internal sealed class ArticleReadRepository(ContentDbContext dbContext) : IArticleReadRepository
+    private readonly ContentDbContext _dbContext = dbContext;
+
+    public async Task<PagedResult<ArticleSummaryDto>> GetAllArticlesAsync(int page, int pageSize, CancellationToken cancellationToken)
     {
-        private readonly ContentDbContext _dbContext = dbContext;
+        var query = _dbContext.Articles.Where(x => !x.IsDeleted && x.Status == ArticleStatus.Published);
 
-        public async Task<PagedResult<ArticleSummaryDto>> GetAllArticlesAsync(int page, int pageSize, CancellationToken cancellationToken)
-        {
-            var query = _dbContext.Articles.Where(x => !x.IsDeleted && x.Status == ArticleStatus.Published);
+        var totalCount = await query.CountAsync(cancellationToken);
 
-            var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(x => x.PublishedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new ArticleSummaryDto(
+                x.Id,
+                x.Title,
+                x.AuthorId,
+                x.Status.Name,
+                x.PublishedAt,
+                x.ViewCount,
+                x.CreatedAt,
+                x.ModifiedAt
+                ))
+            .ToListAsync(cancellationToken);
 
-            var items = await query
-                .OrderByDescending(x => x.PublishedAt)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(x => new ArticleSummaryDto(
-                    x.Id,
-                    x.Title,
-                    x.AuthorId,
-                    x.Status.Name,
-                    x.PublishedAt,
-                    x.ViewCount,
-                    x.CreatedAt,
-                    x.ModifiedAt
-                    ))
-                .ToListAsync(cancellationToken);
+        return new PagedResult<ArticleSummaryDto>(items, totalCount, page, pageSize);
+    }
 
-            return new PagedResult<ArticleSummaryDto>(items, totalCount, page, pageSize);
-        }
+    public async Task<PagedResult<ArticleSummaryDto>> GetArticlesByAuthorAsync(Guid authorId, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.Articles
+            .Where(x => x.AuthorId == authorId &&
+                        x.Status == ArticleStatus.Published &&
+                        !x.IsDeleted);
 
-        public async Task<PagedResult<ArticleSummaryDto>> GetArticlesByAuthorAsync(Guid authorId, int page, int pageSize, CancellationToken cancellationToken = default)
-        {
-            var query = _dbContext.Articles
-                .Where(x => x.AuthorId == authorId &&
-                            x.Status == ArticleStatus.Published &&
-                            !x.IsDeleted);
+        var totalCount = await query.CountAsync(cancellationToken);
 
-            var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(x => x.PublishedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new ArticleSummaryDto(
+                x.Id,
+                x.Title,
+                x.AuthorId,
+                x.Status.Name,
+                x.PublishedAt,
+                x.ViewCount,
+                x.CreatedAt,
+                x.ModifiedAt))
+            .ToListAsync(cancellationToken);
 
-            var items = await query
-                .OrderByDescending(x => x.PublishedAt)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(x => new ArticleSummaryDto(
-                    x.Id,
-                    x.Title,
-                    x.AuthorId,
-                    x.Status.Name,
-                    x.PublishedAt,
-                    x.ViewCount,
-                    x.CreatedAt,
-                    x.ModifiedAt))
-                .ToListAsync(cancellationToken);
+        return new PagedResult<ArticleSummaryDto>(items, totalCount, page, pageSize);
+    }
 
-            return new PagedResult<ArticleSummaryDto>(items, totalCount, page, pageSize);
-        }
-
-        public async Task<GetArticleByIdResponse> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)
-        {
-            return await _dbContext.Articles
-                .Where(x => x.Id == id && !x.IsDeleted)
-                .Select(x => new GetArticleByIdResponse(
-                    x.Id,
-                    x.Title,
-                    x.Content,
-                    x.AuthorId,
-                    x.Status.Name,
-                    x.PublishedAt,
-                    x.ViewCount,
-                    x.CreatedAt,
-                    x.ModifiedAt,
-                    x.Comments
-                        .OrderBy(y => y.CreatedAt)
-                        .Select(y => new CommentDto(
-                            y.Id,
-                            y.Content,
-                            y.AuthorId,
-                            y.ParentCommentId,
-                            y.IsDeleted,
-                            y.CreatedAt,
-                            y.ModifiedAt))
-                        .ToList()))
-                .FirstOrDefaultAsync(cancellationToken);
-        }
+    public async Task<GetArticleByIdResponse> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Articles
+            .Where(x => x.Id == id && !x.IsDeleted)
+            .Select(x => new GetArticleByIdResponse(
+                x.Id,
+                x.Title,
+                x.Content,
+                x.AuthorId,
+                x.Status.Name,
+                x.PublishedAt,
+                x.ViewCount,
+                x.CreatedAt,
+                x.ModifiedAt,
+                x.Comments
+                    .OrderBy(y => y.CreatedAt)
+                    .Select(y => new CommentDto(
+                        y.Id,
+                        y.Content,
+                        y.AuthorId,
+                        y.ParentCommentId,
+                        y.IsDeleted,
+                        y.CreatedAt,
+                        y.ModifiedAt))
+                    .ToList()))
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

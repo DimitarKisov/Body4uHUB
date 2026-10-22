@@ -2,14 +2,13 @@ using FluentValidation;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Content.Application.Queries.Forum.GetById
+namespace Body4uHUB.Content.Application.Queries.Forum.GetById;
+
+public class GetForumTopicByIdQueryValidator : AbstractValidator<GetForumTopicByIdQuery>
 {
-    public class GetForumTopicByIdQueryValidator : AbstractValidator<GetForumTopicByIdQuery>
+    public GetForumTopicByIdQueryValidator()
     {
-        public GetForumTopicByIdQueryValidator()
-        {
-            RuleFor(x => x.TopicId)
-                .GreaterThan(0).WithMessage(ForumTopicIdRequired);
-        }
+        RuleFor(x => x.TopicId)
+            .GreaterThan(0).WithMessage(ForumTopicIdRequired);
     }
 }

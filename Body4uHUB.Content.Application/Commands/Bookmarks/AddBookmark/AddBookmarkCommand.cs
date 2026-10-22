@@ -8,50 +8,49 @@ using MediatR;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.BookmarkConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark
+namespace Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark;
+
+public record AddBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result<AddBookmarkResponse>>;
+
+internal sealed class AddBookmarkCommandHandler(
+    IBookmarkRepository bookmarkRepository,
+    IArticleRepository articleRepository,
+    IUnitOfWork unitOfWork)
+    : IRequestHandler<AddBookmarkCommand, Result<AddBookmarkResponse>>
 {
-    public record AddBookmarkCommand(Guid UserId, int ArticleId) : IRequest<Result<AddBookmarkResponse>>;
+    private readonly IBookmarkRepository _bookmarkRepository = bookmarkRepository;
+    private readonly IArticleRepository _articleRepository = articleRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    internal sealed class AddBookmarkCommandHandler(
-        IBookmarkRepository bookmarkRepository,
-        IArticleRepository articleRepository,
-        IUnitOfWork unitOfWork)
-        : IRequestHandler<AddBookmarkCommand, Result<AddBookmarkResponse>>
+    public async Task<Result<AddBookmarkResponse>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
     {
-        private readonly IBookmarkRepository _bookmarkRepository = bookmarkRepository;
-        private readonly IArticleRepository _articleRepository = articleRepository;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
-        public async Task<Result<AddBookmarkResponse>> Handle(AddBookmarkCommand request, CancellationToken cancellationToken)
+        // Drafts, archived and deleted articles are not visible to readers, so they cannot be bookmarked.
+        var articleExists = await _articleRepository.ExistsPublishedAsync(request.ArticleId, cancellationToken);
+        if (!articleExists)
         {
-            // Drafts, archived and deleted articles are not visible to readers, so they cannot be bookmarked.
-            var articleExists = await _articleRepository.ExistsPublishedAsync(request.ArticleId, cancellationToken);
-            if (!articleExists)
-            {
-                return Result.ResourceNotFound<AddBookmarkResponse>(ArticleNotFound);
-            }
-
-            var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, request.ArticleId, cancellationToken);
-            if (bookmarkExists)
-            {
-                return Result.Conflict<AddBookmarkResponse>(BookmarkAlreadyExists);
-            }
-
-            var bookmark = Bookmark.Create(request.UserId, request.ArticleId);
-
-            _bookmarkRepository.Add(bookmark);
-
-            try
-            {
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-            }
-            catch (UniqueConstraintViolationException)
-            {
-                // A concurrent request for the same article passed the ExistsAsync check first.
-                return Result.Conflict<AddBookmarkResponse>(BookmarkAlreadyExists);
-            }
-
-            return Result.Success(new AddBookmarkResponse(bookmark.Id));
+            return Result.ResourceNotFound<AddBookmarkResponse>(ArticleNotFound);
         }
+
+        var bookmarkExists = await _bookmarkRepository.ExistsAsync(request.UserId, request.ArticleId, cancellationToken);
+        if (bookmarkExists)
+        {
+            return Result.Conflict<AddBookmarkResponse>(BookmarkAlreadyExists);
+        }
+
+        var bookmark = Bookmark.Create(request.UserId, request.ArticleId);
+
+        _bookmarkRepository.Add(bookmark);
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (UniqueConstraintViolationException)
+        {
+            // A concurrent request for the same article passed the ExistsAsync check first.
+            return Result.Conflict<AddBookmarkResponse>(BookmarkAlreadyExists);
+        }
+
+        return Result.Success(new AddBookmarkResponse(bookmark.Id));
     }
 }

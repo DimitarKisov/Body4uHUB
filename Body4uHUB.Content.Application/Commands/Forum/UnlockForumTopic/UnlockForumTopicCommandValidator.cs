@@ -2,14 +2,13 @@
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
-namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic
+namespace Body4uHUB.Content.Application.Commands.Forum.UnlockForumTopic;
+
+public class UnlockForumTopicCommandValidator : AbstractValidator<UnlockForumTopicCommand>
 {
-    public class UnlockForumTopicCommandValidator : AbstractValidator<UnlockForumTopicCommand>
+    public UnlockForumTopicCommandValidator()
     {
-        public UnlockForumTopicCommandValidator()
-        {
-            RuleFor(x => x.TopicId)
-                .GreaterThan(0).WithMessage(ForumTopicIdRequired);
-        }
+        RuleFor(x => x.TopicId)
+            .GreaterThan(0).WithMessage(ForumTopicIdRequired);
     }
 }
