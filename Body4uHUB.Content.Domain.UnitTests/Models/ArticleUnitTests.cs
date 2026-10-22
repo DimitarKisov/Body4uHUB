@@ -14,6 +14,7 @@ public class ArticleUnitTests
     private const string CommentContent = "Nice article";
 
     private static readonly string ValidContent = new('a', ContentMinLength);
+    private static readonly DateTime PublishedAtUtc = new(2026, 1, 15, 10, 0, 0, DateTimeKind.Utc);
 
     private Guid _articleAuthorId;
     private Guid _commentAuthorId;
@@ -26,7 +27,7 @@ public class ArticleUnitTests
         _commentAuthorId = Guid.NewGuid();
 
         _article = Article.Create(ValidTitle, ValidContent, _articleAuthorId);
-        _article.Publish(_articleAuthorId, isAdmin: false);
+        _article.Publish(_articleAuthorId, isAdmin: false, PublishedAtUtc);
     }
 
     [Test]
@@ -136,23 +137,35 @@ public class ArticleUnitTests
     [Test]
     public void Archive_ShouldKeepPublishedAt()
     {
-        var publishedAt = _article.PublishedAt;
-
         _article.Archive(_articleAuthorId, isAdmin: false);
 
-        Assert.That(_article.PublishedAt, Is.Not.Null.And.EqualTo(publishedAt));
+        Assert.That(_article.PublishedAt, Is.EqualTo(PublishedAtUtc));
+    }
+
+    [Test]
+    public void Publish_ShouldSetPublishedAtToGivenTime()
+    {
+        Assert.That(_article.PublishedAt, Is.EqualTo(PublishedAtUtc));
     }
 
     [Test]
     public void Publish_ShouldKeepFirstPublishedAt_WhenArchivedArticleIsPublishedAgain()
     {
-        var publishedAt = _article.PublishedAt;
         _article.Archive(_articleAuthorId, isAdmin: false);
 
-        _article.Publish(_articleAuthorId, isAdmin: false);
+        _article.Publish(_articleAuthorId, isAdmin: false, PublishedAtUtc.AddDays(30));
 
         Assert.That(_article.Status, Is.EqualTo(ArticleStatus.Published));
-        Assert.That(_article.PublishedAt, Is.EqualTo(publishedAt));
+        Assert.That(_article.PublishedAt, Is.EqualTo(PublishedAtUtc));
+    }
+
+    [Test]
+    public void Publish_ShouldThrowArgumentException_WhenTimeIsNotUtc()
+    {
+        var draft = Article.Create(ValidTitle, ValidContent, _articleAuthorId);
+
+        Assert.Throws<ArgumentException>(() => draft.Publish(_articleAuthorId, isAdmin: false, DateTime.Now));
+        Assert.That(draft.Status, Is.EqualTo(ArticleStatus.Draft));
     }
 
     [Test]

@@ -28,7 +28,7 @@ public class ArchiveArticleCommandHandlerTests
         _authorId = Guid.NewGuid();
 
         _article = Article.Create("Valid article title", new string('a', ContentMinLength), _authorId);
-        _article.Publish(_authorId, isAdmin: false);
+        _article.Publish(_authorId, isAdmin: false, DateTime.UtcNow);
 
         _articleRepository
             .Setup(x => x.GetByIdAsync(ArticleId, It.IsAny<CancellationToken>()))

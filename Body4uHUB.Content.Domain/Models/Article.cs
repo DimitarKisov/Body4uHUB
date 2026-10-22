@@ -80,8 +80,9 @@ public class Article : AggregateRoot<int>
         Content = content;
     }
 
-    public void Publish(Guid requesterId, bool isAdmin)
+    public void Publish(Guid requesterId, bool isAdmin, DateTime utcNow)
     {
+        EnsureUtc(utcNow);
         EnsureCanBeModifiedBy(requesterId, isAdmin);
 
         if (Status == ArticleStatus.Published)
@@ -96,7 +97,7 @@ public class Article : AggregateRoot<int>
         Status = ArticleStatus.Published;
 
         // An archived article published again keeps the date of its first publication.
-        PublishedAt ??= DateTime.UtcNow;
+        PublishedAt ??= utcNow;
     }
 
     public void Archive(Guid requesterId, bool isAdmin)
@@ -213,5 +214,14 @@ public class Article : AggregateRoot<int>
     private static void ValidateAuthorId(Guid authorId)
     {
         Guard.AgainstEmptyGuid<InvalidArticleException>(authorId, nameof(AuthorId));
+    }
+
+    // The caller supplies "now", so a local time here is a programming error rather than invalid user input.
+    private static void EnsureUtc(DateTime utcNow)
+    {
+        if (utcNow.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("The time must be in UTC.", nameof(utcNow));
+        }
     }
 }

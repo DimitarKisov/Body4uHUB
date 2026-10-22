@@ -32,7 +32,7 @@ public class CommentCommandHandlerTests
         _commentAuthorId = Guid.NewGuid();
 
         _article = Article.Create("Valid article title", new string('a', ContentMinLength), articleAuthorId);
-        _article.Publish(articleAuthorId, isAdmin: false);
+        _article.Publish(articleAuthorId, isAdmin: false, DateTime.UtcNow);
         _existingCommentId = _article.AddComment(CommentContent, _commentAuthorId, null);
 
         _articleRepository

@@ -11,11 +11,13 @@ public record PublishArticleCommand(int ArticleId, AuthorizationContext AuthCont
 
 internal sealed class PublishArticleCommandHandler(
     IArticleRepository articleRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    TimeProvider timeProvider)
     : IRequestHandler<PublishArticleCommand, Result>
 {
     private readonly IArticleRepository _articleRepository = articleRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
     public async Task<Result> Handle(PublishArticleCommand request, CancellationToken cancellationToken)
     {
@@ -25,7 +27,7 @@ internal sealed class PublishArticleCommandHandler(
             return Result.ResourceNotFound(ArticleNotFound);
         }
 
-        article.Publish(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
+        article.Publish(request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin, _timeProvider.GetUtcNow().UtcDateTime);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
