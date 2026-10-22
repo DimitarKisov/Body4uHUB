@@ -130,17 +130,6 @@ public class Article : AggregateRoot<int>
         ViewCount++;
     }
 
-    public Comment GetComment(Guid commentId)
-    {
-        var comment = _comments.FirstOrDefault(x => x.Id == commentId);
-        if (comment is null)
-        {
-            throw new DomainNotFoundException(CommentNotFound);
-        }
-
-        return comment;
-    }
-
     public Guid AddComment(string content, Guid authorId, Guid? parentCommentId)
     {
         if (IsDeleted)
@@ -163,6 +152,33 @@ public class Article : AggregateRoot<int>
         _comments.Add(comment);
 
         return comment.Id;
+    }
+
+    public void EditComment(Guid commentId, string content, Guid requesterId, bool isAdmin)
+    {
+        if (IsDeleted)
+        {
+            throw new InvalidArticleException(ArticleAlreadyDeleted);
+        }
+
+        if (Status != ArticleStatus.Published)
+        {
+            throw new InvalidArticleException(ArticleNotPublished);
+        }
+
+        var comment = _comments.FirstOrDefault(x => x.Id == commentId);
+
+        if (comment is null)
+        {
+            throw new DomainNotFoundException(CommentNotFound);
+        }
+
+        if (!isAdmin && comment.AuthorId != requesterId)
+        {
+            throw new DomainAuthorizationException(CommentEditForbidden);
+        }
+
+        comment.UpdateContent(content);
     }
 
     public void DeleteComment(Guid commentId, Guid requesterId, bool isAdmin)

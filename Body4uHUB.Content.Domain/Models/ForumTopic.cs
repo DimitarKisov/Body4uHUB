@@ -118,12 +118,6 @@ public class ForumTopic : AggregateRoot<int>
         MarkAsDeleted();
     }
 
-    public void UpdateTitle(string title)
-    {
-        ValidateTitle(title);
-        Title = title;
-    }
-
     private void MarkAsDeleted()
     {
         IsDeleted = true;

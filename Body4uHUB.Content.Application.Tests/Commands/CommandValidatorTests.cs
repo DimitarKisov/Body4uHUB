@@ -1,5 +1,6 @@
 using Body4uHUB.Content.Application.Commands.Articles.Archive;
 using Body4uHUB.Content.Application.Commands.Articles.CreateComment;
+using Body4uHUB.Content.Application.Commands.Articles.EditComment;
 using Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic;
@@ -22,6 +23,8 @@ public class CommandValidatorTests
     {
         yield return new TestCaseData(new CreateCommentCommandValidator(), new CreateCommentCommand("a", 1, Guid.NewGuid(), null), "Content must be between 2 and 1000 characters long.")
             .SetName("CreateComment_ShouldFormatLengthMessage");
+        yield return new TestCaseData(new EditCommentCommandValidator(), new EditCommentCommand(1, Guid.NewGuid(), "a", AuthContext), "Content must be between 2 and 1000 characters long.")
+            .SetName("EditComment_ShouldFormatLengthMessage");
         yield return new TestCaseData(new CreateForumPostCommandValidator(), new CreateForumPostCommand("abc", 1, Guid.NewGuid()), "Content must be between 5 and 2000 characters long.")
             .SetName("CreateForumPost_ShouldFormatLengthMessage");
         yield return new TestCaseData(new EditForumPostCommandValidator(), new EditForumPostCommand(1, 1, "abc", AuthContext), "Content must be between 5 and 2000 characters long.")

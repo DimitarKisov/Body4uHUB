@@ -12,6 +12,7 @@ public class ArticleUnitTests
 {
     private const string ValidTitle = "Valid article title";
     private const string CommentContent = "Nice article";
+    private const string EditedCommentContent = "Great article";
 
     private static readonly string ValidContent = new('a', ContentMinLength);
     private static readonly DateTime PublishedAtUtc = new(2026, 1, 15, 10, 0, 0, DateTimeKind.Utc);
@@ -74,6 +75,68 @@ public class ArticleUnitTests
         var ex = Assert.Throws<InvalidArticleException>(() => _article.AddComment(CommentContent, _commentAuthorId, null));
 
         Assert.That(ex.Error, Is.EqualTo(ArticleAlreadyDeleted));
+    }
+
+    [Test]
+    public void EditComment_ShouldUpdateContent_WhenRequesterIsCommentAuthor()
+    {
+        var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);
+
+        _article.EditComment(commentId, EditedCommentContent, _commentAuthorId, isAdmin: false);
+
+        Assert.That(_article.Comments.Single().Content, Is.EqualTo(EditedCommentContent));
+    }
+
+    [Test]
+    public void EditComment_ShouldUpdateContent_WhenRequesterIsAdmin()
+    {
+        var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);
+
+        _article.EditComment(commentId, EditedCommentContent, Guid.NewGuid(), isAdmin: true);
+
+        Assert.That(_article.Comments.Single().Content, Is.EqualTo(EditedCommentContent));
+    }
+
+    [Test]
+    public void EditComment_ShouldThrowDomainAuthorizationException_WhenRequesterIsOnlyArticleAuthor()
+    {
+        var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);
+
+        var ex = Assert.Throws<DomainAuthorizationException>(() => _article.EditComment(commentId, EditedCommentContent, _articleAuthorId, isAdmin: false));
+
+        Assert.That(ex.Error, Is.EqualTo(CommentEditForbidden));
+        Assert.That(_article.Comments.Single().Content, Is.EqualTo(CommentContent));
+    }
+
+    [Test]
+    public void EditComment_ShouldThrowDomainNotFoundException_WhenCommentDoesNotExist()
+    {
+        var ex = Assert.Throws<DomainNotFoundException>(() => _article.EditComment(Guid.NewGuid(), EditedCommentContent, _commentAuthorId, isAdmin: false));
+
+        Assert.That(ex.Error, Is.EqualTo(CommentNotFound));
+    }
+
+    [Test]
+    public void EditComment_ShouldThrowInvalidCommentException_WhenCommentIsDeleted()
+    {
+        var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);
+        _article.DeleteComment(commentId, _commentAuthorId, isAdmin: false);
+
+        var ex = Assert.Throws<InvalidCommentException>(() => _article.EditComment(commentId, EditedCommentContent, _commentAuthorId, isAdmin: false));
+
+        Assert.That(ex.Error, Is.EqualTo(CommentAlreadyDeleted));
+    }
+
+    [Test]
+    public void EditComment_ShouldThrowInvalidArticleException_WhenArticleIsArchived()
+    {
+        var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);
+        _article.Archive(_articleAuthorId, isAdmin: false);
+
+        var ex = Assert.Throws<InvalidArticleException>(() => _article.EditComment(commentId, EditedCommentContent, _commentAuthorId, isAdmin: false));
+
+        Assert.That(ex.Error, Is.EqualTo(ArticleNotPublished));
+        Assert.That(_article.Comments.Single().Content, Is.EqualTo(CommentContent));
     }
 
     [Test]

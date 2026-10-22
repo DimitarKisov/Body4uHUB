@@ -1,5 +1,6 @@
 using Body4uHUB.Content.Application.Commands.Articles.CreateComment;
 using Body4uHUB.Content.Application.Commands.Articles.DeleteComment;
+using Body4uHUB.Content.Application.Commands.Articles.EditComment;
 using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
@@ -15,6 +16,7 @@ public class CommentCommandHandlerTests
 {
     private const int ArticleId = 3;
     private const string CommentContent = "Nice article";
+    private const string EditedCommentContent = "Great article";
 
     private Mock<IArticleRepository> _articleRepository;
     private Mock<IUnitOfWork> _unitOfWork;
@@ -61,6 +63,32 @@ public class CommentCommandHandlerTests
 
         var result = await handler.Handle(
             new CreateCommentCommand(CommentContent, ArticleId + 1, Guid.NewGuid(), null), CancellationToken.None);
+
+        Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task EditComment_ShouldUpdateContent_WhenRequesterIsCommentAuthor()
+    {
+        var handler = new EditCommentCommandHandler(_articleRepository.Object, _unitOfWork.Object);
+
+        var result = await handler.Handle(
+            new EditCommentCommand(ArticleId, _existingCommentId, EditedCommentContent, AuthorizationContext.Create(_commentAuthorId, false)), CancellationToken.None);
+
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(_article.Comments.Single().Content, Is.EqualTo(EditedCommentContent));
+        _articleRepository.Verify(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
+    public async Task EditComment_ShouldReturnNotFound_WhenArticleDoesNotExist()
+    {
+        var handler = new EditCommentCommandHandler(_articleRepository.Object, _unitOfWork.Object);
+
+        var result = await handler.Handle(
+            new EditCommentCommand(ArticleId + 1, _existingCommentId, EditedCommentContent, AuthorizationContext.Create(_commentAuthorId, false)), CancellationToken.None);
 
         Assert.That(result.ErrorType, Is.EqualTo(ErrorType.ResourceNotFound));
         _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);

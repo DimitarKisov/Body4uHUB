@@ -31,6 +31,7 @@ public class ModelConstants
         public const string CommentNotFound = "Comment not found.";
         public const string CommentParentNotFound = "Parent comment does not exist in this article.";
         public const string CommentDeleteForbidden = "You do not have permission to delete this comment.";
+        public const string CommentEditForbidden = "You do not have permission to edit this comment.";
         #endregion
     }
 

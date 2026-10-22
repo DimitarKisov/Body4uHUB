@@ -33,7 +33,7 @@ public class Comment : Entity<Guid>
         return new Comment(content, authorId, parentCommentId);
     }
 
-    public void UpdateContent(string content)
+    internal void UpdateContent(string content)
     {
         if (IsDeleted)
         {
@@ -44,7 +44,7 @@ public class Comment : Entity<Guid>
         Content = content;
     }
 
-    public void MarkAsDeleted()
+    internal void MarkAsDeleted()
     {
         IsDeleted = true;
     }

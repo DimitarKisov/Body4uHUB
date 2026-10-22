@@ -5,6 +5,7 @@ using Body4uHUB.Content.Application.Commands.Articles.CreateComment;
 using Body4uHUB.Content.Application.Commands.Articles.Delete;
 using Body4uHUB.Content.Application.Commands.Articles.DeleteComment;
 using Body4uHUB.Content.Application.Commands.Articles.Edit;
+using Body4uHUB.Content.Application.Commands.Articles.EditComment;
 using Body4uHUB.Content.Application.Commands.Articles.Publish;
 using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles.GetAll;
@@ -177,6 +178,26 @@ public class ArticleController : ApiController
         var result = await Mediator.Send(command);
 
         return HandleCreatedResult(result, id => new { commentId = id });
+    }
+
+    /// <summary>
+    /// Edit a comment on an article (Author or Admin only)
+    /// </summary>
+    [HttpPut("{articleId:int}/comments/{commentId:guid}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> EditComment(int articleId, Guid commentId, [FromBody] EditCommentRequest request)
+    {
+        var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
+        var command = new EditCommentCommand(articleId, commentId, request.Content, authContext);
+        var result = await Mediator.Send(command);
+
+        return HandleResult(result);
     }
 
     /// <summary>

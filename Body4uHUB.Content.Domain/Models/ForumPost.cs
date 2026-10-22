@@ -31,7 +31,7 @@ public class ForumPost : Entity<int>
         return new ForumPost(content, authorId);
     }
 
-    public void UpdateContent(string content)
+    internal void UpdateContent(string content)
     {
         if (IsDeleted)
         {
@@ -42,7 +42,7 @@ public class ForumPost : Entity<int>
         Content = content;
     }
 
-    public void MarkAsDeleted()
+    internal void MarkAsDeleted()
     {
         IsDeleted = true;
     }
