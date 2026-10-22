@@ -6,6 +6,7 @@ using Body4uHUB.Content.Application.Commands.Articles.Delete;
 using Body4uHUB.Content.Application.Commands.Articles.DeleteComment;
 using Body4uHUB.Content.Application.Commands.Articles.Edit;
 using Body4uHUB.Content.Application.Commands.Articles.Publish;
+using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles.GetAll;
 using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
 using Body4uHUB.Content.Application.Queries.Articles.GetById;
@@ -85,7 +86,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// </summary>
         [HttpGet("author/{authorId:Guid}")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(PagedResult<GetArticlesByAuthorResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult<ArticleSummaryDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetArticlesByAuthor(Guid authorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId, page, pageSize));
@@ -98,7 +99,7 @@ namespace Body4uHUB.Content.Api.Controllers
         /// </summary>
         [HttpGet]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(PagedResult<GetAllArticlesResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult<ArticleSummaryDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllArticles([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             var result = await Mediator.Send(new GetAllArticlesQuery(page, size));

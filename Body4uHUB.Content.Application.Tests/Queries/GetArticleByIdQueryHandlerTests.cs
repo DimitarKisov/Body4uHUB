@@ -15,6 +15,7 @@ namespace Body4uHUB.Content.Application.Tests.Queries
         private const int ArticleId = 7;
         private const int ViewCount = 10;
         private const string VisitorIp = "203.0.113.5";
+        private const string CommentContent = "Comment content";
 
         private Mock<IArticleRepository> _articleRepository;
         private Mock<IArticleReadRepository> _articleReadRepository;
@@ -161,17 +162,22 @@ namespace Body4uHUB.Content.Application.Tests.Queries
             Assert.That(comments.Single(x => x.Id == c.Id).Content, Is.Not.Null);
         }
 
+        [Test]
+        public async Task Handle_ShouldHideDeletedCommentContentWithoutChangingTheLoadedComments()
+        {
+            var parent = Comment(deleted: true);
+            var reply = Comment(deleted: false, parent: parent);
+            SetupArticle(ArticleStatus.Published, parent, reply);
+
+            var result = await Send(null);
+
+            Assert.That(result.Value.Comments.Single(x => x.Id == parent.Id).Content, Is.Null);
+            Assert.That(parent.Content, Is.EqualTo(CommentContent));
+        }
+
         private static CommentDto Comment(bool deleted, CommentDto parent = null)
         {
-            return new CommentDto
-            {
-                Id = Guid.NewGuid(),
-                Content = "Comment content",
-                AuthorId = Guid.NewGuid(),
-                ParentCommentId = parent?.Id,
-                IsDeleted = deleted,
-                CreatedAt = DateTime.UtcNow
-            };
+            return new CommentDto(Guid.NewGuid(), CommentContent, Guid.NewGuid(), parent?.Id, deleted, DateTime.UtcNow, null);
         }
     }
 }

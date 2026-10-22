@@ -1,6 +1,6 @@
-﻿namespace Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor
+namespace Body4uHUB.Content.Application.DTOs
 {
-    public record GetArticlesByAuthorResponse(
+    public record ArticleSummaryDto(
         int Id,
         string Title,
         Guid AuthorId,
@@ -8,6 +8,5 @@
         DateTime? PublishedAt,
         int ViewCount,
         DateTime CreatedAt,
-        DateTime? ModifiedAt
-    );
+        DateTime? ModifiedAt);
 }

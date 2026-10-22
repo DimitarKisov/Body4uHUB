@@ -1,13 +1,11 @@
 ﻿namespace Body4uHUB.Content.Application.DTOs
 {
-    public class CommentDto
-    {
-        public Guid Id { get; set; }
-        public string Content { get; set; }
-        public Guid AuthorId { get; set; }
-        public Guid? ParentCommentId { get; set; }
-        public bool IsDeleted { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? ModifiedAt { get; set; }
-    }
+    public record CommentDto(
+        Guid Id,
+        string Content,
+        Guid AuthorId,
+        Guid? ParentCommentId,
+        bool IsDeleted,
+        DateTime CreatedAt,
+        DateTime? ModifiedAt);
 }

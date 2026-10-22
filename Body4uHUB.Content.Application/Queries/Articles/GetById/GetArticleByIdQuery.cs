@@ -68,12 +68,7 @@ namespace Body4uHUB.Content.Application.Queries.Articles.GetById
             {
             }
 
-            foreach (var comment in visible.Where(x => x.IsDeleted))
-            {
-                comment.Content = null;
-            }
-
-            return visible;
+            return [.. visible.Select(x => x.IsDeleted ? x with { Content = null } : x)];
         }
 
         private static bool RemoveDeletedLeaves(List<CommentDto> comments)
