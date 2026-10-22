@@ -94,7 +94,9 @@ public class Article : AggregateRoot<int>
         }
 
         Status = ArticleStatus.Published;
-        PublishedAt = DateTime.UtcNow;
+
+        // An archived article published again keeps the date of its first publication.
+        PublishedAt ??= DateTime.UtcNow;
     }
 
     public void Archive(Guid requesterId, bool isAdmin)
@@ -112,7 +114,6 @@ public class Article : AggregateRoot<int>
         }
 
         Status = ArticleStatus.Archived;
-        PublishedAt = null;
     }
 
     private void EnsureCanBeModifiedBy(Guid requesterId, bool isAdmin)

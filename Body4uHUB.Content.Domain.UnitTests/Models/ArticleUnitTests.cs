@@ -134,6 +134,28 @@ public class ArticleUnitTests
     }
 
     [Test]
+    public void Archive_ShouldKeepPublishedAt()
+    {
+        var publishedAt = _article.PublishedAt;
+
+        _article.Archive(_articleAuthorId, isAdmin: false);
+
+        Assert.That(_article.PublishedAt, Is.Not.Null.And.EqualTo(publishedAt));
+    }
+
+    [Test]
+    public void Publish_ShouldKeepFirstPublishedAt_WhenArchivedArticleIsPublishedAgain()
+    {
+        var publishedAt = _article.PublishedAt;
+        _article.Archive(_articleAuthorId, isAdmin: false);
+
+        _article.Publish(_articleAuthorId, isAdmin: false);
+
+        Assert.That(_article.Status, Is.EqualTo(ArticleStatus.Published));
+        Assert.That(_article.PublishedAt, Is.EqualTo(publishedAt));
+    }
+
+    [Test]
     public void Archive_ShouldThrowInvalidArticleException_WhenArticleIsDeleted()
     {
         _article.Delete(_articleAuthorId, isAdmin: false);
