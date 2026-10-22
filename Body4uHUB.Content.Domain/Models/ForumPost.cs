@@ -55,12 +55,12 @@ public class ForumPost : Entity<int>
 
     private static void ValidateContent(string content)
     {
-        Guard.AgainstEmptyString<InvalidForumPostException>(content, nameof(content));
-        Guard.ForStringLength<InvalidForumPostException>(content, ForumPostContentMinLength, ForumPostContentMaxLength, nameof(content));
+        Guard.AgainstEmptyString<InvalidForumPostException>(content, nameof(Content));
+        Guard.ForStringLength<InvalidForumPostException>(content, ForumPostContentMinLength, ForumPostContentMaxLength, nameof(Content));
     }
 
     private static void ValidateAuthorId(Guid authorId)
     {
-        Guard.AgainstEmptyGuid<InvalidForumPostException>(authorId, nameof(authorId));
+        Guard.AgainstEmptyGuid<InvalidForumPostException>(authorId, nameof(AuthorId));
     }
 }

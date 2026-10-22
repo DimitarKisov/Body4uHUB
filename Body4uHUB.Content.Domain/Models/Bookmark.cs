@@ -35,11 +35,11 @@ public class Bookmark : AggregateRoot<Guid>
 
     private static void ValidateUserId(Guid userId)
     {
-        Guard.AgainstEmptyGuid<InvalidBookmarkException>(userId, nameof(userId));
+        Guard.AgainstEmptyGuid<InvalidBookmarkException>(userId, nameof(UserId));
     }
 
     private static void ValidateArticleId(int articleId)
     {
-        Guard.AgainstNegativeAndZero<InvalidBookmarkException>(articleId, nameof(articleId));
+        Guard.AgainstNegativeAndZero<InvalidBookmarkException>(articleId, nameof(ArticleId));
     }
 }

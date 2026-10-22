@@ -184,12 +184,12 @@ public class ForumTopic : AggregateRoot<int>
 
     private static void ValidateTitle(string title)
     {
-        Guard.AgainstEmptyString<InvalidForumTopicException>(title, nameof(title));
-        Guard.ForStringLength<InvalidForumTopicException>(title, TitleMinLength, TitleMaxLength, nameof(title));
+        Guard.AgainstEmptyString<InvalidForumTopicException>(title, nameof(Title));
+        Guard.ForStringLength<InvalidForumTopicException>(title, TitleMinLength, TitleMaxLength, nameof(Title));
     }
 
     private static void ValidateAuthorId(Guid authorId)
     {
-        Guard.AgainstEmptyGuid<InvalidForumTopicException>(authorId, nameof(authorId));
+        Guard.AgainstEmptyGuid<InvalidForumTopicException>(authorId, nameof(AuthorId));
     }
 }
