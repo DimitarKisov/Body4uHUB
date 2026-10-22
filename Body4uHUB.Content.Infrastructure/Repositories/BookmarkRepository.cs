@@ -5,14 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Repositories;
 
-internal class BookmarkRepository : IBookmarkRepository
+internal sealed class BookmarkRepository(ContentDbContext dbContext)
+    : IBookmarkRepository
 {
-    private readonly ContentDbContext _dbContext;
-
-    public BookmarkRepository(ContentDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    private readonly ContentDbContext _dbContext = dbContext;
 
     public void Add(Bookmark bookmark)
     {

@@ -8,7 +8,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations;
 
-internal class ArticleConfiguration : IEntityTypeConfiguration<Article>
+internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
 {
     public void Configure(EntityTypeBuilder<Article> builder)
     {

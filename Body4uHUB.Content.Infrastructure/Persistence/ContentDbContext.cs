@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Body4uHUB.Content.Infrastructure.Persistence;
 
-internal class ContentDbContext : DbContext
+internal sealed class ContentDbContext(DbContextOptions<ContentDbContext> options) : DbContext(options)
 {
-    public ContentDbContext(DbContextOptions<ContentDbContext> options)
-        : base(options)
-    {
-    }
-
     public DbSet<Article> Articles { get; set; }
     public DbSet<ForumTopic> ForumTopics { get; set; }
     public DbSet<Bookmark> Bookmarks { get; set; }

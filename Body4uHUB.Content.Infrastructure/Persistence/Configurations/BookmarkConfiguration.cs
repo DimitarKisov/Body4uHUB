@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations;
 
-internal class BookmarkConfiguration : IEntityTypeConfiguration<Bookmark>
+internal sealed class BookmarkConfiguration : IEntityTypeConfiguration<Bookmark>
 {
     public void Configure(EntityTypeBuilder<Bookmark> builder)
     {

@@ -6,7 +6,7 @@ using static Body4uHUB.Content.Domain.Constants.ModelConstants.ForumTopicConstan
 
 namespace Body4uHUB.Content.Infrastructure.Persistence.Configurations;
 
-internal class ForumTopicConfiguration : IEntityTypeConfiguration<ForumTopic>
+internal sealed class ForumTopicConfiguration : IEntityTypeConfiguration<ForumTopic>
 {
     public void Configure(EntityTypeBuilder<ForumTopic> builder)
     {

@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Reflection;
 
 namespace Body4uHUB.Content.Infrastructure.Extensions;
 
@@ -25,9 +24,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddDbContext<ContentDbContext>((serviceProvider, options) =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection"),
-            b => b.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName))
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
             .AddInterceptors(serviceProvider.GetRequiredService<ModifiedAtInterceptor>()));
 
         services.AddScoped<IArticleRepository, ArticleRepository>();

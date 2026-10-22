@@ -4,18 +4,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Body4uHUB.Content.Infrastructure.Persistence;
 
-internal class DbInitializer : IDbInitializer
+internal sealed class DbInitializer(
+    ContentDbContext dbContext,
+    ILogger<DbInitializer> logger)
+    : IDbInitializer
 {
-    private readonly ContentDbContext _dbContext;
-    private readonly ILogger<DbInitializer> _logger;
-
-    public DbInitializer(
-        ContentDbContext dbContext,
-        ILogger<DbInitializer> logger)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-    }
+    private readonly ContentDbContext _dbContext = dbContext;
+    private readonly ILogger<DbInitializer> _logger = logger;
 
     public async Task InitializeAsync()
     {
