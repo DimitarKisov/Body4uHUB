@@ -20,7 +20,7 @@ internal class ArticleConfiguration : IEntityTypeConfiguration<Article>
             .IsRequired();
 
         builder.Property(x => x.Title)
-            .HasMaxLength(200)
+            .HasMaxLength(TitleMaxLength)
             .IsRequired();
 
         builder.Property(x => x.Content)
