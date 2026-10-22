@@ -20,18 +20,4 @@ internal class ContentDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ContentDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
-
-    //THOSE THINGS ARE NOT USED ANYMORE. IN THIS PROJECT WE USE VALUE OBJECTS WITHOUT CONVERTERS. KEEPING THIS CODE COMMENTED FOR FUTURE CHANGES IF NEEDED.
-    //protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-    //{
-    //    configurationBuilder
-    //        .Properties<ArticleId>()
-    //        .HaveConversion<ArticleIdConverter>();
-
-    //    configurationBuilder
-    //        .Properties<CommentId>()
-    //        .HaveConversion<CommentIdConverter>();
-
-    //    base.ConfigureConventions(configurationBuilder);
-    //}
 }

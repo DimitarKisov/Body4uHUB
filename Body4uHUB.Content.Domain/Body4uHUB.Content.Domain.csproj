@@ -5,7 +5,6 @@
   </ItemGroup>
 
   <ItemGroup>
-  	<InternalsVisibleTo Include="Body4uHUB.Content.Infrastructure" />
   	<InternalsVisibleTo Include="Body4uHUB.Content.Domain.UnitTests" />
   </ItemGroup>
 

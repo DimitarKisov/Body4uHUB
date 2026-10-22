@@ -15,11 +15,6 @@ internal sealed class ForumRepository(ContentDbContext dbContext)
         _dbContext.ForumTopics.Add(forumTopic);
     }
 
-    public async Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        return await _dbContext.ForumTopics.AnyAsync(x => x.Id == id, cancellationToken);
-    }
-
     public async Task<bool> ExistsByTitleAsync(string title, int? exceptTopicId = null, CancellationToken cancellationToken = default)
     {
         return await _dbContext.ForumTopics
@@ -53,10 +48,5 @@ internal sealed class ForumRepository(ContentDbContext dbContext)
             .ExecuteUpdateAsync(x => x.SetProperty(y => y.ViewCount, y => y.ViewCount + 1), cancellationToken);
 
         return affected > 0;
-    }
-
-    public void Remove(ForumTopic forumTopic)
-    {
-        _dbContext.ForumTopics.Remove(forumTopic);
     }
 }

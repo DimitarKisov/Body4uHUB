@@ -10,7 +10,6 @@ public class ModelConstants
         public const int TitleMinLength = 10;
         public const int TitleMaxLength = 100;
 
-        public const string IdCannotBeZeroOrNegative = "Article ID must be greater than 0.";
 
         public const string ArticleAlreadyPublished = "Article is already published.";
         public const string ArticleModifyForbidden = "You do not have permission to modify this article.";
@@ -39,7 +38,6 @@ public class ModelConstants
     {
         public const string BookmarkAlreadyExists = "Bookmark already exists.";
         public const string BookmarkDoesNotExist = "Bookmark does not exist.";
-        public const string BookmarkIdCannotBeZeroOrNegative = "Bookmark ID must be greater than 0.";
 
         public const string BookmarkNotFound = "Bookmark not found.";
     }
