@@ -1,5 +1,7 @@
 using Body4uHUB.Content.Application.Commands.Articles.Archive;
+using Body4uHUB.Content.Application.Commands.Articles.Create;
 using Body4uHUB.Content.Application.Commands.Articles.CreateComment;
+using Body4uHUB.Content.Application.Commands.Articles.Edit;
 using Body4uHUB.Content.Application.Commands.Articles.EditComment;
 using Body4uHUB.Content.Application.Commands.Bookmarks.AddBookmark;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumPost;
@@ -10,6 +12,7 @@ using Body4uHUB.Content.Application.Commands.Forum.LockForumTopic;
 using Body4uHUB.Shared.Application;
 using FluentValidation;
 
+using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.CommonConstants;
 
 namespace Body4uHUB.Content.Application.Tests.Commands;
@@ -60,5 +63,37 @@ public class CommandValidatorTests
 
         Assert.That(result.IsValid, Is.False);
         Assert.That(result.Errors.Select(e => e.ErrorMessage), Does.Contain(expectedMessage));
+    }
+
+    private const string ValidTitle = "Valid article title";
+    private const string CategoryMessage = "Category must be one of: Training, Nutrition, Recovery, Other.";
+
+    private static readonly string ValidContent = new('a', ContentMinLength);
+
+    private static IEnumerable<TestCaseData> InvalidCategories()
+    {
+        foreach (var category in new[] { null, "", "Unknown", "training" })
+        {
+            yield return new TestCaseData(new CreateArticleCommandValidator(), new CreateArticleCommand(ValidTitle, ValidContent, category, Guid.NewGuid()))
+                .SetName($"CreateArticle_ShouldRejectCategory({category ?? "null"})");
+            yield return new TestCaseData(new EditArticleCommandValidator(), new EditArticleCommand(1, ValidTitle, ValidContent, category, AuthContext))
+                .SetName($"EditArticle_ShouldRejectCategory({category ?? "null"})");
+        }
+    }
+
+    [TestCaseSource(nameof(InvalidCategories))]
+    public void Validate_ShouldRejectUnknownCategory<T>(IValidator<T> validator, T command)
+    {
+        var result = validator.Validate(command);
+
+        Assert.That(result.Errors.Select(e => e.ErrorMessage), Is.EqualTo(new[] { CategoryMessage }));
+    }
+
+    [Test]
+    public void Validate_ShouldAcceptKnownCategory()
+    {
+        var result = new CreateArticleCommandValidator().Validate(new CreateArticleCommand(ValidTitle, ValidContent, "Other", Guid.NewGuid()));
+
+        Assert.That(result.IsValid, Is.True);
     }
 }

@@ -27,7 +27,7 @@ public class ArchiveArticleCommandHandlerTests
         _unitOfWork = new Mock<IUnitOfWork>();
         _authorId = Guid.NewGuid();
 
-        _article = Article.Create("Valid article title", new string('a', ContentMinLength), _authorId);
+        _article = Article.Create("Valid article title", new string('a', ContentMinLength), ArticleCategory.Training, _authorId);
         _article.Publish(_authorId, isAdmin: false, DateTime.UtcNow);
 
         _articleRepository

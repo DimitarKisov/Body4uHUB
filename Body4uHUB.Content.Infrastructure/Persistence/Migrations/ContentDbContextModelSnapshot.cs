@@ -33,6 +33,9 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(5000)
@@ -49,6 +52,9 @@ namespace Body4uHUB.Content.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime?>("PublishedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("ReadingMinutes")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

@@ -27,7 +27,7 @@ public class ArticleUnitTests
         _articleAuthorId = Guid.NewGuid();
         _commentAuthorId = Guid.NewGuid();
 
-        _article = Article.Create(ValidTitle, ValidContent, _articleAuthorId);
+        _article = Article.Create(ValidTitle, ValidContent, ArticleCategory.Training, _articleAuthorId);
         _article.Publish(_articleAuthorId, isAdmin: false, PublishedAtUtc);
     }
 
@@ -60,7 +60,7 @@ public class ArticleUnitTests
     [Test]
     public void AddComment_ShouldThrowInvalidArticleException_WhenArticleIsNotPublished()
     {
-        var draft = Article.Create(ValidTitle, ValidContent, _articleAuthorId);
+        var draft = Article.Create(ValidTitle, ValidContent, ArticleCategory.Training, _articleAuthorId);
 
         var ex = Assert.Throws<InvalidArticleException>(() => draft.AddComment(CommentContent, _commentAuthorId, null));
 
@@ -225,7 +225,7 @@ public class ArticleUnitTests
     [Test]
     public void Publish_ShouldThrowArgumentException_WhenTimeIsNotUtc()
     {
-        var draft = Article.Create(ValidTitle, ValidContent, _articleAuthorId);
+        var draft = Article.Create(ValidTitle, ValidContent, ArticleCategory.Training, _articleAuthorId);
 
         Assert.Throws<ArgumentException>(() => draft.Publish(_articleAuthorId, isAdmin: false, DateTime.Now));
         Assert.That(draft.Status, Is.EqualTo(ArticleStatus.Draft));
@@ -239,5 +239,39 @@ public class ArticleUnitTests
         var ex = Assert.Throws<InvalidArticleException>(() => _article.Archive(_articleAuthorId, isAdmin: false));
 
         Assert.That(ex.Error, Is.EqualTo(ArticleAlreadyDeleted));
+    }
+
+    [Test]
+    public void Create_ShouldSetReadingMinutesToOne_WhenContentIsShort()
+    {
+        Assert.That(_article.ReadingMinutes, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Create_ShouldRoundReadingMinutesUp()
+    {
+        var article = Article.Create(ValidTitle, Words(WordsPerMinute * 2 + 1), ArticleCategory.Nutrition, _articleAuthorId);
+
+        Assert.That(article.ReadingMinutes, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void Create_ShouldThrowInvalidArticleException_WhenCategoryIsMissing()
+    {
+        Assert.Throws<InvalidArticleException>(() => Article.Create(ValidTitle, ValidContent, null, _articleAuthorId));
+    }
+
+    [Test]
+    public void Edit_ShouldUpdateCategoryAndRecalculateReadingMinutes()
+    {
+        _article.Edit(ValidTitle, Words(WordsPerMinute + 1), ArticleCategory.Recovery, _articleAuthorId, isAdmin: false);
+
+        Assert.That(_article.Category, Is.EqualTo(ArticleCategory.Recovery));
+        Assert.That(_article.ReadingMinutes, Is.EqualTo(2));
+    }
+
+    private static string Words(int count)
+    {
+        return string.Join(" \n", Enumerable.Repeat("word", count));
     }
 }

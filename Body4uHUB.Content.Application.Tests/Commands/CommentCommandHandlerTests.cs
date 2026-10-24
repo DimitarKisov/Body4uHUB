@@ -1,6 +1,7 @@
 using Body4uHUB.Content.Application.Commands.Articles.CreateComment;
 using Body4uHUB.Content.Application.Commands.Articles.DeleteComment;
 using Body4uHUB.Content.Application.Commands.Articles.EditComment;
+using Body4uHUB.Content.Domain.Enumerations;
 using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
@@ -33,7 +34,7 @@ public class CommentCommandHandlerTests
         var articleAuthorId = Guid.NewGuid();
         _commentAuthorId = Guid.NewGuid();
 
-        _article = Article.Create("Valid article title", new string('a', ContentMinLength), articleAuthorId);
+        _article = Article.Create("Valid article title", new string('a', ContentMinLength), ArticleCategory.Training, articleAuthorId);
         _article.Publish(articleAuthorId, isAdmin: false, DateTime.UtcNow);
         _existingCommentId = _article.AddComment(CommentContent, _commentAuthorId, null);
 

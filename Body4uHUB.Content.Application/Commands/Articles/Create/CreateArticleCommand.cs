@@ -1,12 +1,14 @@
-﻿using Body4uHUB.Content.Domain.Models;
+﻿using Body4uHUB.Content.Domain.Enumerations;
+using Body4uHUB.Content.Domain.Models;
 using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Domain.Enumerations;
 using MediatR;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Create;
 
-public record CreateArticleCommand(string Title, string Content, Guid AuthorId) : IRequest<Result<CreateArticleResponse>>;
+public record CreateArticleCommand(string Title, string Content, string Category, Guid AuthorId) : IRequest<Result<CreateArticleResponse>>;
 
 internal sealed class CreateArticleCommandHandler(
     IArticleRepository articleRepository,
@@ -21,6 +23,7 @@ internal sealed class CreateArticleCommandHandler(
         var article = Article.Create(
             request.Title,
             request.Content,
+            Enumeration.FromDisplayName<ArticleCategory>(request.Category),
             request.AuthorId);
 
         _articleRepository.Add(article);

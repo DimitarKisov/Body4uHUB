@@ -27,6 +27,9 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
             .HasMaxLength(ContentMaxLength)
             .IsRequired();
 
+        builder.Property(x => x.ReadingMinutes)
+            .IsRequired();
+
         builder.Property(x => x.AuthorId)
             .IsRequired();
 
@@ -47,6 +50,13 @@ internal sealed class ArticleConfiguration : IEntityTypeConfiguration<Article>
             .HasConversion(
                 v => v.Id,
                 v => Enumeration.FromValue<ArticleStatus>(v))
+            .IsRequired();
+
+        // ArticleCategory enumeration
+        builder.Property(x => x.Category)
+            .HasConversion(
+                v => v.Id,
+                v => Enumeration.FromValue<ArticleCategory>(v))
             .IsRequired();
 
         builder.OwnsMany(b => b.Comments, commentBuilder =>

@@ -14,6 +14,8 @@ public class Article : AggregateRoot<int>
 
     public string Title { get; private set; }
     public string Content { get; private set; }
+    public ArticleCategory Category { get; private set; }
+    public int ReadingMinutes { get; private set; }
     public ArticleStatus Status { get; private set; }
     public DateTime? PublishedAt { get; private set; }
     public int ViewCount { get; private set; }
@@ -23,22 +25,24 @@ public class Article : AggregateRoot<int>
 
     private Article() { }
 
-    private Article(string title, string content, Guid authorId)
+    private Article(string title, string content, ArticleCategory category, Guid authorId)
     {
         Title = title;
         Content = content;
+        ReadingMinutes = CalculateReadingMinutes(content);
+        Category = category;
         Status = ArticleStatus.Draft;
         AuthorId = authorId;
     }
 
-    public static Article Create(string title, string content, Guid authorId)
+    public static Article Create(string title, string content, ArticleCategory category, Guid authorId)
     {
-        Validate(title, content, authorId);
+        Validate(title, content, category, authorId);
 
-        return new Article(title, content, authorId);
+        return new Article(title, content, category, authorId);
     }
 
-    public void Edit(string title, string content, Guid requesterId, bool isAdmin)
+    public void Edit(string title, string content, ArticleCategory category, Guid requesterId, bool isAdmin)
     {
         EnsureCanBeModifiedBy(requesterId, isAdmin);
 
@@ -49,6 +53,7 @@ public class Article : AggregateRoot<int>
 
         UpdateTitle(title);
         UpdateContent(content);
+        UpdateCategory(category);
     }
 
     public void Delete(Guid requesterId, bool isAdmin)
@@ -73,6 +78,21 @@ public class Article : AggregateRoot<int>
     {
         ValidateContent(content);
         Content = content;
+        ReadingMinutes = CalculateReadingMinutes(content);
+    }
+
+    private void UpdateCategory(ArticleCategory category)
+    {
+        ValidateCategory(category);
+        Category = category;
+    }
+
+    // Stored rather than computed on read, so article lists do not have to load the content.
+    private static int CalculateReadingMinutes(string content)
+    {
+        var wordCount = content.Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Length;
+
+        return Math.Max(1, (int)Math.Ceiling(wordCount / (double)WordsPerMinute));
     }
 
     public void Publish(Guid requesterId, bool isAdmin, DateTime utcNow)
@@ -203,10 +223,11 @@ public class Article : AggregateRoot<int>
         IsDeleted = true;
     }
 
-    private static void Validate(string title, string content, Guid authorId)
+    private static void Validate(string title, string content, ArticleCategory category, Guid authorId)
     {
         ValidateTitle(title);
         ValidateContent(content);
+        ValidateCategory(category);
         ValidateAuthorId(authorId);
     }
 
@@ -220,6 +241,11 @@ public class Article : AggregateRoot<int>
     {
         Guard.AgainstEmptyString<InvalidArticleException>(content, nameof(Content));
         Guard.ForStringLength<InvalidArticleException>(content, ContentMinLength, ContentMaxLength, nameof(Content));
+    }
+
+    private static void ValidateCategory(ArticleCategory category)
+    {
+        Guard.AgainstDefault<InvalidArticleException, ArticleCategory>(category, nameof(Category));
     }
 
     private static void ValidateAuthorId(Guid authorId)

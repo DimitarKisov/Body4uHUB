@@ -1,13 +1,15 @@
-﻿using Body4uHUB.Content.Domain.Repositories;
+﻿using Body4uHUB.Content.Domain.Enumerations;
+using Body4uHUB.Content.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Shared.Domain.Enumerations;
 using MediatR;
 
 using static Body4uHUB.Content.Domain.Constants.ModelConstants.ArticleConstants;
 
 namespace Body4uHUB.Content.Application.Commands.Articles.Edit;
 
-public record EditArticleCommand(int ArticleId, string Title, string Content, AuthorizationContext AuthContext): IRequest<Result>;
+public record EditArticleCommand(int ArticleId, string Title, string Content, string Category, AuthorizationContext AuthContext): IRequest<Result>;
 
 internal sealed class EditArticleCommandHandler(
     IArticleRepository articleRepository,
@@ -25,7 +27,12 @@ internal sealed class EditArticleCommandHandler(
             return Result.ResourceNotFound(ArticleNotFound);
         }
 
-        article.Edit(request.Title, request.Content, request.AuthContext.CurrentUserId, request.AuthContext.IsAdmin);
+        article.Edit(
+            request.Title,
+            request.Content,
+            Enumeration.FromDisplayName<ArticleCategory>(request.Category),
+            request.AuthContext.CurrentUserId,
+            request.AuthContext.IsAdmin);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -9,12 +9,14 @@ public static class ModelConstants
         public const int ContentMaxLength = 5000;
         public const int TitleMinLength = 10;
         public const int TitleMaxLength = 100;
+        public const int WordsPerMinute = 200;
 
         public const string ArticleAlreadyPublished = "Article is already published.";
         public const string ArticleModifyForbidden = "You do not have permission to modify this article.";
         public const string ArticleNotFound = "Article not found.";
         public const string ArticleNotPublished = "Article is not published.";
         public const string ArticleAlreadyDeleted = "Article is already deleted.";
+        public const string CategoryInvalid = "Category must be one of: {0}.";
         #endregion
 
         #region Comment

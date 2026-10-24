@@ -57,6 +57,7 @@ public class ArticleController : ApiController
         var command = new CreateArticleCommand(
             request.Title,
             request.Content,
+            request.Category,
             User.GetUserId());
 
         var result = await Mediator.Send(command, cancellationToken);
@@ -139,7 +140,7 @@ public class ArticleController : ApiController
     public async Task<IActionResult> EditArticle(int id, [FromBody] EditArticleRequest request, CancellationToken cancellationToken)
     {
         var authContext = AuthorizationContext.Create(User.GetUserId(), User.IsAdmin());
-        var command = new EditArticleCommand(id, request.Title, request.Content, authContext);
+        var command = new EditArticleCommand(id, request.Title, request.Content, request.Category, authContext);
         var result = await Mediator.Send(command, cancellationToken);
 
         return HandleResult(result);

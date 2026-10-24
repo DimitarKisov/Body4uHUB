@@ -51,7 +51,7 @@ public class GetArticleByIdQueryHandlerTests
         _articleReadRepository
             .Setup(x => x.GetWithCommentsByIdAsync(ArticleId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetArticleByIdResponse(
-                ArticleId, "Title", "Content", _authorId, status.Name, null, ViewCount, DateTime.UtcNow, null, comments.ToList()));
+                ArticleId, "Title", "Content", ArticleCategory.Training.Name, 1, _authorId, status.Name, null, ViewCount, DateTime.UtcNow, null, comments.ToList()));
     }
 
     private Task<Result<GetArticleByIdResponse>> Send(AuthorizationContext authContext)

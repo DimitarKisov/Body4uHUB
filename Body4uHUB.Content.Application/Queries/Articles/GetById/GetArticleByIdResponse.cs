@@ -6,6 +6,8 @@ public record GetArticleByIdResponse(
     int Id,
     string Title,
     string Content,
+    string Category,
+    int ReadingMinutes,
     Guid AuthorId,
     string Status,
     DateTime? PublishedAt,

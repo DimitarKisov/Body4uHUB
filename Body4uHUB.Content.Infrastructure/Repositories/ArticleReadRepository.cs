@@ -26,6 +26,8 @@ internal sealed class ArticleReadRepository(ContentDbContext dbContext) : IArtic
             .Select(x => new ArticleSummaryDto(
                 x.Id,
                 x.Title,
+                x.Category.Name,
+                x.ReadingMinutes,
                 x.AuthorId,
                 x.Status.Name,
                 x.PublishedAt,
@@ -54,6 +56,8 @@ internal sealed class ArticleReadRepository(ContentDbContext dbContext) : IArtic
             .Select(x => new ArticleSummaryDto(
                 x.Id,
                 x.Title,
+                x.Category.Name,
+                x.ReadingMinutes,
                 x.AuthorId,
                 x.Status.Name,
                 x.PublishedAt,
@@ -73,6 +77,8 @@ internal sealed class ArticleReadRepository(ContentDbContext dbContext) : IArtic
                 x.Id,
                 x.Title,
                 x.Content,
+                x.Category.Name,
+                x.ReadingMinutes,
                 x.AuthorId,
                 x.Status.Name,
                 x.PublishedAt,
