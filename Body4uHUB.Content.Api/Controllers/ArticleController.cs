@@ -99,9 +99,9 @@ public class ArticleController : ApiController
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResult<ArticleSummaryDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllArticles([FromQuery] int page = 1, [FromQuery] int size = 10, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetAllArticles([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new GetAllArticlesQuery(page, size), cancellationToken);
+        var result = await Mediator.Send(new GetAllArticlesQuery(page, pageSize), cancellationToken);
 
         return HandleResult(result);
     }
