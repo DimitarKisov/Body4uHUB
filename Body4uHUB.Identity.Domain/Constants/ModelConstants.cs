@@ -14,6 +14,7 @@ public static class ModelConstants
         public const int EmailConfirmationTokenLifetimeHours = 24;
         public const int PasswordResetTokenLifetimeHours = 1;
         public const int PasswordResetTokenHashLength = 64; // SHA-256, hex
+        public const int MaxPublicUserIds = 50;
 
         public const string EmailRequired = "Email is required";
         public const string EmailInvalid = "Invalid email format";
@@ -23,6 +24,8 @@ public static class ModelConstants
         public const string LastNameRequired = "Last name is required";
         public const string LastNameLength = "Last name must be between {0} and {1} characters long";
         public const string UserIdRequired = "User ID cannot be empty";
+        public const string PublicUserIdsRequired = "At least one user ID is required";
+        public const string PublicUserIdsLimit = "No more than {0} user IDs can be requested at once";
         public const string PasswordRequired = "Password is required";
         public const string PasswordRegex = @"^(?=.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).*$";
         public const string PasswordInvalid = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character";

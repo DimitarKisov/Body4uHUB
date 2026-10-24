@@ -8,6 +8,7 @@ using Body4uHUB.Identity.Application.Commands.DeleteTrainer;
 using Body4uHUB.Identity.Application.Commands.EditUser;
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllUsers;
+using Body4uHUB.Identity.Application.Queries.GetPublicUsers;
 using Body4uHUB.Identity.Application.Queries.GetUserById;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Api.Extensions;
@@ -125,6 +126,22 @@ namespace Body4uHUB.Identity.Api.Controllers
         public async Task<IActionResult> GetProfile(CancellationToken cancellationToken)
         {
             var result = await Mediator.Send(new GetUserByIdQuery(User.GetUserId()), cancellationToken);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Get the public names of up to 50 users, e.g. the authors on a page of articles (anonymous).
+        /// Unknown ids are left out of the result.
+        /// </summary>
+        [HttpGet("public")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.PublicUsers)]
+        [ProducesResponseType(typeof(IReadOnlyList<PublicUserResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+        public async Task<IActionResult> GetPublicUsers([FromQuery] Guid[] ids, CancellationToken cancellationToken)
+        {
+            var result = await Mediator.Send(new GetPublicUsersQuery(ids), cancellationToken);
             return HandleResult(result);
         }
 

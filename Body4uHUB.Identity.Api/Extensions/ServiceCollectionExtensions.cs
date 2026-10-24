@@ -64,6 +64,9 @@ namespace Body4uHUB.Identity.Api.Extensions
 
                 // Caps token guessing; the token itself is 256 random bits.
                 options.AddPerIpFixedWindowPolicy(RateLimitPolicies.ResetPassword, permitLimit: 5, TimeSpan.FromMinutes(15));
+
+                // Anonymous and called on every content page; generous for browsing, but slows down harvesting names.
+                options.AddPerIpFixedWindowPolicy(RateLimitPolicies.PublicUsers, permitLimit: 60, TimeSpan.FromMinutes(1));
             });
 
             return services;

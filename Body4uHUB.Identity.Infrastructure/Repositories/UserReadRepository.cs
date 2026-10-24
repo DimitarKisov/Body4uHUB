@@ -1,5 +1,6 @@
 using Body4uHUB.Identity.Application.DTOs;
 using Body4uHUB.Identity.Application.Queries.GetAllUsers;
+using Body4uHUB.Identity.Application.Queries.GetPublicUsers;
 using Body4uHUB.Identity.Application.Repositories;
 using Body4uHUB.Identity.Infrastructure.Persistance;
 using Body4uHUB.Shared.Application;
@@ -54,6 +55,17 @@ namespace Body4uHUB.Identity.Infrastructure.Repositories
                         .Select(r => new RoleDto(r.Id, r.Name))
                         .ToList()))
                 .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<PublicUserResponse>> GetPublicByIdsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Users
+                .Where(x => userIds.Contains(x.Id))
+                .Select(x => new PublicUserResponse(
+                    x.Id,
+                    x.FirstName,
+                    x.LastName))
+                .ToListAsync(cancellationToken);
         }
     }
 }
