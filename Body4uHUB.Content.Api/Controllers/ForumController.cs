@@ -30,6 +30,7 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(CreateForumTopicResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateForumTopic([FromBody] CreateForumTopicRequest request, CancellationToken cancellationToken)
     {
@@ -85,6 +86,7 @@ public class ForumController : ApiController
     [HttpGet("topics")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResult<ForumTopicDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllTopics([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] bool includeDeleted = false, CancellationToken cancellationToken = default)
     {
         var result = await Mediator.Send(new GetAllForumTopicsQuery(page, pageSize, includeDeleted && User.IsAdmin()), cancellationToken);
@@ -98,6 +100,7 @@ public class ForumController : ApiController
     [HttpGet("topics/{topicId:int}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(GetForumTopicByIdResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetForumTopic(int topicId, CancellationToken cancellationToken)
     {
@@ -150,6 +153,7 @@ public class ForumController : ApiController
     [ProducesResponseType(typeof(CreateForumPostResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateForumPost(int topicId, [FromBody] CreateForumPostRequest request, CancellationToken cancellationToken)

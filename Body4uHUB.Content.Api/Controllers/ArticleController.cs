@@ -32,6 +32,7 @@ public class ArticleController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> ArchiveArticle(int id, CancellationToken cancellationToken)
     {
@@ -49,6 +50,7 @@ public class ArticleController : ApiController
     [ProducesResponseType(typeof(CreateArticleResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateArticleCommand(
@@ -71,6 +73,7 @@ public class ArticleController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> DeleteArticle(int id, CancellationToken cancellationToken)
     {
@@ -86,6 +89,7 @@ public class ArticleController : ApiController
     [HttpGet("author/{authorId:Guid}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResult<ArticleSummaryDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetArticlesByAuthor(Guid authorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId, page, pageSize), cancellationToken);
@@ -99,6 +103,7 @@ public class ArticleController : ApiController
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResult<ArticleSummaryDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllArticles([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var result = await Mediator.Send(new GetAllArticlesQuery(page, pageSize), cancellationToken);
@@ -133,6 +138,7 @@ public class ArticleController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> EditArticle(int id, [FromBody] EditArticleRequest request, CancellationToken cancellationToken)
     {
@@ -151,6 +157,8 @@ public class ArticleController : ApiController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> PublishArticle(int id, CancellationToken cancellationToken)
     {
@@ -207,6 +215,7 @@ public class ArticleController : ApiController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> DeleteComment(int articleId, Guid commentId, CancellationToken cancellationToken)
     {

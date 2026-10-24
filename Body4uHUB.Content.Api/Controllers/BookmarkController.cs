@@ -35,6 +35,7 @@ public class BookmarkController : ApiController
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(PagedResult<GetUserBookmarksResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetMyBookmarks([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
@@ -49,9 +50,9 @@ public class BookmarkController : ApiController
     /// </summary>
     [HttpDelete("articles/{articleId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> RemoveBookmark(int articleId, CancellationToken cancellationToken)
     {
         var command = new RemoveBookmarkCommand(User.GetUserId(), articleId);
