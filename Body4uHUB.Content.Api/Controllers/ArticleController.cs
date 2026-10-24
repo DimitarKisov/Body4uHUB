@@ -16,10 +16,7 @@ using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Body4uHUB.Content.Api.Controllers;
 

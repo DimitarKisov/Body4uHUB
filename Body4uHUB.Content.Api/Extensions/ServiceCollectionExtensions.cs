@@ -2,11 +2,7 @@
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Infrastructure.Extensions;
 using Body4uHUB.Shared.Infrastructure.Settings;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Hosting;
-using System;
 
 namespace Body4uHUB.Content.Api.Extensions;
 

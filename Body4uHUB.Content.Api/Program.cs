@@ -5,15 +5,8 @@ using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Api.Handlers;
 using Body4uHUB.Shared.Api.HealthChecks;
 using Body4uHUB.Shared.Infrastructure.Interfaces;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
-using System;
-using System.IO;
-using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
