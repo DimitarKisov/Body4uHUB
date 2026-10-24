@@ -370,3 +370,5 @@ launch.json
 
 # Claude Code personal instructions (not shared with team)
 CLAUDE.local.md
+# Claude Code local settings
+.claude/
