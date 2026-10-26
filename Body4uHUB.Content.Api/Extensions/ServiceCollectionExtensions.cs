@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
 
             options.AddPerUserFixedWindowPolicy(RateLimitPolicies.CreateComment, permitLimit: 10, TimeSpan.FromMinutes(1));
             options.AddPerUserFixedWindowPolicy(RateLimitPolicies.CreateForumPost, permitLimit: 10, TimeSpan.FromMinutes(1));
+            options.AddPerUserFixedWindowPolicy(RateLimitPolicies.CreateForumTopic, permitLimit: 3, TimeSpan.FromMinutes(10));
         });
 
         return services;

@@ -25,15 +25,16 @@ namespace Body4uHUB.Content.Api.Controllers;
 public class ForumController : ApiController
 {
     /// <summary>
-    /// Create a new forum topic (Trainers and Admins only)
+    /// Create a new forum topic
     /// </summary>
     [HttpPost("topics")]
-    [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+    [Authorize]
+    [EnableRateLimiting(RateLimitPolicies.CreateForumTopic)]
     [ProducesResponseType(typeof(CreateForumTopicResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> CreateForumTopic([FromBody] CreateForumTopicRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateForumTopicCommand(request.Title, User.GetUserId());
@@ -46,7 +47,7 @@ public class ForumController : ApiController
     /// Delete forum topic (Author or Admin only)
     /// </summary>
     [HttpDelete("topics/{topicId:int}")]
-    [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -65,7 +66,7 @@ public class ForumController : ApiController
     /// Edit forum topic title (Author or Admin only)
     /// </summary>
     [HttpPut("topics/{topicId:int}")]
-    [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -148,15 +149,14 @@ public class ForumController : ApiController
     }
 
     /// <summary>
-    /// Create a new post in a forum topic (Trainers and Admins only)
+    /// Create a new post in a forum topic
     /// </summary>
     [HttpPost("topics/{topicId:int}/posts")]
-    [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+    [Authorize]
     [EnableRateLimiting(RateLimitPolicies.CreateForumPost)]
     [ProducesResponseType(typeof(CreateForumPostResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
@@ -172,7 +172,7 @@ public class ForumController : ApiController
     /// Delete forum post (Author or Admin only)
     /// </summary>
     [HttpDelete("topics/{topicId:int}/posts/{postId:int}")]
-    [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -192,7 +192,7 @@ public class ForumController : ApiController
     /// Edit forum post (Author or Admin only)
     /// </summary>
     [HttpPut("topics/{topicId:int}/posts/{postId:int}")]
-    [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
