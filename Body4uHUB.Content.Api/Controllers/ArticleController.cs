@@ -230,7 +230,7 @@ public class ArticleController : ApiController
     /// <summary>
     /// Delete a comment from an article (Author or Admin only)
     /// </summary>
-    [HttpDelete("{articleId}/comments/{commentId}")]
+    [HttpDelete("{articleId:int}/comments/{commentId:guid}")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
