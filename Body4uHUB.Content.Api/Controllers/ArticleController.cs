@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Content.Api.Models.Articles;
+﻿using Body4uHUB.Content.Api.Extensions;
+using Body4uHUB.Content.Api.Models.Articles;
 using Body4uHUB.Content.Application.Commands.Articles.Archive;
 using Body4uHUB.Content.Application.Commands.Articles.Create;
 using Body4uHUB.Content.Application.Commands.Articles.CreateComment;
@@ -17,6 +18,7 @@ using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Body4uHUB.Content.Api.Controllers;
 
@@ -173,11 +175,13 @@ public class ArticleController : ApiController
     /// </summary>
     [HttpPost("{articleId:int}/comments")]
     [Authorize]
+    [EnableRateLimiting(RateLimitPolicies.CreateComment)]
     [ProducesResponseType(typeof(CreateCommentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> AddComment(int articleId, [FromBody] CreateCommentRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateCommentCommand(request.Content, articleId, User.GetUserId(), request.ParentCommentId);

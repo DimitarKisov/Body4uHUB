@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddValidatedOptions<JwtSettings>(configuration, JwtSettings.SectionName);
         services.AddJwtAuthentication();
         services.AddAuthorizationPolicies();
+        services.AddRateLimitPolicies();
 
         return services;
     }
@@ -33,6 +34,19 @@ public static class ServiceCollectionExtensions
             .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["liveness"])
             .AddCheck<StartupHealthCheck>("startup", tags: ["startup"])
             .AddCheck<DatabaseReadinessHealthCheck>("sql-server", tags: ["readiness"]);
+
+        return services;
+    }
+
+    private static IServiceCollection AddRateLimitPolicies(this IServiceCollection services)
+    {
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            options.AddPerUserFixedWindowPolicy(RateLimitPolicies.CreateComment, permitLimit: 10, TimeSpan.FromMinutes(1));
+            options.AddPerUserFixedWindowPolicy(RateLimitPolicies.CreateForumPost, permitLimit: 10, TimeSpan.FromMinutes(1));
+        });
 
         return services;
     }

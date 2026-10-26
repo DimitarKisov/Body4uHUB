@@ -58,6 +58,7 @@ try
     app.UseCors();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseRateLimiter();
     app.MapControllers();
 
     app.MapHealthChecks("/health/startup", new HealthCheckOptions

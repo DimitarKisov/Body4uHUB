@@ -1,3 +1,4 @@
+using Body4uHUB.Content.Api.Extensions;
 using Body4uHUB.Content.Api.Models.Forum;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumPost;
 using Body4uHUB.Content.Application.Commands.Forum.CreateForumTopic;
@@ -16,6 +17,7 @@ using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Application.Commons;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Body4uHUB.Content.Api.Controllers;
 
@@ -150,12 +152,14 @@ public class ForumController : ApiController
     /// </summary>
     [HttpPost("topics/{topicId:int}/posts")]
     [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+    [EnableRateLimiting(RateLimitPolicies.CreateForumPost)]
     [ProducesResponseType(typeof(CreateForumPostResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> CreateForumPost(int topicId, [FromBody] CreateForumPostRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateForumPostCommand(request.Content, topicId, User.GetUserId());
