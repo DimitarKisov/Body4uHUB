@@ -40,7 +40,7 @@ public class ForumController : ApiController
         var command = new CreateForumTopicCommand(request.Title, User.GetUserId());
         var result = await Mediator.Send(command, cancellationToken);
 
-        return HandleCreatedResult(result, id => new { topicId = id });
+        return HandleCreatedResult(result, response => response);
     }
 
     /// <summary>
@@ -165,7 +165,7 @@ public class ForumController : ApiController
         var command = new CreateForumPostCommand(request.Content, topicId, User.GetUserId());
         var result = await Mediator.Send(command, cancellationToken);
 
-        return HandleCreatedResult(result, id => new { postId = id });
+        return HandleCreatedResult(result, response => response);
     }
 
     /// <summary>

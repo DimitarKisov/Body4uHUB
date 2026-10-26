@@ -27,7 +27,7 @@ public class BookmarkController : ApiController
         var command = new AddBookmarkCommand(User.GetUserId(), articleId);
 
         var result = await Mediator.Send(command, cancellationToken);
-        return HandleCreatedResult(result, id => new { bookmarkId = id });
+        return HandleCreatedResult(result, response => response);
     }
 
     /// <summary>

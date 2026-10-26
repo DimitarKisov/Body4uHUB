@@ -64,7 +64,7 @@ public class ArticleController : ApiController
 
         var result = await Mediator.Send(command, cancellationToken);
 
-        return HandleCreatedResult(result, id => new { articleId = id });
+        return HandleCreatedResult(result, response => response);
     }
 
     /// <summary>
@@ -204,7 +204,7 @@ public class ArticleController : ApiController
         var command = new CreateCommentCommand(request.Content, articleId, User.GetUserId(), request.ParentCommentId);
         var result = await Mediator.Send(command, cancellationToken);
 
-        return HandleCreatedResult(result, id => new { commentId = id });
+        return HandleCreatedResult(result, response => response);
     }
 
     /// <summary>
