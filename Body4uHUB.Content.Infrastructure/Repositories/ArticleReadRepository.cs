@@ -69,6 +69,34 @@ internal sealed class ArticleReadRepository(ContentDbContext dbContext) : IArtic
         return new PagedResult<ArticleSummaryDto>(items, totalCount, page, pageSize);
     }
 
+    // Every status except deleted, most recently changed first: the author's own working list.
+    public async Task<PagedResult<ArticleSummaryDto>> GetMyArticlesAsync(Guid authorId, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.Articles.Where(x => x.AuthorId == authorId && !x.IsDeleted);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(x => x.ModifiedAt ?? x.CreatedAt)
+            .ThenByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new ArticleSummaryDto(
+                x.Id,
+                x.Title,
+                x.Category.Name,
+                x.ReadingMinutes,
+                x.AuthorId,
+                x.Status.Name,
+                x.PublishedAt,
+                x.ViewCount,
+                x.CreatedAt,
+                x.ModifiedAt))
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<ArticleSummaryDto>(items, totalCount, page, pageSize);
+    }
+
     public async Task<GetArticleByIdResponse> GetWithCommentsByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Articles

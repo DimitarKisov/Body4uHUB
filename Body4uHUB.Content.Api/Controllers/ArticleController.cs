@@ -12,6 +12,7 @@ using Body4uHUB.Content.Application.DTOs;
 using Body4uHUB.Content.Application.Queries.Articles.GetAll;
 using Body4uHUB.Content.Application.Queries.Articles.GetAllByAuthor;
 using Body4uHUB.Content.Application.Queries.Articles.GetById;
+using Body4uHUB.Content.Application.Queries.Articles.GetMine;
 using Body4uHUB.Shared.Api;
 using Body4uHUB.Shared.Api.Extensions;
 using Body4uHUB.Shared.Application;
@@ -95,6 +96,22 @@ public class ArticleController : ApiController
     public async Task<IActionResult> GetArticlesByAuthor(Guid authorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var result = await Mediator.Send(new GetArticlesByAuthorQuery(authorId, page, pageSize), cancellationToken);
+
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Get the current user's articles in every status except deleted, most recently changed first (Trainers and Admins only)
+    /// </summary>
+    [HttpGet("mine")]
+    [Authorize(Policy = AuthorizationPolicies.TrainerOrAdmin)]
+    [ProducesResponseType(typeof(PagedResult<ArticleSummaryDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetMyArticles([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+    {
+        var result = await Mediator.Send(new GetMyArticlesQuery(User.GetUserId(), page, pageSize), cancellationToken);
 
         return HandleResult(result);
     }
