@@ -14,5 +14,6 @@ public record GetArticleByIdResponse(
     int ViewCount,
     DateTime CreatedAt,
     DateTime? ModifiedAt,
+    bool IsBookmarked,
     ICollection<CommentDto> Comments
 );

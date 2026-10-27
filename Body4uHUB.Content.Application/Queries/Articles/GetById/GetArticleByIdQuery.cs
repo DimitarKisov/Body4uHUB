@@ -15,11 +15,13 @@ public record GetArticleByIdQuery(int Id, AuthorizationContext AuthContext, stri
 internal sealed class GetArticleByIdQueryHandler(
     IArticleRepository articleRepository,
     IArticleReadRepository articleReadRepository,
+    IBookmarkRepository bookmarkRepository,
     IViewTracker viewTracker)
     : IRequestHandler<GetArticleByIdQuery, Result<GetArticleByIdResponse>>
 {
     private readonly IArticleRepository _articleRepository = articleRepository;
     private readonly IArticleReadRepository _articleReadRepository = articleReadRepository;
+    private readonly IBookmarkRepository _bookmarkRepository = bookmarkRepository;
     private readonly IViewTracker _viewTracker = viewTracker;
 
     public async Task<Result<GetArticleByIdResponse>> Handle(GetArticleByIdQuery request, CancellationToken cancellationToken)
@@ -47,7 +49,11 @@ internal sealed class GetArticleByIdQueryHandler(
             article = article with { ViewCount = article.ViewCount + 1 };
         }
 
-        return Result.Success(article with { Comments = VisibleComments(article.Comments) });
+        // Only a signed-in reader can have bookmarks; anonymous requests skip the query.
+        var isBookmarked = request.AuthContext is not null
+            && await _bookmarkRepository.ExistsAsync(request.AuthContext.CurrentUserId, request.Id, cancellationToken);
+
+        return Result.Success(article with { IsBookmarked = isBookmarked, Comments = VisibleComments(article.Comments) });
     }
 
     private static bool CanViewUnpublished(GetArticleByIdResponse article, AuthorizationContext authContext)

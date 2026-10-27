@@ -19,6 +19,7 @@ public class GetArticleByIdQueryHandlerTests
 
     private Mock<IArticleRepository> _articleRepository;
     private Mock<IArticleReadRepository> _articleReadRepository;
+    private Mock<IBookmarkRepository> _bookmarkRepository;
     private Mock<IViewTracker> _viewTracker;
     private GetArticleByIdQueryHandler _handler;
     private Guid _authorId;
@@ -28,8 +29,9 @@ public class GetArticleByIdQueryHandlerTests
     {
         _articleRepository = new Mock<IArticleRepository>();
         _articleReadRepository = new Mock<IArticleReadRepository>();
+        _bookmarkRepository = new Mock<IBookmarkRepository>();
         _viewTracker = new Mock<IViewTracker>();
-        _handler = new GetArticleByIdQueryHandler(_articleRepository.Object, _articleReadRepository.Object, _viewTracker.Object);
+        _handler = new GetArticleByIdQueryHandler(_articleRepository.Object, _articleReadRepository.Object, _bookmarkRepository.Object, _viewTracker.Object);
         _authorId = Guid.NewGuid();
 
         _articleRepository
@@ -51,7 +53,7 @@ public class GetArticleByIdQueryHandlerTests
         _articleReadRepository
             .Setup(x => x.GetWithCommentsByIdAsync(ArticleId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetArticleByIdResponse(
-                ArticleId, "Title", "Content", ArticleCategory.Training.Name, 1, _authorId, status.Name, null, ViewCount, DateTime.UtcNow, null, comments.ToList()));
+                ArticleId, "Title", "Content", ArticleCategory.Training.Name, 1, _authorId, status.Name, null, ViewCount, DateTime.UtcNow, null, false, comments.ToList()));
     }
 
     private Task<Result<GetArticleByIdResponse>> Send(AuthorizationContext authContext)
@@ -173,6 +175,42 @@ public class GetArticleByIdQueryHandlerTests
 
         Assert.That(result.Value.Comments.Single(x => x.Id == parent.Id).Content, Is.Null);
         Assert.That(parent.Content, Is.EqualTo(CommentContent));
+    }
+
+    [Test]
+    public async Task Handle_ShouldReturnIsBookmarkedTrue_WhenReaderBookmarkedTheArticle()
+    {
+        var readerId = Guid.NewGuid();
+        SetupArticle(ArticleStatus.Published);
+        _bookmarkRepository
+            .Setup(x => x.ExistsAsync(readerId, ArticleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var result = await Send(AuthorizationContext.Create(readerId, false));
+
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Value.IsBookmarked, Is.True);
+    }
+
+    [Test]
+    public async Task Handle_ShouldReturnIsBookmarkedFalse_WhenReaderHasNotBookmarkedTheArticle()
+    {
+        SetupArticle(ArticleStatus.Published);
+
+        var result = await Send(AuthorizationContext.Create(Guid.NewGuid(), false));
+
+        Assert.That(result.Value.IsBookmarked, Is.False);
+    }
+
+    [Test]
+    public async Task Handle_ShouldNotCheckBookmarks_WhenVisitorIsAnonymous()
+    {
+        SetupArticle(ArticleStatus.Published);
+
+        var result = await Send(null);
+
+        Assert.That(result.Value.IsBookmarked, Is.False);
+        _bookmarkRepository.Verify(x => x.ExistsAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     private static CommentDto Comment(bool deleted, CommentDto parent = null)

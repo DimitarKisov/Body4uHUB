@@ -113,6 +113,7 @@ internal sealed class ArticleReadRepository(ContentDbContext dbContext) : IArtic
                 x.ViewCount,
                 x.CreatedAt,
                 x.ModifiedAt,
+                false, // per user, set by GetArticleByIdQueryHandler
                 x.Comments
                     .OrderBy(y => y.CreatedAt)
                     .Select(y => new CommentDto(
