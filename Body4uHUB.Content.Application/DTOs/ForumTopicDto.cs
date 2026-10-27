@@ -5,6 +5,7 @@ public record ForumTopicDto(
     string Title,
     Guid AuthorId,
     bool IsLocked,
+    bool IsDeleted, // only an admin listing with includeDeleted=true has true here
     int ViewCount,
     int PostCount,
     DateTime CreatedAt,

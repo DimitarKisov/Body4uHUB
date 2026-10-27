@@ -28,6 +28,7 @@ internal sealed class ForumReadRepository(ContentDbContext dbContext)
                 x.Title,
                 x.AuthorId,
                 x.IsLocked,
+                x.IsDeleted,
                 x.ViewCount,
                 x.Posts.Count(p => !p.IsDeleted),
                 x.CreatedAt,
