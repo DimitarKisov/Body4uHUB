@@ -40,6 +40,7 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
                 .AddScoped<IUserReadRepository, UserReadRepository>()
                 .AddScoped<IRoleRepository, RoleRepository>()
                 .AddScoped<IRoleReadRepository, RoleReadRepository>()
+                .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>()
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<IDbInitializer, DbInitializer>()
                 .AddScoped<IEventBus, EventBus>();

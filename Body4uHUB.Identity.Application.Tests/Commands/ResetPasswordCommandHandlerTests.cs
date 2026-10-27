@@ -5,6 +5,7 @@ using Body4uHUB.Identity.Domain.Exceptions;
 using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Domain.Abstractions;
+using Body4uHUB.Identity.Application.Tests.Fakes;
 using Moq;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
@@ -22,6 +23,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
         private Mock<IUserRepository> _userRepository;
         private Mock<IPasswordHasherService> _passwordHasherService;
         private Mock<IUnitOfWork> _unitOfWork;
+        private Mock<IRefreshTokenRepository> _refreshTokenRepository;
         private User _user;
         private string _token;
 
@@ -33,6 +35,7 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             _userRepository = new Mock<IUserRepository>();
             _passwordHasherService = new Mock<IPasswordHasherService>();
             _unitOfWork = new Mock<IUnitOfWork>();
+            _refreshTokenRepository = Sessions.EmptyRepository();
 
             _user = User.Create(CurrentHash, "Test", "User", ValidEmail, "0884787878", DateTime.UtcNow);
             _user.ClearDomainEvents();
@@ -41,7 +44,8 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
 
             _passwordHasherService.Setup(x => x.HashPassword(NewPassword)).Returns(NewHash);
 
-            _handler = new ResetPasswordCommandHandler(_userRepository.Object, _passwordHasherService.Object, _unitOfWork.Object, TimeProvider.System);
+            _handler = new ResetPasswordCommandHandler(
+                _userRepository.Object, _passwordHasherService.Object, _refreshTokenRepository.Object, _unitOfWork.Object, TimeProvider.System);
         }
 
         [Test]
@@ -56,6 +60,21 @@ namespace Body4uHUB.Identity.Application.Tests.Commands
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(_user.PasswordHash, Is.EqualTo(NewHash));
             _unitOfWork.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Handle_ShouldEndEverySession_WhenPasswordIsReset()
+        {
+            _userRepository
+                .Setup(x => x.GetByEmailAsync(ValidEmail, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_user);
+            var sessions = new[] { Sessions.Active(_user.Id), Sessions.Active(_user.Id) };
+            _refreshTokenRepository.SetupActive(_user.Id, sessions);
+
+            var result = await _handler.Handle(new ResetPasswordCommand(ValidEmail, _token, NewPassword), CancellationToken.None);
+
+            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(sessions.Select(x => x.RevokedAt), Has.All.Not.Null);
         }
 
         [Test]

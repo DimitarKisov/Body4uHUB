@@ -1,3 +1,4 @@
+using Body4uHUB.Identity.Application.Services;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
@@ -13,12 +14,16 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
     internal sealed class DeleteTrainerCommandHandler(
         IUserRepository userRepository,
         IRoleRepository roleRepository,
-        IUnitOfWork unitOfWork)
+        IRefreshTokenRepository refreshTokenRepository,
+        IUnitOfWork unitOfWork,
+        TimeProvider timeProvider)
         : IRequestHandler<DeleteTrainerCommand, Result>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IRoleRepository _roleRepository = roleRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<Result> Handle(DeleteTrainerCommand request, CancellationToken cancellationToken)
         {
@@ -35,6 +40,9 @@ namespace Body4uHUB.Identity.Application.Commands.DeleteTrainer
             }
 
             user.RevokeTrainerRole(trainerRole);
+
+            // Roles live in the access token: sign the user out everywhere, so the next sign-in carries the new ones.
+            await _refreshTokenRepository.RevokeAllForUserAsync(user.Id, _timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

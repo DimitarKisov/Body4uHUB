@@ -1,6 +1,8 @@
 ﻿using Body4uHUB.Identity.Application.Commands.ConfirmEmail;
 using Body4uHUB.Identity.Application.Commands.ForgotPassword;
 using Body4uHUB.Identity.Application.Commands.Login;
+using Body4uHUB.Identity.Application.Commands.Logout;
+using Body4uHUB.Identity.Application.Commands.RefreshSession;
 using Body4uHUB.Identity.Application.Commands.Register;
 using Body4uHUB.Identity.Application.Commands.ResendEmailConfirmation;
 using Body4uHUB.Identity.Application.Commands.ResetPassword;
@@ -32,7 +34,8 @@ namespace Body4uHUB.Identity.Api.Controllers
 
 
         /// <summary>
-        /// Login with email and password
+        /// Login with email and password. The body has the access token; the refresh token is set as an HttpOnly cookie
+        /// (persistent with rememberMe, otherwise until the browser closes).
         /// </summary>
         [HttpPost("login")]
         [EnableRateLimiting(RateLimitPolicies.Login)]
@@ -44,6 +47,48 @@ namespace Body4uHUB.Identity.Api.Controllers
         public async Task<IActionResult> Login(LoginCommand command, CancellationToken cancellationToken)
         {
             var result = await Mediator.Send(command, cancellationToken);
+            if (result.IsSuccess)
+            {
+                RefreshTokenCookie.Write(Response, result.Value);
+            }
+
+            return HandleResult(result, session => ((AuthSession)session).Response);
+        }
+
+        /// <summary>
+        /// New access token from the refresh cookie (no body). Rotates the cookie and returns the user with current roles.
+        /// 401 when the cookie is missing, expired or revoked; reusing an already rotated token ends the whole session.
+        /// </summary>
+        [HttpPost("refresh")]
+        [EnableRateLimiting(RateLimitPolicies.Refresh)]
+        [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+        public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
+        {
+            var result = await Mediator.Send(new RefreshSessionCommand(RefreshTokenCookie.Read(Request)), cancellationToken);
+            if (result.IsSuccess)
+            {
+                RefreshTokenCookie.Write(Response, result.Value);
+            }
+            else
+            {
+                RefreshTokenCookie.Delete(Response);
+            }
+
+            return HandleResult(result, session => ((AuthSession)session).Response);
+        }
+
+        /// <summary>
+        /// End this device's session: revokes the refresh cookie's session and deletes the cookie. Always 204.
+        /// </summary>
+        [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+        {
+            var result = await Mediator.Send(new LogoutCommand(RefreshTokenCookie.Read(Request)), cancellationToken);
+            RefreshTokenCookie.Delete(Response);
+
             return HandleResult(result);
         }
 

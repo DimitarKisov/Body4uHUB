@@ -1,58 +1,65 @@
 ﻿using Body4uHUB.Identity.Application.DTOs;
-using Body4uHUB.Identity.Application.Mappings;
 using Body4uHUB.Identity.Application.Services;
+using Body4uHUB.Identity.Application.Settings;
+using Body4uHUB.Identity.Domain.Models;
 using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 using static Body4uHUB.Identity.Domain.Constants.ModelConstants.UserConstants;
 
 namespace Body4uHUB.Identity.Application.Commands.Login
 {
-    public record LoginCommand(string Email, string Password) : IRequest<Result<AuthResponseDto>>;
+    /// <param name="RememberMe">Keep the session across browser restarts (persistent refresh cookie).</param>
+    public record LoginCommand(string Email, string Password, bool RememberMe = false) : IRequest<Result<AuthSession>>;
 
     internal sealed class LoginCommandHandler(
         IUserRepository userRepository,
-        IRoleRepository roleRepository,
-        IJwtTokenService jwtTokenService,
+        IRefreshTokenRepository refreshTokenRepository,
+        AuthSessionFactory authSessionFactory,
         IPasswordHasherService passwordHasherService,
         IUnitOfWork unitOfWork,
+        IOptions<RefreshTokenSettings> refreshTokenSettings,
         TimeProvider timeProvider)
-        : IRequestHandler<LoginCommand, Result<AuthResponseDto>>
+        : IRequestHandler<LoginCommand, Result<AuthSession>>
     {
         private readonly IUserRepository _userRepository = userRepository;
-        private readonly IRoleRepository _roleRepository = roleRepository;
-        private readonly IJwtTokenService _jwtTokenService = jwtTokenService;
+        private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
+        private readonly AuthSessionFactory _authSessionFactory = authSessionFactory;
         private readonly IPasswordHasherService _passwordHasherService = passwordHasherService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly RefreshTokenSettings _refreshTokenSettings = refreshTokenSettings.Value;
         private readonly TimeProvider _timeProvider = timeProvider;
 
-        public async Task<Result<AuthResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AuthSession>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
             if (user == null || !_passwordHasherService.VerifyPassword(request.Password, user.PasswordHash))
             {
-                return Result.Unauthorized<AuthResponseDto>(InvalidCredentials);
+                return Result.Unauthorized<AuthSession>(InvalidCredentials);
             }
 
             if (!user.IsEmailConfirmed)
             {
-                return Result.Forbidden<AuthResponseDto>(EmailNotConfirmed);
+                return Result.Forbidden<AuthSession>(EmailNotConfirmed);
             }
 
-            var roleIds = user.Roles.Select(x => x.RoleId).ToList();
-            var roles = await _roleRepository.FindByIdsAsync(roleIds, cancellationToken);
+            var now = _timeProvider.GetUtcNow().UtcDateTime;
 
-            var accessToken = _jwtTokenService.GenerateAccessToken(user.Id, user.ContactInfo.Email, roles);
+            // Each sign-in starts its own session family, so signing in on another device does not end this one.
+            var refreshToken = RefreshToken.Issue(
+                user.Id, request.RememberMe, now, _refreshTokenSettings.Inactivity, _refreshTokenSettings.Lifetime, out var rawRefreshToken);
+            _refreshTokenRepository.Add(refreshToken);
 
-            user.UpdateLastLogin(_timeProvider.GetUtcNow().UtcDateTime);
+            user.UpdateLastLogin(now);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            var response = new AuthResponseDto(accessToken, user.ToDto(roles));
+            var session = await _authSessionFactory.CreateAsync(user, refreshToken, rawRefreshToken, cancellationToken);
 
-            return Result.Success(response);
+            return Result.Success(session);
         }
     }
 }

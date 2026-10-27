@@ -63,6 +63,9 @@ namespace Body4uHUB.Identity.Api.Extensions
 
                 // Anonymous and called on every content page; generous for browsing, but slows down harvesting names.
                 options.AddPerIpFixedWindowPolicy(RateLimitPolicies.PublicUsers, permitLimit: 60, TimeSpan.FromMinutes(1));
+
+                // A client refreshes about every 15 minutes per tab; this only stops a loop or token guessing.
+                options.AddPerIpFixedWindowPolicy(RateLimitPolicies.Refresh, permitLimit: 30, TimeSpan.FromMinutes(1));
             });
 
             return services;
@@ -73,6 +76,12 @@ namespace Body4uHUB.Identity.Api.Extensions
             services
                 .AddOptions<AppSettings>()
                 .Bind(configuration.GetSection(AppSettings.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services
+                .AddOptions<RefreshTokenSettings>()
+                .Bind(configuration.GetSection(RefreshTokenSettings.SectionName))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 

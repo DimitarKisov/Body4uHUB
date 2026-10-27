@@ -25,7 +25,7 @@ namespace Body4uHUB.Identity.Api.Controllers
     public class UserController : ApiController
     {
         /// <summary>
-        /// Change current user password
+        /// Change current user password. Ends every other session of the user; the one in the refresh cookie stays.
         /// </summary>
         [HttpPost("me/change-password")]
         [EnableRateLimiting(RateLimitPolicies.ChangePassword)]
@@ -40,7 +40,8 @@ namespace Body4uHUB.Identity.Api.Controllers
             var command = new ChangePasswordCommand(
                 User.GetUserId(),
                 request.CurrentPassword,
-                request.NewPassword);
+                request.NewPassword,
+                RefreshTokenCookie.Read(Request));
 
             var result = await Mediator.Send(command, cancellationToken);
             return HandleResult(result);

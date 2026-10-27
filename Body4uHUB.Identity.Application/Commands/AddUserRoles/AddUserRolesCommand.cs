@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Identity.Domain.Repositories;
+﻿using Body4uHUB.Identity.Application.Services;
+using Body4uHUB.Identity.Domain.Repositories;
 using Body4uHUB.Shared.Application;
 using Body4uHUB.Shared.Domain.Abstractions;
 using MediatR;
@@ -13,12 +14,16 @@ namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
     internal sealed class AddUserRolesCommandHandler(
         IUserRepository userRepository,
         IRoleRepository roleRepository,
-        IUnitOfWork unitOfWork)
+        IRefreshTokenRepository refreshTokenRepository,
+        IUnitOfWork unitOfWork,
+        TimeProvider timeProvider)
         : IRequestHandler<AddUserRolesCommand, Result>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IRoleRepository _roleRepository = roleRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<Result> Handle(AddUserRolesCommand request, CancellationToken cancellationToken)
         {
@@ -46,6 +51,9 @@ namespace Body4uHUB.Identity.Application.Commands.AddUserRoles
             {
                 user.AddRole(role);
             }
+
+            // Roles live in the access token: sign the user out everywhere, so the next sign-in carries the new ones.
+            await _refreshTokenRepository.RevokeAllForUserAsync(user.Id, _timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

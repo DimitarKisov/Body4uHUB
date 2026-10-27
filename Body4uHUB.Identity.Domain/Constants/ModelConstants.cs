@@ -45,6 +45,17 @@ public static class ModelConstants
         public const string UserNotFound = "User not found.";
     }
 
+    public static class RefreshTokenConstants
+    {
+        public const int TokenHashLength = 64; // SHA-256, hex
+        public const string CookieName = "b4u_refresh";
+        public const string CookiePath = "/api"; // also reaches /api/users/me/change-password, which keeps this session
+
+        public const string UserIdRequired = "User ID cannot be empty";
+        public const string RefreshTokenNotActive = "The refresh token is expired or revoked.";
+        public const string SessionInvalid = "The session is invalid or has expired.";
+    }
+
     public static class RoleConstants
     {
         public const int MinRoleNameLength = 2;

@@ -1,4 +1,5 @@
-﻿using Body4uHUB.Shared.Application.Behaviours;
+﻿using Body4uHUB.Identity.Application.Services;
+using Body4uHUB.Shared.Application.Behaviours;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,8 @@ namespace Body4uHUB.Identity.Application.Extensions
                 .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>))
                 .AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+            services.AddScoped<AuthSessionFactory>();
 
             services.TryAddSingleton(TimeProvider.System);
 
