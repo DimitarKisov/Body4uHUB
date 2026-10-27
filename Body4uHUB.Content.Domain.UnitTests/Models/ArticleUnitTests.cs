@@ -160,6 +160,40 @@ public class ArticleUnitTests
     }
 
     [Test]
+    public void DeleteComment_ShouldThrowInvalidArticleException_WhenArticleIsNotPublishedAndRequesterIsNotAdmin()
+    {
+        var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);
+        _article.Archive(_articleAuthorId, isAdmin: false);
+
+        var ex = Assert.Throws<InvalidArticleException>(() => _article.DeleteComment(commentId, _commentAuthorId, isAdmin: false));
+
+        Assert.That(ex.Error, Is.EqualTo(ArticleNotPublished));
+        Assert.That(_article.Comments.Single().IsDeleted, Is.False);
+    }
+
+    [Test]
+    public void DeleteComment_ShouldMarkCommentAsDeleted_WhenArticleIsNotPublishedAndRequesterIsAdmin()
+    {
+        var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);
+        _article.Archive(_articleAuthorId, isAdmin: false);
+
+        _article.DeleteComment(commentId, Guid.NewGuid(), isAdmin: true);
+
+        Assert.That(_article.Comments.Single().IsDeleted, Is.True);
+    }
+
+    [Test]
+    public void DeleteComment_ShouldThrowInvalidArticleException_WhenArticleIsDeleted()
+    {
+        var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);
+        _article.Delete(_articleAuthorId, isAdmin: false);
+
+        var ex = Assert.Throws<InvalidArticleException>(() => _article.DeleteComment(commentId, Guid.NewGuid(), isAdmin: true));
+
+        Assert.That(ex.Error, Is.EqualTo(ArticleAlreadyDeleted));
+    }
+
+    [Test]
     public void DeleteComment_ShouldThrowDomainAuthorizationException_WhenRequesterIsOnlyArticleAuthor()
     {
         var commentId = _article.AddComment(CommentContent, _commentAuthorId, null);

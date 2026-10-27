@@ -228,7 +228,7 @@ public class ArticleController : ApiController
     }
 
     /// <summary>
-    /// Delete a comment from an article (Author or Admin only)
+    /// Delete a comment from an article (Author or Admin only). On a draft or archived article only an admin; never on a deleted one (422).
     /// </summary>
     [HttpDelete("{articleId:int}/comments/{commentId:guid}")]
     [Authorize]

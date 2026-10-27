@@ -196,8 +196,20 @@ public class Article : AggregateRoot<int>
         comment.UpdateContent(content);
     }
 
+    // A draft or archived article is seen only by its author and admins, and its comments are read-only;
+    // only an admin may still remove one (moderation). A deleted article is seen by no one.
     public void DeleteComment(Guid commentId, Guid requesterId, bool isAdmin)
     {
+        if (IsDeleted)
+        {
+            throw new InvalidArticleException(ArticleAlreadyDeleted);
+        }
+
+        if (Status != ArticleStatus.Published && !isAdmin)
+        {
+            throw new InvalidArticleException(ArticleNotPublished);
+        }
+
         var comment = _comments.FirstOrDefault(x => x.Id == commentId);
 
         if (comment is null)
