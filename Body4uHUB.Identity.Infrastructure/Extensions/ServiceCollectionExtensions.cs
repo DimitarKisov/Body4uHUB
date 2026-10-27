@@ -56,6 +56,8 @@ namespace Body4uHUB.Identity.Infrastructure.Extensions
                 .AddSingleton<IJwtTokenService, JwtTokenService>()
                 .AddSingleton<IPasswordHasherService, PasswordHasherService>();
 
+            services.AddHostedService<RefreshTokenCleanupService>();
+
             services.AddMassTransitWithRabbitMq(configuration);
 
             return services;
